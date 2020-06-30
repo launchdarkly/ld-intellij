@@ -38,6 +38,8 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.10.0-RC1")
+    implementation("com.launchdarkly:api-client:3.1.0")
+    implementation(kotlin("reflect"))
 }
 
 // Configure gradle-intellij-plugin plugin.
@@ -52,7 +54,7 @@ intellij {
 //  Plugin Dependencies:
 //  https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_dependencies.html
 //
-//  setPlugins("java")
+    setPlugins("java")
 }
 
 // Configure detekt plugin.

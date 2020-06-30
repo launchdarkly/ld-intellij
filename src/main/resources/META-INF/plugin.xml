@@ -10,6 +10,10 @@
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="com.github.intheclouddan.intellijpluginld.services.MyApplicationService"/>
         <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.services.MyProjectService"/>
+        <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.FlagStore"/>
+        <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.LaunchDarklyConfig"/>
+        <completion.contributor language="JAVA" implementationClass="com.github.intheclouddan.intellijpluginld.codeInsight.JavaCompletionContributor" />
+
     </extensions>
 
     <projectListeners>
