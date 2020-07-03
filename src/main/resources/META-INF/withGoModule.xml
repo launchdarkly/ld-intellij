@@ -1,0 +1,5 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <completion.contributor language="any" implementationClass="com.github.intheclouddan.intellijpluginld.codeInsight.GoCompletionContributor" />
+    </extensions>
+</idea-plugin>

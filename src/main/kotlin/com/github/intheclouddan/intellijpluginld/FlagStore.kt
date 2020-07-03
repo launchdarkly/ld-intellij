@@ -1,8 +1,11 @@
 package com.github.intheclouddan.intellijpluginld
 
+import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
+import com.intellij.util.concurrency.EdtExecutorService
 import com.launchdarkly.api.model.FeatureFlags
+import java.util.concurrent.TimeUnit
 
 @Service
 class FlagStore(project: Project) {
@@ -16,9 +19,19 @@ class FlagStore(project: Project) {
 //    }
 
     init {
-        val settings = LaunchDarklyConfig.getInstance(project)
+        val settings = LaunchDarklyConfig.getInstance(project).ldState
         val getFlags = LaunchDarklyApiClient.flagInstance(project)
-        val envList = listOf("dano")
-        flags = getFlags.getFeatureFlags("support-service", envList, null, null, null, null, null, null, null)
+        //val envList = listOf("dano")
+        val envList = listOf(settings.environment)
+        var refreshRate: Long = settings.refreshRate.toLong()
+        val ldProject: String = settings.project
+        flags = getFlags.getFeatureFlags(ldProject, envList, null, null, null, null, null, null, null)
+        EdtExecutorService.getScheduledExecutorInstance().scheduleWithFixedDelay(object : Runnable {
+            override fun run() {
+                flags = getFlags.getFeatureFlags( ldProject, envList, null, null, null, null, null, null, null)
+            }
+
+        }, refreshRate, refreshRate, TimeUnit.MINUTES)
+
     }
 }

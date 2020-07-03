@@ -1,5 +1,6 @@
 package com.github.intheclouddan.intellijpluginld
 
+import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
 import com.launchdarkly.api.ApiClient
 import com.intellij.openapi.project.Project
 import com.launchdarkly.api.Configuration
@@ -15,6 +16,7 @@ class LaunchDarklyApiClient(project: Project) {
             val settings = LaunchDarklyConfig.getInstance(project)
             val client: ApiClient = Configuration.getDefaultApiClient()
             val token = client.getAuthentication("Token") as ApiKeyAuth
+            // Temporarily hard coded until handling secrets is implemented
             token.apiKey = "api-xxx"
 
             return FeatureFlagsApi()
