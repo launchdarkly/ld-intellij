@@ -1,6 +1,13 @@
 package com.github.intheclouddan.intellijpluginld.toolwindow
 
 import com.github.intheclouddan.intellijpluginld.FlagStore
+import com.github.intheclouddan.intellijpluginld.messaging.ConfigurationNotifier
+import com.github.intheclouddan.intellijpluginld.messaging.DefaultMessageBusService
+import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
+import com.github.intheclouddan.intellijpluginld.messaging.MessageBusService
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
@@ -17,10 +24,12 @@ import javax.swing.JPanel
 private const val SPLITTER_PROPERTY = "BuildAttribution.Splitter.Proportion"
 
 
-class FlagPanel(private val myProject: Project) : SimpleToolWindowPanel(false, false), Disposable {
+class FlagPanel(private val myProject: Project, messageBusService: MessageBusService) : SimpleToolWindowPanel(false, false), Disposable {
     private fun createTreeStructure(): SimpleTreeStructure {
         val getFlags = myProject.service<FlagStore>()
-        val rootNode = RootNode(getFlags.flags)
+        val settings = LaunchDarklyConfig.getInstance(myProject)
+
+        val rootNode = RootNode(getFlags.flags, settings)
         return FlagTreeStructure(myProject, rootNode)
     }
 
@@ -34,7 +43,7 @@ class FlagPanel(private val myProject: Project) : SimpleToolWindowPanel(false, f
         return tree
     }
 
-    init {
+    fun start() {
         val treeStucture = createTreeStructure()
         val treeModel = StructureTreeModel(treeStucture, this)
 
@@ -48,5 +57,22 @@ class FlagPanel(private val myProject: Project) : SimpleToolWindowPanel(false, f
             add(ScrollPaneFactory.createScrollPane(tree, SideBorder.NONE), "Tree")
         }
         setContent(componentsSplitter)
+    }
+
+    init {
+        myProject.messageBus.connect().subscribe(messageBusService.configurationEnabledTopic,
+                object : ConfigurationNotifier {
+                    override fun notify(isConfigured: Boolean) {
+                        println("notified")
+                        if (isConfigured) {
+                            start()
+                        } else {
+                            println("notified")
+                            val notification = Notification("ProjectOpenNotification", "LaunchDarkly",
+                            String.format("LaunchDarkly Plugin is not configured"), NotificationType.WARNING);
+                            notification.notify(myProject);
+                        }
+                    }
+                })
     }
 }

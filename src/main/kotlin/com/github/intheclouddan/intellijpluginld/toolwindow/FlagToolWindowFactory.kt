@@ -9,7 +9,6 @@ import com.intellij.openapi.wm.ToolWindowFactory
 class FlagToolWindowFactory : ToolWindowFactory {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val flagExplorer = FlagToolWindow.getInstance(project)
-        val settings = LaunchDarklyConfig.getInstance(project)
 
         flagExplorer.initializePanel(toolWindow)
 

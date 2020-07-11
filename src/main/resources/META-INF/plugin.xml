@@ -10,11 +10,15 @@
     <depends optional="true" config-file="withGoModule.xml">org.jetbrains.plugins.go</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <lang.documentationProvider order="FIRST" language="any" implementationClass="com.github.intheclouddan.intellijpluginld.LDDocumentationProvider"/>
         <applicationService serviceImplementation="com.github.intheclouddan.intellijpluginld.services.MyApplicationService"/>
         <projectConfigurable instance="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfigurable" displayName="LaunchDarkly Plugin" id="launchdarkly.settings"/>
         <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.services.MyProjectService"/>
         <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.FlagStore"/>
         <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig"/>
+        <projectService serviceInterface="com.github.intheclouddan.intellijpluginld.messaging.MessageBusService"
+                            serviceImplementation="com.github.intheclouddan.intellijpluginld.messaging.DefaultMessageBusService"
+                            />
         <completion.contributor language="JAVA" implementationClass="com.github.intheclouddan.intellijpluginld.codeInsight.JavaCompletionContributor" />
         <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindow"/>
         <toolWindow id="LaunchDarkly Flags" icon="/icons/flag.svg" anchor="right"
