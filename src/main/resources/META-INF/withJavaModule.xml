@@ -1,0 +1,6 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <lang.documentationProvider order="FIRST" language="JAVA" implementationClass="com.github.intheclouddan.intellijpluginld.LDDocumentationProvider"/>
+        <completion.contributor language="JAVA" implementationClass="com.github.intheclouddan.intellijpluginld.codeInsight.JavaCompletionContributor" />
+    </extensions>
+</idea-plugin>

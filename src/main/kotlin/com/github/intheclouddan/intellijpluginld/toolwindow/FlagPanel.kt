@@ -2,7 +2,7 @@ package com.github.intheclouddan.intellijpluginld.toolwindow
 
 import com.github.intheclouddan.intellijpluginld.FlagStore
 import com.github.intheclouddan.intellijpluginld.messaging.ConfigurationNotifier
-import com.github.intheclouddan.intellijpluginld.messaging.DefaultMessageBusService
+import com.github.intheclouddan.intellijpluginld.messaging.FlagNotifier
 import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
 import com.github.intheclouddan.intellijpluginld.messaging.MessageBusService
 import com.intellij.notification.Notification;
@@ -25,10 +25,12 @@ private const val SPLITTER_PROPERTY = "BuildAttribution.Splitter.Proportion"
 
 
 class FlagPanel(private val myProject: Project, messageBusService: MessageBusService) : SimpleToolWindowPanel(false, false), Disposable {
+    val settings = LaunchDarklyConfig.getInstance(myProject)
+
     private fun createTreeStructure(): SimpleTreeStructure {
         val getFlags = myProject.service<FlagStore>()
-        val settings = LaunchDarklyConfig.getInstance(myProject)
-
+        //val settings = LaunchDarklyConfig.getInstance(myProject)
+        println(getFlags.flags)
         val rootNode = RootNode(getFlags.flags, settings)
         return FlagTreeStructure(myProject, rootNode)
     }
@@ -60,19 +62,27 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
     }
 
     init {
-        myProject.messageBus.connect().subscribe(messageBusService.configurationEnabledTopic,
-                object : ConfigurationNotifier {
-                    override fun notify(isConfigured: Boolean) {
-                        println("notified")
-                        if (isConfigured) {
-                            start()
-                        } else {
-                            println("notified")
-                            val notification = Notification("ProjectOpenNotification", "LaunchDarkly",
-                            String.format("LaunchDarkly Plugin is not configured"), NotificationType.WARNING);
-                            notification.notify(myProject);
+        if (settings.isConfigured()) {
+            start()
+        }
+        try {
+            myProject.messageBus.connect().subscribe(messageBusService.flagsUpdatedTopic,
+                    object : FlagNotifier {
+                        override fun notify(isConfigured: Boolean) {
+                            println("notified For Flags")
+                            if (isConfigured) {
+                                start()
+                            } else {
+                                println("notified")
+                                val notification = Notification("ProjectOpenNotification", "LaunchDarkly",
+                                        String.format("LaunchDarkly Plugin is not configured"), NotificationType.WARNING);
+                                notification.notify(myProject);
+                            }
                         }
-                    }
-                })
+                    })
+        } catch(err: Error) {
+            println(err)
+            println("something went wrong")
+        }
     }
 }

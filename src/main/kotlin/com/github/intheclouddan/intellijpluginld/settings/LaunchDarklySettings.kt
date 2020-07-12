@@ -26,17 +26,15 @@ import javax.swing.JPasswordField
 
 
 @State(name = "LaunchDarklyConfig", storages = [Storage("launchdarkly.xml")])
-open class LaunchDarklyConfig : PersistentStateComponent<LaunchDarklyConfig.ConfigState> {
+open class LaunchDarklyConfig (project: Project): PersistentStateComponent<LaunchDarklyConfig.ConfigState> {
     var ldState: ConfigState = ConfigState()
+    val project: Project = project
 
     companion object {
         fun getInstance(project: Project): LaunchDarklyConfig {
             return ServiceManager.getService(project, LaunchDarklyConfig::class.java)
         }
     }
-
-
-
 
     override fun getState(): ConfigState {
         return ldState
@@ -48,23 +46,28 @@ open class LaunchDarklyConfig : PersistentStateComponent<LaunchDarklyConfig.Conf
 
     // Not in working state.
     fun isConfigured(): Boolean {
-        if(ldState.project == "" || ldState.environment == "" || ldState.apiKey == "") {
+        if(ldState.project == "" || ldState.environment == "" || ldState.authorization == "") {
+            println(ldState)
             return false
         }
         return true
     }
 
+    fun credentialNamespace(): String {
+        val CRED_NAMESPACE = "launchdarkly-intellij"
+        println(project.name)
+        return CRED_NAMESPACE + "-" + project.name
+    }
 
-    class ConfigState {
+    inner class ConfigState {
         private val key = "apiKey"
         private val credentialAttributes: CredentialAttributes =
                 CredentialAttributes(generateServiceName(
-                        "launchdarkly-intellij",
+                        credentialNamespace(),
                         key
                 ))
         var project = ""
         var environment = ""
-        var apiKey = ""
         var refreshRate: Int = 120
         var authorization: String
             get() = PasswordSafe.instance.getPassword(credentialAttributes) ?: ""
@@ -78,60 +81,64 @@ open class LaunchDarklyConfig : PersistentStateComponent<LaunchDarklyConfig.Conf
 class LaunchDarklyConfigurable(private val project: Project): BoundConfigurable(displayName = "LaunchDarkly Plugin") {
     private val settings = LaunchDarklyConfig.getInstance(project).ldState
     private val messageBusService = project.service<DefaultMessageBusService>()
+    private var modified = false
 
     private val apiField = JPasswordField()
     val projectApi = LaunchDarklyApiClient.projectInstance(project)
+    val environmentApi = LaunchDarklyApiClient.environmentInstance(project)
+
     lateinit var projectContainer: MutableList<com.launchdarkly.api.model.Project>
+    lateinit var environmentContainer: com.launchdarkly.api.model.Project
+
     val origProject = settings.project
     val origEnv = settings.environment
     val origApiKey = settings.authorization
-    //private val panel = JPanel()
+    private var panel = JPanel()
     private lateinit var projectBox: DefaultComboBoxModel<String>
+    private lateinit var environmentBox: DefaultComboBoxModel<String>
 
     //private var comboBox = ComboBox()()
 
     init {
         try {
             projectContainer = projectApi.projects.items
+            if (projectContainer != null) {
+                environmentContainer = projectContainer.find { it.key == settings.project }!!
+            }
         } catch(err: ApiException) {
             println(err)
         }
     }
 
     override fun createPanel(): DialogPanel {
-        var panel = panel {
+        panel = panel {
 
             row("API Key:") { apiField().withTextBinding(PropertyBinding({ settings.authorization }, { settings.authorization = it })) }
-            row("Environment:") { textField(settings::environment) }
+            //row("Environment:") { textField(settings::environment) }
 
             //row("Refresh Rate(in Minutes):") { intTextField(settings::refreshRate, 0, 0..1440) }
-        }
-        if (::projectContainer.isInitialized && projectContainer != null) {
-            projectBox = DefaultComboBoxModel<String>(projectContainer.map { it -> it.key }.toTypedArray())
 
-            panel.add(panel {
-                row("Test") {
+            if (::projectContainer.isInitialized && projectContainer != null) {
+                projectBox = DefaultComboBoxModel<String>(projectContainer.map { it -> it.key }.toTypedArray())
+                row("Project") {
                     comboBox(projectBox, settings::project, renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
                         label.text = value
                     })
                 }
-            })
-//            panel.add(panel {
-//                row("Test") {
-//                    comboBox(DefaultComboBoxModel<String>(projectContainer.map { it -> it.key }.toTypedArray()), settings::project)
-//                }
-//            })
+            }
+
+            if (::environmentContainer.isInitialized) {
+                println(environmentContainer)
+                environmentBox = DefaultComboBoxModel<String>(environmentContainer.environments.map { it -> it.key }.toTypedArray())
+
+                row("Environments:") {
+                    comboBox(environmentBox, settings::environment, renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
+                        label.text = value
+                    })
+                }
+            }
         }
-//                    comboBox(DefaultComboBoxModel<String>(projectContainer.map { it -> it.key}.toTypedArray()), settings::project, renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
-//                    label.text =
-//                }
-
-                //row("Projects:") { comboBox(projectContainer.map { it -> it.key}.toTypedArray()).selectedItem("default") }
-//            })
-//        }
-        //row("Environment:") { textField(settings::environment) }
-
-        return panel
+        return panel as DialogPanel
     }
 
 //    override fun updatePanel(): DialogPanel {
@@ -144,39 +151,50 @@ class LaunchDarklyConfigurable(private val project: Project): BoundConfigurable(
 //    }
 
     override fun isModified(): Boolean {
-        var modified: Boolean = false
         if(settings.authorization != origApiKey) {
             try {
                 projectContainer = projectApi.projects.items
-                createPanel()
                 println("modified")
                 println(settings.project)
                 println(projectBox.selectedItem.toString())
+                panel.repaint()
             } catch(err: Error) {
                 println(err)
             }
         }
-        if (settings.project != projectBox.selectedItem.toString()) {
+        if(settings.project != projectBox.selectedItem.toString()) {
+            try {
+                environmentContainer = projectContainer.find { it.key == projectBox.selectedItem.toString() }!!
+                environmentBox.removeAllElements()
+                environmentBox.selectedItem = environmentContainer.environments.map { it -> it.key }.firstOrNull()
+                environmentBox.addAll(environmentContainer.environments.map { it -> it.key })
+                panel.repaint()
+                println("modified environment")
+            } catch(err: Error) {
+                println(err)
+            }
+        }
+
+        if (settings.project != projectBox.selectedItem.toString() || settings.environment != environmentBox.selectedItem.toString() ) {
             modified = true
         }
         val sup = super.isModified()
-        return modified
+        return modified || sup
     }
-    override fun apply() {
-        println("New Project: ${settings.project}")
-        println("Original Project: ${origProject}")
-        println(settings.project)
-        println(projectBox.selectedItem.toString())
-        if (settings.project != projectBox.selectedItem.toString()) {
-            settings.project = projectBox.selectedItem.toString()
-        }
 
+    override fun apply() {
         super.apply()
-        if (settings.project != projectBox.selectedItem.toString() || settings.environment != origEnv || settings.authorization != origApiKey) {
+        if (modified == true) {
             val publisher = project.messageBus.syncPublisher(messageBusService.configurationEnabledTopic)
             publisher.notify(true)
             println("notifying")
         }
+
+        if (settings.project != projectBox.selectedItem.toString()) {
+            settings.project = projectBox.selectedItem.toString()
+        }
+
+
 
     }
 

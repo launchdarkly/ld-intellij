@@ -6,11 +6,10 @@
     <!-- Product and plugin compatibility requirements -->
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.modules.java</depends>
+    <depends config-file="withJavaModule.xml">com.intellij.modules.java</depends>
     <depends optional="true" config-file="withGoModule.xml">org.jetbrains.plugins.go</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <lang.documentationProvider order="FIRST" language="any" implementationClass="com.github.intheclouddan.intellijpluginld.LDDocumentationProvider"/>
         <applicationService serviceImplementation="com.github.intheclouddan.intellijpluginld.services.MyApplicationService"/>
         <projectConfigurable instance="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfigurable" displayName="LaunchDarkly Plugin" id="launchdarkly.settings"/>
         <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.services.MyProjectService"/>
@@ -19,7 +18,6 @@
         <projectService serviceInterface="com.github.intheclouddan.intellijpluginld.messaging.MessageBusService"
                             serviceImplementation="com.github.intheclouddan.intellijpluginld.messaging.DefaultMessageBusService"
                             />
-        <completion.contributor language="JAVA" implementationClass="com.github.intheclouddan.intellijpluginld.codeInsight.JavaCompletionContributor" />
         <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindow"/>
         <toolWindow id="LaunchDarkly Flags" icon="/icons/flag.svg" anchor="right"
                     factoryClass="com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindowFactory"/>

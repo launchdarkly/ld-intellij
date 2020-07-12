@@ -13,6 +13,9 @@ interface MessageBusService {
     val messageBus: MessageBus
 
     val configurationEnabledTopic: Topic<ConfigurationNotifier>
+
+    val flagsUpdatedTopic: Topic<FlagNotifier>
+
 }
 
 @Service
@@ -22,5 +25,10 @@ class DefaultMessageBusService : MessageBusService {
     override val configurationEnabledTopic: Topic<ConfigurationNotifier> = Topic.create(
             "LD_CONFIGURATION",
             ConfigurationNotifier::class.java
+    )
+
+    override val flagsUpdatedTopic: Topic<FlagNotifier> = Topic.create(
+            "LD_FLAGS_UPDATED",
+            FlagNotifier::class.java
     )
 }

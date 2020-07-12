@@ -4,6 +4,7 @@ import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
 import com.launchdarkly.api.ApiClient
 import com.intellij.openapi.project.Project
 import com.launchdarkly.api.Configuration
+import com.launchdarkly.api.api.EnvironmentsApi
 import com.launchdarkly.api.api.FeatureFlagsApi
 import com.launchdarkly.api.api.ProjectsApi
 import com.launchdarkly.api.auth.ApiKeyAuth
@@ -29,6 +30,13 @@ class LaunchDarklyApiClient(project: Project) {
             val token = client.getAuthentication("Token") as ApiKeyAuth
             token.apiKey = settings.ldState.authorization
             return ProjectsApi()
+        }
+        fun environmentInstance(project: Project): EnvironmentsApi {
+            val settings = LaunchDarklyConfig.getInstance(project)
+            val client: ApiClient = Configuration.getDefaultApiClient()
+            val token = client.getAuthentication("Token") as ApiKeyAuth
+            token.apiKey = settings.ldState.authorization
+            return EnvironmentsApi()
         }
     }
 
