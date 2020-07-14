@@ -1,12 +1,12 @@
 package com.github.intheclouddan.intellijpluginld.messaging
 
-import com.intellij.util.messages.Topic
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.util.messages.MessageBus
+import com.intellij.util.messages.Topic
 
 interface ConfigurationNotifier {
-    fun notify(value: Boolean)
+    fun notify(isConfigured: Boolean)
 }
 
 interface MessageBusService {

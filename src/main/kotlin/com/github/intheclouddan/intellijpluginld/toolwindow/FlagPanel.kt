@@ -1,13 +1,11 @@
 package com.github.intheclouddan.intellijpluginld.toolwindow
 
 import com.github.intheclouddan.intellijpluginld.FlagStore
-import com.github.intheclouddan.intellijpluginld.messaging.ConfigurationNotifier
 import com.github.intheclouddan.intellijpluginld.messaging.FlagNotifier
-import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
 import com.github.intheclouddan.intellijpluginld.messaging.MessageBusService
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-
+import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
@@ -25,7 +23,7 @@ private const val SPLITTER_PROPERTY = "BuildAttribution.Splitter.Proportion"
 
 
 class FlagPanel(private val myProject: Project, messageBusService: MessageBusService) : SimpleToolWindowPanel(false, false), Disposable {
-    val settings = LaunchDarklyConfig.getInstance(myProject)
+    private val settings = LaunchDarklyConfig.getInstance(myProject)
 
     private fun createTreeStructure(): SimpleTreeStructure {
         val getFlags = myProject.service<FlagStore>()
@@ -80,7 +78,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                             }
                         }
                     })
-        } catch(err: Error) {
+        } catch (err: Error) {
             println(err)
             println("something went wrong")
         }

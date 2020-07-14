@@ -10,19 +10,16 @@ import com.intellij.util.concurrency.EdtExecutorService
 import com.launchdarkly.api.model.FeatureFlags
 import java.util.concurrent.TimeUnit
 
+/*
+ * Instance to provide other classes access to LaunchDarkly Flag Metadata.
+ * Handles refreshing of the flags.
+ */
 @Service
 class FlagStore(project: Project) {
-    //private val myProject: Project
     var flags: FeatureFlags
     private val messageBusService = project.service<DefaultMessageBusService>()
 
-//    fun someServiceMethod(parameter: String?) {
-//        val anotherService: AnotherService = myProject.getService(AnotherService::class.java)
-//        val result: String = anotherService.anotherServiceMethod(parameter, false)
-//        // do some more stuff
-//    }
-
-    fun flags (project: Project, settings: LaunchDarklyConfig.ConfigState): FeatureFlags {
+    fun flags(project: Project, settings: LaunchDarklyConfig.ConfigState): FeatureFlags {
         val envList = listOf(settings.environment)
         val ldProject: String = settings.project
         println(envList)
@@ -32,14 +29,14 @@ class FlagStore(project: Project) {
     }
 
     fun flagsNotify(project: Project, settings: LaunchDarklyConfig.ConfigState): FeatureFlags {
-            val publisher = project.messageBus.syncPublisher(messageBusService.flagsUpdatedTopic)
-            flags = flags(project, settings)
-            println(flags)
-            publisher.notify(true)
-            println("notifying Flags")
+        val publisher = project.messageBus.syncPublisher(messageBusService.flagsUpdatedTopic)
+        flags = flags(project, settings)
+        println(flags)
+        publisher.notify(true)
+        println("notifying Flags")
 
-            return flags
-        }
+        return flags
+    }
 
     init {
         val settings = LaunchDarklyConfig.getInstance(project).ldState
