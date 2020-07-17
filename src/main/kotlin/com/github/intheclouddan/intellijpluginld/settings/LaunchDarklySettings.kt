@@ -44,7 +44,6 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
     // Not in working state.
     fun isConfigured(): Boolean {
         if (ldState.project == "" || ldState.environment == "" || ldState.authorization == "") {
-            println(ldState)
             return false
         }
         return true
@@ -53,7 +52,6 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
 
     fun credentialNamespace(): String {
         val CRED_NAMESPACE = "launchdarkly-intellij"
-        println(project.name)
         return CRED_NAMESPACE + "-" + project.name
     }
 
@@ -99,7 +97,6 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
     init {
         try {
             projectContainer = projectApi.projects.items
-            println(projectContainer)
             if (projectContainer.size > 0) {
                 environmentContainer = projectContainer.find { it.key == settings.project }
                         ?: projectContainer.firstOrNull() as com.launchdarkly.api.model.Project
@@ -115,7 +112,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
             row("API Key:") { apiField().withTextBinding(PropertyBinding({ settings.authorization }, { settings.authorization = it })) }
             //row("Refresh Rate(in Minutes):") { intTextField(settings::refreshRate, 0, 0..1440) }
 
-            if (::projectContainer.isInitialized && projectContainer != null) {
+            if (::projectContainer.isInitialized) {
                 projectBox = DefaultComboBoxModel<String>(projectContainer.map { it -> it.key }.toTypedArray())
             } else {
                 projectBox = DefaultComboBoxModel<String>(arrayOf(defaultMessage))
@@ -127,7 +124,6 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
             }
 
             if (::environmentContainer.isInitialized) {
-                println(environmentContainer)
                 environmentBox = DefaultComboBoxModel<String>(environmentContainer.environments.map { it -> it.key }.toTypedArray())
             } else {
                 environmentBox = DefaultComboBoxModel<String>(arrayOf("Please select a Project"))
@@ -142,10 +138,8 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
     }
 
     override fun isModified(): Boolean {
-        var latestProject = projectBox.selectedItem.toString()
         if (settings.authorization != origApiKey && !apiUpdate) {
             try {
-                println("getting projects")
                 projectContainer = LaunchDarklyApiClient.projectInstance(project, settings.authorization).projects.items
                 projectBox.removeAllElements()
                 if (projectBox.selectedItem == null || projectBox.selectedItem.toString() == "Check API Key") {
@@ -166,7 +160,6 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                     environmentBox.removeAllElements()
                     environmentBox.addAll(envMap)
                     if (environmentBox.selectedItem == null || environmentBox.selectedItem.toString() == "Please select a Project") {
-                        println(environmentBox.selectedItem)
                         environmentBox.selectedItem = envMap.firstOrNull()
                     }
 

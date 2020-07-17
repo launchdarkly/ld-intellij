@@ -31,10 +31,7 @@ class FlagStore(project: Project) {
     fun flagsNotify(project: Project, settings: LaunchDarklyConfig.ConfigState): FeatureFlags {
         val publisher = project.messageBus.syncPublisher(messageBusService.flagsUpdatedTopic)
         flags = flags(project, settings)
-        println(flags)
         publisher.notify(true)
-        println("notifying Flags")
-
         return flags
     }
 

@@ -2,7 +2,6 @@ package com.github.intheclouddan.intellijpluginld.codeInsight
 
 import com.github.intheclouddan.intellijpluginld.FlagStore
 import com.github.intheclouddan.intellijpluginld.LDIcons
-import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
 import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.components.Service
@@ -13,6 +12,7 @@ import com.intellij.patterns.PsiJavaPatterns.psiLiteral
 import com.intellij.patterns.PsiJavaPatterns.psiMethod
 import com.intellij.psi.JavaTokenType
 import com.intellij.util.ProcessingContext
+import org.json.simple.JSONObject
 
 @Service
 class JavaCompletionContributor : CompletionContributor() {
@@ -22,11 +22,6 @@ class JavaCompletionContributor : CompletionContributor() {
 //        val elem = parameters.originalFile.findElementAt(caretOffset)
 //        println(elem)
 //        super.fillCompletionVariants(parameters, result)
-//    }
-//
-//    private fun parseValue(json: String): LDValue? {
-//        val gson = Gson()
-//        return gson.fromJson(json, LDValue::class.java)
 //    }
 
     companion object {
@@ -76,7 +71,7 @@ class JavaCompletionContributor : CompletionContributor() {
 
     init {
         extend(CompletionType.BASIC,
-                psiElement().andOr(FLAG_KEY_BOOL,FLAG_KEY_BOOL_DETAILS),
+                psiElement().andOr(FLAG_KEY_BOOL, FLAG_KEY_BOOL_DETAILS),
                 object : CompletionProvider<CompletionParameters>() {
                     override fun addCompletions(parameters: CompletionParameters,
                                                 context: ProcessingContext,
@@ -113,54 +108,25 @@ class JavaCompletionContributor : CompletionContributor() {
                     }
                 }
         )
-//        extend(CompletionType.BASIC,
-//                psiElement().andOr(FLAG_KEY_JSON, FLAG_KEY_JSON_DETAILS),
-//                object : CompletionProvider<CompletionParameters>() {
-//                    override fun addCompletions(parameters: CompletionParameters,
-//                                                context: ProcessingContext,
-//                                                resultSet: CompletionResultSet) {
-//                        val project = parameters.originalFile.project
-//                        val getFlags = project.service<FlagStore>()
-//                        for (flag in getFlags.flags.items) {
-//                            try {
-////                                println(parseValue(flag.variations[0].value as String))
-//
-//                                if (flag.kind == "multivariate" && flag.variations[0].value is String) {
-//                                    val gson = Gson()
-//                                    val blah = gson.fromJson(flag.variations[0].value as String, String)
-//                                    var builder: LookupElementBuilder = LookupElementBuilder.create(flag.key)
-//                                            .withTypeText(flag.description)
-//                                            .withIcon(LDIcons.FLAG)
-//                                    resultSet.addElement(builder)
-//                                }
-//                            } catch(err: Error) {
-//                                continue
-//                            }
-//                        }
-//                    }
-//                }
-//        )
         extend(CompletionType.BASIC,
-                FLAG_DEFAULT,
+                psiElement().andOr(FLAG_KEY_JSON, FLAG_KEY_JSON_DETAILS),
                 object : CompletionProvider<CompletionParameters>() {
                     override fun addCompletions(parameters: CompletionParameters,
                                                 context: ProcessingContext,
                                                 resultSet: CompletionResultSet) {
                         val project = parameters.originalFile.project
-                        val settings = LaunchDarklyConfig.getInstance(project)
                         val getFlags = project.service<FlagStore>()
-                        val caretOffset: Int = parameters.editor.getCaretModel().getOffset()
-                        val elem = parameters.originalFile.findElementAt(caretOffset)
-                        val parent = elem?.parent
-                        parent?.let {
-                            println(it)
+                        for (flag in getFlags.flags.items) {
+                            if (flag.kind == "multivariate" && flag.variations[0].value is JSONObject) {
+                                var builder: LookupElementBuilder = LookupElementBuilder.create(flag.key)
+                                        .withTypeText(flag.description)
+                                        .withIcon(LDIcons.FLAG)
+                                resultSet.addElement(builder)
+                            }
                         }
-                        val filteredFlag = getFlags.flags.items.filter { it.key == "navbar" }
-                        val flag = filteredFlag[0]
-                        resultSet.addElement(LookupElementBuilder.create("true").withIcon(LDIcons.OFF_VARIATION))
                     }
-
                 }
         )
+
     }
 }
