@@ -10,6 +10,16 @@ import com.launchdarkly.api.model.FeatureFlag
 class LDDocumentationProvider() : AbstractDocumentationProvider() {
 
     override fun getUrlFor(element: PsiElement?, originalElement: PsiElement?): List<String>? {
+        if (element == null) {
+            return null
+        }
+        val getFlags = element.project.service<FlagStore>()
+        val flag: FeatureFlag? = getFlags.flags.items.find { it.key == element.text.drop(1).dropLast(1) }
+
+        if (flag != null) {
+            return listOf(flag!!.links!!.self.href)
+        }
+
         return null
     }
 
@@ -21,17 +31,23 @@ class LDDocumentationProvider() : AbstractDocumentationProvider() {
         val flag: FeatureFlag? = getFlags.flags.items.find { it.key == element.text.drop(1).dropLast(1) }
 
         if (flag != null) {
-            val flagKey = element.text.drop(1).dropLast(1)
-
-            //val flag: FeatureFlag? = getFlags.flags.items.find { it.key == flagKey }
-
             val result = StringBuilder()
             result.append("<html>")
-            result.append("<h2>${flag.name ?: flag.key}</h2>")
             result.append("<pre>")
-            result.append("LaunchDarkly Feature Flag")
+            result.append("LaunchDarkly Feature Flag * ${flag.name ?: flag.key}")
             result.append("</pre>")
-            result.append("${flag.description}")
+            //result.append("Enabled: ${flag.environments[settings.environment]!!.isOn}")
+            result.append("<b>${flag.description}</b>")
+            result.append("<b>Variations</b>")
+            flag.variations.map {
+                if (it.name != "") {
+                    result.append("<p>Name: ${it.name ?: ""}</p>")
+                }
+                if (it.description != "") {
+                    result.append("<p>Description: ${it.description ?: ""}</p>")
+                }
+                result.append("<p>Value: ${it.value}</p>")
+            }
             result.append("</html>")
 
             return result.toString()

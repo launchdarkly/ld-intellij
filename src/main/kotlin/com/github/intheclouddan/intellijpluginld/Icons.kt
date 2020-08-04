@@ -8,6 +8,7 @@ class LDIcons {
         val FLAG = IconLoader.getIcon("/icons/flag.svg")
         val FLAG_KEY = IconLoader.getIcon("/icons/flagKey.svg")
         val OFF_VARIATION = IconLoader.getIcon("/icons/offVariation.svg")
+        val PREREQUISITE = IconLoader.getIcon("/icons/prereq.svg")
         val TAGS = IconLoader.getIcon("/icons/tags.svg")
         val TOGGLE_OFF = IconLoader.getIcon("/icons/toggleoff.svg")
         val TOGGLE_ON = IconLoader.getIcon("/icons/toggleon.svg")

@@ -29,4 +29,20 @@
         <listener class="com.github.intheclouddan.intellijpluginld.listeners.MyProjectManagerListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </projectListeners>
+
+    <actions>
+        <!-- CustomDefaultActionGroup demonstrates declaring an action group based on a ActionGroup class supplied by this plugin.
+         This group is to be inserted atop the Editor Popup Menu. It declares one action in the group. -->
+        <group id="com.github.intheclouddan.intellijpluginld.action.CustomDefaultActionGroup"
+               class="com.github.intheclouddan.intellijpluginld.action.CustomDefaultActionGroup" popup="true"
+               text="Popup Grouped Actions" description="Custom defaultActionGroup demo">
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+            <action id="com.github.intheclouddan.intellijpluginld.action.PopupDialogAction"
+                    class="com.github.intheclouddan.intellijpluginld.action.PopupDialogAction"
+                    text="Pop a Dialog" description="SDK PyCharm basics example" icon="AllIcons.Actions.Refresh">
+            </action>
+        </group>
+
+    </actions>
+
 </idea-plugin>

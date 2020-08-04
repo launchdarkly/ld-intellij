@@ -43,6 +43,7 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation("com.launchdarkly:launchdarkly-java-server-sdk:5.+")
     implementation("com.google.code.gson:gson:2.7")
+    implementation("org.apache.logging.log4j", "log4j-slf4j-impl", "2.13.3")
 }
 
 // Configure gradle-intellij-plugin plugin.

@@ -1,12 +1,16 @@
 package com.github.intheclouddan.intellijpluginld.toolwindow
 
 import com.github.intheclouddan.intellijpluginld.FlagStore
+import com.github.intheclouddan.intellijpluginld.action.PopupDialogAction
 import com.github.intheclouddan.intellijpluginld.messaging.FlagNotifier
 import com.github.intheclouddan.intellijpluginld.messaging.MessageBusService
 import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionToolbar
+import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
@@ -19,16 +23,18 @@ import com.intellij.util.ui.tree.TreeUtil
 import java.awt.CardLayout
 import javax.swing.JPanel
 
+
 private const val SPLITTER_PROPERTY = "BuildAttribution.Splitter.Proportion"
 
-
+/*
+ * FlagPanel renders the ToolWindow Flag Treeview and associated action buttons.
+ */
 class FlagPanel(private val myProject: Project, messageBusService: MessageBusService) : SimpleToolWindowPanel(false, false), Disposable {
     private val settings = LaunchDarklyConfig.getInstance(myProject)
 
     private fun createTreeStructure(): SimpleTreeStructure {
         val getFlags = myProject.service<FlagStore>()
         //val settings = LaunchDarklyConfig.getInstance(myProject)
-        println(getFlags.flags)
         val rootNode = RootNode(getFlags.flags, settings)
         return FlagTreeStructure(myProject, rootNode)
     }
@@ -57,6 +63,11 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
             add(ScrollPaneFactory.createScrollPane(tree, SideBorder.NONE), "Tree")
         }
         setContent(componentsSplitter)
+        val actionManager: ActionManager = ActionManager.getInstance()
+        val actionGroup = DefaultActionGroup()
+        actionGroup.addAction(PopupDialogAction())
+        val actionToolbar: ActionToolbar = actionManager.createActionToolbar("ACTION_TOOLBAR", actionGroup, true)
+        setToolbar(actionToolbar.component)
     }
 
     init {
