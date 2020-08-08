@@ -1,6 +1,7 @@
 package com.github.intheclouddan.intellijpluginld.toolwindow
 
 import com.github.intheclouddan.intellijpluginld.LDIcons
+import com.github.intheclouddan.intellijpluginld.featurestore.FlagConfiguration
 import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
 import com.intellij.ide.projectView.PresentationData
 import com.intellij.ui.treeStructure.SimpleNode
@@ -8,15 +9,16 @@ import com.launchdarkly.api.model.*
 import java.util.*
 import javax.swing.Icon
 
-class RootNode(flags: FeatureFlags, settings: LaunchDarklyConfig) : SimpleNode() {
+class RootNode(flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>, settings: LaunchDarklyConfig) : SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
     private val flags = flags
+    private val flagConfigs = flagConfigs
     private val settings = settings
 
     override fun getChildren(): Array<SimpleNode> {
         if (myChildren.isEmpty() && flags.items != null) {
             for (flag in flags.items) {
-                myChildren.add(FlagNodeParent(flag, settings, flags))
+                myChildren.add(FlagNodeParent(flag, settings, flags, flagConfigs))
             }
         } else {
             myChildren.add(FlagNodeBase("LaunchDarkly Plugin is not configurable properly."))
@@ -30,33 +32,36 @@ class RootNode(flags: FeatureFlags, settings: LaunchDarklyConfig) : SimpleNode()
 
 }
 
-class FlagNodeParent(flag: FeatureFlag, settings: LaunchDarklyConfig, flags: FeatureFlags) : SimpleNode() {
+class FlagNodeParent(flag: FeatureFlag, settings: LaunchDarklyConfig, flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>) : SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
     val flag: FeatureFlag = flag
     val flags = flags
+    val flagConfigs = flagConfigs
     val settings = settings
 
 
     override fun getChildren(): Array<SimpleNode> {
-        val env = flag.environments[settings.ldState.environment]!!
+        val env = flagConfigs[flag.key]!!
         if (myChildren.isEmpty()) {
             myChildren.add(FlagNodeBase("Key: ${flag.key}", LDIcons.FLAG_KEY))
             if (flag.description != "") {
                 myChildren.add(FlagNodeBase("Description: ${flag.description}", LDIcons.DESCRIPTION))
             }
             myChildren.add(FlagNodeVariations(flag))
+
             var enabledIcon: Icon
-            if (env.isOn) {
+            if (env.on) {
                 enabledIcon = LDIcons.TOGGLE_ON
             } else {
                 enabledIcon = LDIcons.TOGGLE_OFF
             }
-            myChildren.add(FlagNodeBase("Enabled: ${flag.environments[settings.ldState.environment]!!.isOn}", enabledIcon))
+
+            myChildren.add(FlagNodeBase("Enabled: ${env.on}", enabledIcon))
             if (env.prerequisites.size > 0) {
                 myChildren.add(FlagNodePrerequisites(flag, env.prerequisites, flags))
             }
             if (env.fallthrough != null) {
-                myChildren.add(FlagNodeFallthrough(flag))
+                myChildren.add(FlagNodeFallthrough(flag, env))
             }
             if (env.offVariation != null) {
                 myChildren.add(FlagNodeBase("Off Variation: ${flag.variations[env.offVariation].name ?: flag.variations[env.offVariation].value}", LDIcons.OFF_VARIATION))
@@ -152,23 +157,24 @@ class FlagNodeTags(tags: List<String>) : SimpleNode() {
     }
 }
 
-class FlagNodeFallthrough(flag: FeatureFlag) : SimpleNode() {
+class FlagNodeFallthrough(flag: FeatureFlag, flagConfig: FlagConfiguration) : SimpleNode() {
     val flag = flag
+    val flagConfig = flagConfig
     private var myChildren: MutableList<SimpleNode> = ArrayList()
     val env = flag.environments.keys.first()
 
     override fun getChildren(): Array<SimpleNode> {
-        if (flag.environments[env]!!.fallthrough.variation != null) {
+        if (flagConfig.fallthrough.variation != null) {
             return SimpleNode.NO_CHILDREN
         }
-        myChildren.add(FlagNodeRollout(flag.environments[env]!!.fallthrough.rollout, flag.variations))
+        myChildren.add(FlagNodeRollout(flagConfig.fallthrough.rollout, flag.variations))
         return myChildren.toTypedArray()
     }
 
     override fun update(data: PresentationData) {
         var label: String
-        if (flag.environments[env]!!.fallthrough.variation != null) {
-            label = "Fallthrough: ${flag.variations[flag.environments[env]!!.fallthrough.variation].name ?: flag.variations[flag.environments[env]!!.fallthrough.variation].value}"
+        if (flagConfig.fallthrough.variation != null) {
+            label = "Fallthrough: ${flag.variations[flagConfig.fallthrough.variation].name ?: flag.variations[flagConfig.fallthrough.variation].value}"
         } else {
             label = "Fallthrough"
         }

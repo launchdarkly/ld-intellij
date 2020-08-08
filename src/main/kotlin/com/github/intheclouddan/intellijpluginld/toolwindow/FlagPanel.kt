@@ -34,8 +34,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
 
     private fun createTreeStructure(): SimpleTreeStructure {
         val getFlags = myProject.service<FlagStore>()
-        //val settings = LaunchDarklyConfig.getInstance(myProject)
-        val rootNode = RootNode(getFlags.flags, settings)
+        val rootNode = RootNode(getFlags.flags, getFlags.flagConfigs, settings)
         return FlagTreeStructure(myProject, rootNode)
     }
 
@@ -80,6 +79,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                         override fun notify(isConfigured: Boolean) {
                             println("notified For Flags")
                             if (isConfigured) {
+                                println("rendering")
                                 start()
                             } else {
                                 println("notified")
