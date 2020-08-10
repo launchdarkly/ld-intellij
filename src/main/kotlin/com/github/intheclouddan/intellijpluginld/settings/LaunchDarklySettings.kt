@@ -160,10 +160,13 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                     environmentBox.removeAllElements()
                     environmentBox.addAll(envMap)
                     if (environmentBox.selectedItem == null || environmentBox.selectedItem.toString() == "Please select a Project") {
+			if (settings.environment != "") {
+				environmentBox.selectedItem = settings.environment
+			} else {
                         environmentBox.selectedItem = envMap.firstOrNull()
-                    }
-
-                }
+                    	}
+		    }
+		}
                 lastSelectedProject = projectBox.selectedItem.toString()
             } catch (err: Error) {
                 println(err)

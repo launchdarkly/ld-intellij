@@ -38,10 +38,10 @@ class FlagNodeParent(flag: FeatureFlag, settings: LaunchDarklyConfig, flags: Fea
     val flags = flags
     val flagConfigs = flagConfigs
     val settings = settings
+    val env = flagConfigs[flag.key]!!
 
 
     override fun getChildren(): Array<SimpleNode> {
-        val env = flagConfigs[flag.key]!!
         if (myChildren.isEmpty()) {
             myChildren.add(FlagNodeBase("Key: ${flag.key}", LDIcons.FLAG_KEY))
             if (flag.description != "") {
@@ -78,9 +78,15 @@ class FlagNodeParent(flag: FeatureFlag, settings: LaunchDarklyConfig, flags: Fea
 
     override fun update(data: PresentationData) {
         super.update(data)
+        var enabledIcon: Icon
+        if (env.on) {
+            enabledIcon = LDIcons.TOGGLE_ON
+        } else {
+            enabledIcon = LDIcons.TOGGLE_OFF
+        }
         val label = flag.name ?: flag.key
         data.setPresentableText(label)
-        data.setIcon(LDIcons.FLAG)
+        data.setIcon(enabledIcon)
     }
 }
 

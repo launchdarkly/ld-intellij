@@ -25,21 +25,34 @@ import java.util.concurrent.TimeUnit
 
 /*
  * Instance to provide other classes access to LaunchDarkly Flag Metadata.
- * Handles refreshing of the flags.
+ * Handles refreshing of the flags and notifying attached listeners of changes.
  */
 @Service
 class FlagStore(project: Project) {
     var flags: FeatureFlags
     val messageBusService = project.service<DefaultMessageBusService>()
     var flagConfigs = emptyMap<String, FlagConfiguration>()
-    fun flags(project: Project, settings: LaunchDarklyConfig.ConfigState): FeatureFlags {
+
+    // Get latest flags via REST API.
+    /**
+     * This method is gets the latest flags via REST API.
+     * @param project the Intellij project open
+     * @param settings  LaunchDarkly settings
+     * @return FeatureFlags returns the flags, filtered to a specific environment, with summary true.
+     */
+    private fun flags(project: Project, settings: LaunchDarklyConfig.ConfigState): FeatureFlags {
         val envList = listOf(settings.environment)
         val ldProject: String = settings.project
         val getFlags = LaunchDarklyApiClient.flagInstance(project)
         return getFlags.getFeatureFlags(ldProject, envList, true, null, null, null, null, null, null)
     }
 
-    // Get latest flags and notify listeners that they have been updated.
+    /**
+     * This method wraps {@link #flags} and notifies attached listeners.
+     * @param project the Intellij project open
+     * @param settings  LaunchDarkly settings
+     * @return FeatureFlags returns the flags, filtered to a specific environment, with summary true.
+     */
     fun flagsNotify(project: Project, settings: LaunchDarklyConfig.ConfigState): FeatureFlags {
         val publisher = project.messageBus.syncPublisher(messageBusService.flagsUpdatedTopic)
         flags = flags(project, settings)
@@ -47,8 +60,14 @@ class FlagStore(project: Project) {
         return flags
     }
 
-    // Subscribe to LD SDK Flag Listeners to update and notify other parts of plugin on flag change.
-    fun flagListener(project: Project, client: com.launchdarkly.sdk.server.LDClient, store: DataStore) {
+    /**
+     * This method creates a flag listener for the LD Java Server SDK and notifies attached listeners of changes.
+     * @param project the Intellij project open
+     * @param client  {link #com.launchdarkly.sdk.server.LDClient}
+     * @param store  {link #com.launchdarkly.sdk.server.interfaces.DataStore}
+
+     */
+    private fun flagListener(project: Project, client: com.launchdarkly.sdk.server.LDClient, store: DataStore) {
         println("listener added")
         val listenForChanges = FlagChangeListener { event ->
             println("flag changed ${event.key}")
@@ -59,14 +78,15 @@ class FlagStore(project: Project) {
         client.getFlagTracker().addFlagChangeListener(listenForChanges)
     }
 
-    // Convert the internal SDK representation to JSON to be used in plugin.
+    /*
+     * Convert the internal SDK representation to JSON to be used in plugin.
+     */
     fun flagTargeting(store: DataStore) {
         val g = Gson()
         val flagTargetingJson: String = getFlagsAsJSONStrings(store!!)!!.joinToString(prefix = "[", postfix = "]")
         val listflagTargetingJson = object : TypeToken<List<FlagConfiguration>>() {}.type
         val flagList = g.fromJson<List<FlagConfiguration>>(flagTargetingJson, listflagTargetingJson)
         flagConfigs = flagList.associateBy { it.key }
-        //println(flagConfigs)
     }
 
     init {

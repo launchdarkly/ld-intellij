@@ -37,10 +37,14 @@
                class="com.github.intheclouddan.intellijpluginld.action.CustomDefaultActionGroup" popup="true"
                text="Popup Grouped Actions" description="Custom defaultActionGroup demo">
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
-            <action id="com.github.intheclouddan.intellijpluginld.action.PopupDialogAction"
-                    class="com.github.intheclouddan.intellijpluginld.action.PopupDialogAction"
-                    text="Pop a Dialog" description="SDK PyCharm basics example" icon="AllIcons.Actions.Refresh">
+            <action id="com.github.intheclouddan.intellijpluginld.action.RefreshAction"
+                    class="com.github.intheclouddan.intellijpluginld.action.RefreshAction"
+                    text="Refresh Flags" description="Refresh Flags" icon="AllIcons.Actions.Refresh">
             </action>
+            <!-- <action id="com.github.intheclouddan.intellijpluginld.action.CopyKeyAction"
+                     class="com.github.intheclouddan.intellijpluginld.action.CopyKeyAction"
+                     text="Copy Flag Key" description="Copy Flag Key to Clipboard" icon="AllIcons.Actions.Copy">
+             </action> -->
         </group>
 
     </actions>

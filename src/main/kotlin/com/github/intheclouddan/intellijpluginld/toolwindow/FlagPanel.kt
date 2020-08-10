@@ -1,7 +1,7 @@
 package com.github.intheclouddan.intellijpluginld.toolwindow
 
 import com.github.intheclouddan.intellijpluginld.FlagStore
-import com.github.intheclouddan.intellijpluginld.action.PopupDialogAction
+import com.github.intheclouddan.intellijpluginld.action.RefreshAction
 import com.github.intheclouddan.intellijpluginld.messaging.FlagNotifier
 import com.github.intheclouddan.intellijpluginld.messaging.MessageBusService
 import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
@@ -9,6 +9,7 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.ActionToolbar
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.components.service
@@ -64,9 +65,21 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         setContent(componentsSplitter)
         val actionManager: ActionManager = ActionManager.getInstance()
         val actionGroup = DefaultActionGroup()
-        actionGroup.addAction(PopupDialogAction())
+        actionGroup.addAction(RefreshAction())
         val actionToolbar: ActionToolbar = actionManager.createActionToolbar("ACTION_TOOLBAR", actionGroup, true)
         setToolbar(actionToolbar.component)
+        val refreshAction = actionManager.getAction(RefreshAction.ID)
+        println(refreshAction)
+
+        PopupHandler.installPopupHandler(
+                tree,
+                actionGroup.apply {
+                    add(refreshAction)
+                },
+                ActionPlaces.POPUP,
+                ActionManager.getInstance()
+        )
+
     }
 
     init {
@@ -77,12 +90,9 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
             myProject.messageBus.connect().subscribe(messageBusService.flagsUpdatedTopic,
                     object : FlagNotifier {
                         override fun notify(isConfigured: Boolean) {
-                            println("notified For Flags")
                             if (isConfigured) {
-                                println("rendering")
                                 start()
                             } else {
-                                println("notified")
                                 val notification = Notification("ProjectOpenNotification", "LaunchDarkly",
                                         String.format("LaunchDarkly Plugin is not configured"), NotificationType.WARNING);
                                 notification.notify(myProject);

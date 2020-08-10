@@ -1,10 +1,10 @@
 package com.github.intheclouddan.intellijpluginld.action
 
-import com.github.intheclouddan.intellijpluginld.FlagStore
-import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.components.service
+import java.awt.Toolkit
+import java.awt.datatransfer.Clipboard
+import java.awt.datatransfer.StringSelection
 import javax.swing.Icon
 
 
@@ -14,7 +14,7 @@ import javax.swing.Icon
  * Typically this class is instantiated by the IntelliJ Platform framework based on declarations
  * in the plugin.xml file. But when added at runtime this class is instantiated by an action group.
  */
-class RefreshAction : AnAction {
+class CopyKeyAction : AnAction {
     /**
      * This default constructor is used by the IntelliJ Platform framework to
      * instantiate this class based on plugin.xml declarations. Only needed in PopupDialogAction
@@ -24,7 +24,7 @@ class RefreshAction : AnAction {
     constructor() : super() {}
 
     companion object {
-        const val ID = "com.github.intheclouddan.intellijpluginld.action.RefreshAction"
+        const val ID = "com.github.intheclouddan.intellijpluginld.action.CopyKeyAction"
     }
 
     /**
@@ -35,7 +35,7 @@ class RefreshAction : AnAction {
      * @param description  The description of the menu item.
      * @param icon  The icon to be used with the menu item.
      */
-    constructor(text: String? = "Refresh", description: String?, icon: Icon?) : super(text, description, icon) {
+    constructor(text: String? = "Copy Key", description: String?, icon: Icon?) : super(text, description, icon) {
     }
 
     /**
@@ -45,11 +45,11 @@ class RefreshAction : AnAction {
      * @param event Event received when the associated menu item is chosen.
      */
     override fun actionPerformed(event: AnActionEvent) {
-        // Using the event, create and show a dialog
-        val currentProject = event.project
-        val settings = LaunchDarklyConfig.getInstance(currentProject!!).ldState
-        val flags = currentProject!!.service<FlagStore>()
-        flags.flagsNotify(currentProject, settings)
+        // from string to clipboard
+        // from string to clipboard
+        val selection = StringSelection("hi")
+        val clipboard: Clipboard = Toolkit.getDefaultToolkit().getSystemClipboard()
+        clipboard.setContents(selection, selection)
     }
 
     /**
@@ -59,6 +59,7 @@ class RefreshAction : AnAction {
      */
     override fun update(e: AnActionEvent) {
         // Set the availability based on whether a project is open
+        println(e.dataContext)
         val project = e.project
         e.presentation.isEnabledAndVisible = project != null
     }
