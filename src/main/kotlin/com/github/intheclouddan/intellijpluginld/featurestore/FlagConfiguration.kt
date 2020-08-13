@@ -5,8 +5,8 @@ import com.launchdarkly.api.model.Prerequisite
 
 data class FlagConfiguration(
         val key: String,
-        var offVariation: Int,
-        var fallthrough: Fallthrough,
+        var offVariation: Int?,
+        var fallthrough: Fallthrough?,
         var prerequisites: List<Prerequisite>,
         var targets: Any,
         var rules: Array<Any>,

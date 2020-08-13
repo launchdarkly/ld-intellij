@@ -1,5 +1,6 @@
 package com.github.intheclouddan.intellijpluginld
 
+import com.github.intheclouddan.intellijpluginld.featurestore.FlagConfiguration
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
@@ -29,8 +30,8 @@ class LDDocumentationProvider() : AbstractDocumentationProvider() {
         }
         val getFlags = element.project.service<FlagStore>()
         val flag: FeatureFlag? = getFlags.flags.items.find { it.key == element.text.drop(1).dropLast(1) }
-
         if (flag != null) {
+            val env: FlagConfiguration = getFlags.flagConfigs.get(element.text.drop(1).dropLast(1))!!
             val result = StringBuilder()
             result.append("<html>")
             result.append("<pre>")

@@ -44,6 +44,12 @@ dependencies {
     implementation("com.launchdarkly:launchdarkly-java-server-sdk:5.+")
     implementation("com.google.code.gson:gson:2.7")
     implementation("org.apache.logging.log4j", "log4j-slf4j-impl", "2.13.3")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
+
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
 
 // Configure gradle-intellij-plugin plugin.

@@ -1,8 +1,6 @@
 package com.github.intheclouddan.intellijpluginld.toolwindow
 
-import com.github.intheclouddan.intellijpluginld.FlagStore
 import com.github.intheclouddan.intellijpluginld.messaging.DefaultMessageBusService
-import com.github.intheclouddan.intellijpluginld.messaging.MessageBusService
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.components.service
@@ -27,6 +25,9 @@ class FlagToolWindow(project: Project) : DumbAware, Disposable {
         toolWindow.contentManager.addContent(content)
     }
 
+    fun getPanel(): FlagPanel {
+        return flagPanel
+    }
 
     companion object {
         fun getInstance(project: Project): FlagToolWindow = ServiceManager.getService(project, FlagToolWindow::class.java)

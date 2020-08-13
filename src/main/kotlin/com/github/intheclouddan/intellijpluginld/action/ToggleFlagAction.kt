@@ -1,18 +1,17 @@
 package com.github.intheclouddan.intellijpluginld.action
 
+import com.github.intheclouddan.intellijpluginld.LaunchDarklyApiClient
+import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
+import com.github.intheclouddan.intellijpluginld.toolwindow.FlagNodeParent
 import com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindow
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
-import java.awt.Toolkit
-import java.awt.datatransfer.Clipboard
-import java.awt.datatransfer.StringSelection
+import com.launchdarkly.api.ApiException
+import com.launchdarkly.api.model.PatchComment
+import com.launchdarkly.api.model.PatchOperation
 import javax.swing.Icon
 import javax.swing.tree.DefaultMutableTreeNode
-
-
-const val FLAG_NAME_DEPTH = 1
-const val FLAG_NAME_PATH = 2
 
 /**
  * Action class to demonstrate how to interact with the IntelliJ Platform.
@@ -20,7 +19,7 @@ const val FLAG_NAME_PATH = 2
  * Typically this class is instantiated by the IntelliJ Platform framework based on declarations
  * in the plugin.xml file. But when added at runtime this class is instantiated by an action group.
  */
-class CopyKeyAction : AnAction {
+class ToggleFlagAction : AnAction {
     /**
      * This default constructor is used by the IntelliJ Platform framework to
      * instantiate this class based on plugin.xml declarations. Only needed in PopupDialogAction
@@ -30,7 +29,7 @@ class CopyKeyAction : AnAction {
     constructor() : super() {}
 
     companion object {
-        const val ID = "com.github.intheclouddan.intellijpluginld.action.CopyKeyAction"
+        const val ID = "com.github.intheclouddan.intellijpluginld.action.ToggleFlagAction"
     }
 
     /**
@@ -41,7 +40,7 @@ class CopyKeyAction : AnAction {
      * @param description  The description of the menu item.
      * @param icon  The icon to be used with the menu item.
      */
-    constructor(text: String? = "Copy Key", description: String?, icon: Icon?) : super(text, description, icon) {
+    constructor(text: String?, description: String?, icon: Icon?) : super(text, description, icon) {
     }
 
     /**
@@ -51,23 +50,25 @@ class CopyKeyAction : AnAction {
      * @param event Event received when the associated menu item is chosen.
      */
     override fun actionPerformed(event: AnActionEvent) {
-        // from string to clipboard
-        // from string to clipboard
         val project = event.project
-        var selection = StringSelection("")
         if (project != null) {
             val selectedNode = project.service<FlagToolWindow>().getPanel()?.tree?.lastSelectedPathComponent as DefaultMutableTreeNode
-            //selectedNode.
-            if (selectedNode != null) {
-                println(selectedNode.depth)
-                if (selectedNode.childCount == 0 && selectedNode.toString().startsWith("Key:")) {
-                    selection = StringSelection(selectedNode.toString().substringAfter(" "))
-                } else if (selectedNode.depth == FLAG_NAME_DEPTH) {
-                    println(selectedNode.firstChild.toString().substringAfter(" "))
-                    selection = StringSelection(selectedNode.firstChild.toString().substringAfter(" "))
-                }
-                val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
-                clipboard.setContents(selection, selection)
+            val nodeInfo: FlagNodeParent = selectedNode.userObject as FlagNodeParent
+            // Relies on implicit behavior of key being first child.
+            val flagKey = selectedNode.firstChild.toString().substringAfter(" ")
+            val settings = LaunchDarklyConfig.getInstance(project).ldState
+            val patchComment = PatchComment()
+            val patch = PatchOperation()
+            patch.op = "replace"
+            patch.path = "/environments/" + settings.environment + "/on"
+            patch.value = !nodeInfo.env.on
+            patchComment.patch = listOf<PatchOperation>(patch)
+            val ldFlag = LaunchDarklyApiClient.flagInstance(project)
+            try {
+                ldFlag.patchFeatureFlag(settings.project, flagKey, patchComment)
+            } catch (e: ApiException) {
+                System.err.println("Exception when calling FeatureFlagsApi#patchFeatureFlag")
+                e.printStackTrace()
             }
         }
     }
@@ -81,12 +82,14 @@ class CopyKeyAction : AnAction {
         super.update(e)
         val project = e.project
         if (project != null) {
-            if (project.service<FlagToolWindow>().getPanel()?.tree?.lastSelectedPathComponent != null) {
-                val selectedNode = project.service<FlagToolWindow>().getPanel()?.tree?.lastSelectedPathComponent.toString()
-                e.presentation.isEnabledAndVisible = e.presentation.isEnabled && (selectedNode.startsWith("Key:") || project.service<FlagToolWindow>().getPanel()?.tree?.selectionPath.path.size == FLAG_NAME_PATH)
+            if (project.service<FlagToolWindow>().getPanel()?.tree?.selectionPath != null) {
+                val nodePath = project.service<FlagToolWindow>().getPanel()?.tree?.selectionPath.path
+                if (nodePath != null && nodePath.size == FLAG_NAME_PATH) {
+                    e.presentation.isEnabledAndVisible = e.presentation.isEnabled
+                }
+            } else {
+                e.presentation.isEnabledAndVisible = false
             }
-        } else {
-            e.presentation.isEnabledAndVisible = false
         }
     }
 }

@@ -58,8 +58,18 @@ class RefreshAction : AnAction {
      * @param e Event received when the associated group-id menu is chosen.
      */
     override fun update(e: AnActionEvent) {
-        // Set the availability based on whether a project is open
+        super.update(e)
         val project = e.project
-        e.presentation.isEnabledAndVisible = project != null
+        if (project != null) {
+//            val selectedNode = project.service<FlagToolWindow>().getPanel()?.tree?.lastSelectedPathComponent.toString()
+//            if (selectedNode != null) {
+//                println(selectedNode)
+//                println(selectedNode.startsWith("Key:"))
+//                e.presentation.isEnabled = e.presentation.isEnabled && selectedNode.startsWith("Key:")
+//            }
+            e.presentation.isEnabledAndVisible = true
+        } else {
+            e.presentation.isEnabledAndVisible = false
+        }
     }
 }

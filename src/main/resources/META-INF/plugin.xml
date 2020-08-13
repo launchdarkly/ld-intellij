@@ -14,7 +14,6 @@
                 serviceImplementation="com.github.intheclouddan.intellijpluginld.services.MyApplicationService"/>
         <projectConfigurable instance="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfigurable"
                              displayName="LaunchDarkly Plugin" id="launchdarkly.settings"/>
-        <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.services.MyProjectService"/>
         <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.FlagStore"/>
         <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig"/>
         <projectService serviceInterface="com.github.intheclouddan.intellijpluginld.messaging.MessageBusService"
@@ -25,28 +24,27 @@
                     factoryClass="com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindowFactory"/>
     </extensions>
 
-    <projectListeners>
-        <listener class="com.github.intheclouddan.intellijpluginld.listeners.MyProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-    </projectListeners>
 
     <actions>
         <!-- CustomDefaultActionGroup demonstrates declaring an action group based on a ActionGroup class supplied by this plugin.
          This group is to be inserted atop the Editor Popup Menu. It declares one action in the group. -->
-        <group id="com.github.intheclouddan.intellijpluginld.action.CustomDefaultActionGroup"
-               class="com.github.intheclouddan.intellijpluginld.action.CustomDefaultActionGroup" popup="true"
-               text="Popup Grouped Actions" description="Custom defaultActionGroup demo">
-            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
-            <action id="com.github.intheclouddan.intellijpluginld.action.RefreshAction"
-                    class="com.github.intheclouddan.intellijpluginld.action.RefreshAction"
-                    text="Refresh Flags" description="Refresh Flags" icon="AllIcons.Actions.Refresh">
-            </action>
-            <!-- <action id="com.github.intheclouddan.intellijpluginld.action.CopyKeyAction"
-                     class="com.github.intheclouddan.intellijpluginld.action.CopyKeyAction"
-                     text="Copy Flag Key" description="Copy Flag Key to Clipboard" icon="AllIcons.Actions.Copy">
-             </action> -->
-        </group>
-
+        <!--        <group id="com.github.intheclouddan.intellijpluginld.action.CustomDefaultActionGroup"-->
+        <!--               class="com.github.intheclouddan.intellijpluginld.action.CustomDefaultActionGroup" popup="true"-->
+        <!--               text="Popup Grouped Actions" description="Custom defaultActionGroup demo">-->
+        <!--            <add-to-group group-id="EditorPopupMenu" anchor="first"/>-->
+        <action id="com.github.intheclouddan.intellijpluginld.action.RefreshAction"
+                class="com.github.intheclouddan.intellijpluginld.action.RefreshAction"
+                text="Refresh Flags" description="Refresh Flags" icon="AllIcons.Actions.Refresh">
+        </action>
+        <action id="com.github.intheclouddan.intellijpluginld.action.CopyKeyAction"
+                class="com.github.intheclouddan.intellijpluginld.action.CopyKeyAction"
+                text="Copy Flag Key" description="Copy Flag Key to Clipboard" icon="AllIcons.Actions.Copy">
+        </action>
+        <!--        </group>-->
+        <action id="com.github.intheclouddan.intellijpluginld.action.ToggleFlagAction"
+                class="com.github.intheclouddan.intellijpluginld.action.ToggleFlagAction"
+                text="Toggle Flag" description="Toggle Flag" icon="AllIcons.Actions.Copy">
+        </action>
     </actions>
 
 </idea-plugin>

@@ -1,7 +1,5 @@
 package com.github.intheclouddan.intellijpluginld
 
-//import com.launchdarkly.sdk.server.InMemoryDataStoreFactory
-//import com.launchdarkly.sdk.server.LDConfig
 import com.github.intheclouddan.intellijpluginld.featurestore.FlagConfiguration
 import com.github.intheclouddan.intellijpluginld.featurestore.createClientAndGetStore
 import com.github.intheclouddan.intellijpluginld.featurestore.getFlagsAsJSONStrings
@@ -23,16 +21,15 @@ import com.launchdarkly.sdk.server.interfaces.FlagChangeListener
 import java.util.concurrent.TimeUnit
 
 
-/*
+/**
  * Instance to provide other classes access to LaunchDarkly Flag Metadata.
  * Handles refreshing of the flags and notifying attached listeners of changes.
  */
 @Service
 class FlagStore(project: Project) {
     var flags: FeatureFlags
-    val messageBusService = project.service<DefaultMessageBusService>()
     var flagConfigs = emptyMap<String, FlagConfiguration>()
-
+    val messageBusService = project.service<DefaultMessageBusService>()
     // Get latest flags via REST API.
     /**
      * This method is gets the latest flags via REST API.

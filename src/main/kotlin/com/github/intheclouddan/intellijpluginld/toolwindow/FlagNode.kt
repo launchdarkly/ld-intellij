@@ -39,6 +39,7 @@ class FlagNodeParent(flag: FeatureFlag, settings: LaunchDarklyConfig, flags: Fea
     val flagConfigs = flagConfigs
     val settings = settings
     val env = flagConfigs[flag.key]!!
+    val key = flag.key
 
 
     override fun getChildren(): Array<SimpleNode> {
@@ -49,14 +50,6 @@ class FlagNodeParent(flag: FeatureFlag, settings: LaunchDarklyConfig, flags: Fea
             }
             myChildren.add(FlagNodeVariations(flag))
 
-            var enabledIcon: Icon
-            if (env.on) {
-                enabledIcon = LDIcons.TOGGLE_ON
-            } else {
-                enabledIcon = LDIcons.TOGGLE_OFF
-            }
-
-            myChildren.add(FlagNodeBase("Enabled: ${env.on}", enabledIcon))
             if (env.prerequisites.size > 0) {
                 myChildren.add(FlagNodePrerequisites(flag, env.prerequisites, flags))
             }
@@ -64,7 +57,7 @@ class FlagNodeParent(flag: FeatureFlag, settings: LaunchDarklyConfig, flags: Fea
                 myChildren.add(FlagNodeFallthrough(flag, env))
             }
             if (env.offVariation != null) {
-                myChildren.add(FlagNodeBase("Off Variation: ${flag.variations[env.offVariation].name ?: flag.variations[env.offVariation].value}", LDIcons.OFF_VARIATION))
+                myChildren.add(FlagNodeBase("Off Variation: ${flag.variations[env.offVariation as Int].name ?: flag.variations[env.offVariation as Int].value}", LDIcons.OFF_VARIATION))
             }
             if (flag.tags.size > 0) {
                 myChildren.add(FlagNodeTags(flag.tags))
@@ -114,7 +107,7 @@ class FlagNodeVariations(flag: FeatureFlag) : SimpleNode() {
 
     override fun getChildren(): Array<SimpleNode> {
         for (variation in flag.variations) {
-            myChildren.add(FlagNodeVariation(variation, false))
+            myChildren.add(FlagNodeVariation(variation))
         }
         return myChildren.toTypedArray()
     }
@@ -125,7 +118,7 @@ class FlagNodeVariations(flag: FeatureFlag) : SimpleNode() {
     }
 }
 
-class FlagNodeVariation(variation: Variation, child: Boolean) : SimpleNode() {
+class FlagNodeVariation(variation: Variation) : SimpleNode() {
     val variation = variation
     private var myChildren: MutableList<SimpleNode> = ArrayList()
 
@@ -170,17 +163,17 @@ class FlagNodeFallthrough(flag: FeatureFlag, flagConfig: FlagConfiguration) : Si
     val env = flag.environments.keys.first()
 
     override fun getChildren(): Array<SimpleNode> {
-        if (flagConfig.fallthrough.variation != null) {
+        if (flagConfig.fallthrough?.variation != null) {
             return SimpleNode.NO_CHILDREN
         }
-        myChildren.add(FlagNodeRollout(flagConfig.fallthrough.rollout, flag.variations))
+        myChildren.add(FlagNodeRollout(flagConfig.fallthrough?.rollout, flag.variations))
         return myChildren.toTypedArray()
     }
 
     override fun update(data: PresentationData) {
         var label: String
-        if (flagConfig.fallthrough.variation != null) {
-            label = "Fallthrough: ${flag.variations[flagConfig.fallthrough.variation].name ?: flag.variations[flagConfig.fallthrough.variation].value}"
+        if (flagConfig.fallthrough?.variation != null) {
+            label = "Fallthrough: ${flag.variations[flagConfig.fallthrough?.variation as Int].name ?: flag.variations[flagConfig.fallthrough?.variation as Int].value}"
         } else {
             label = "Fallthrough"
         }
@@ -189,17 +182,21 @@ class FlagNodeFallthrough(flag: FeatureFlag, flagConfig: FlagConfiguration) : Si
     }
 }
 
-class FlagNodeRollout(rollout: Rollout, variations: List<Variation>) : SimpleNode() {
+class FlagNodeRollout(rollout: Rollout?, variations: List<Variation>) : SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
     val rollout = rollout
     val variations = variations
 
     override fun getChildren(): Array<SimpleNode> {
-        myChildren.add(FlagNodeBase("bucketBy ${rollout.bucketBy}", LDIcons.DESCRIPTION))
-        for (variation in rollout.variations) {
-            myChildren.add(FlagNodeBase("Variation: ${variations[variation.variation].name ?: variations[variation.variation].value}"))
-            myChildren.add(FlagNodeBase("Weight: ${variation.weight / 1000.0}%"))
+        if (rollout?.bucketBy != null) {
+            myChildren.add(FlagNodeBase("bucketBy ${rollout.bucketBy}", LDIcons.DESCRIPTION))
+        }
+        if (rollout != null) {
+            for (variation in rollout.variations) {
+                myChildren.add(FlagNodeBase("Variation: ${variations[variation.variation].name ?: variations[variation.variation].value}"))
+                myChildren.add(FlagNodeBase("Weight: ${variation.weight / 1000.0}%"))
 
+            }
         }
         return myChildren.toTypedArray()
     }

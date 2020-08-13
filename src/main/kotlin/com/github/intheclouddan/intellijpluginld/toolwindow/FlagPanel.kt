@@ -1,7 +1,9 @@
 package com.github.intheclouddan.intellijpluginld.toolwindow
 
 import com.github.intheclouddan.intellijpluginld.FlagStore
+import com.github.intheclouddan.intellijpluginld.action.CopyKeyAction
 import com.github.intheclouddan.intellijpluginld.action.RefreshAction
+import com.github.intheclouddan.intellijpluginld.action.ToggleFlagAction
 import com.github.intheclouddan.intellijpluginld.messaging.FlagNotifier
 import com.github.intheclouddan.intellijpluginld.messaging.MessageBusService
 import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
@@ -23,6 +25,7 @@ import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.tree.TreeUtil
 import java.awt.CardLayout
 import javax.swing.JPanel
+import javax.swing.tree.TreeSelectionModel
 
 
 private const val SPLITTER_PROPERTY = "BuildAttribution.Splitter.Proportion"
@@ -32,6 +35,7 @@ private const val SPLITTER_PROPERTY = "BuildAttribution.Splitter.Proportion"
  */
 class FlagPanel(private val myProject: Project, messageBusService: MessageBusService) : SimpleToolWindowPanel(false, false), Disposable {
     private val settings = LaunchDarklyConfig.getInstance(myProject)
+    lateinit var tree: Tree
 
     private fun createTreeStructure(): SimpleTreeStructure {
         val getFlags = myProject.service<FlagStore>()
@@ -46,6 +50,8 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         tree.isRootVisible = false
         TreeSpeedSearch(tree).comparator = SpeedSearchComparator(false)
         TreeUtil.installActions(tree)
+        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+
         return tree
     }
 
@@ -54,7 +60,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         val treeModel = StructureTreeModel(treeStucture, this)
 
         var reviewTreeBuilder = AsyncTreeModel(treeModel, this)
-        val tree = initTree(reviewTreeBuilder)
+        tree = initTree(reviewTreeBuilder)
 
         val componentsSplitter = OnePixelSplitter(SPLITTER_PROPERTY, 0.33f)
         componentsSplitter.setHonorComponentsMinimumSize(true)
@@ -65,16 +71,21 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         setContent(componentsSplitter)
         val actionManager: ActionManager = ActionManager.getInstance()
         val actionGroup = DefaultActionGroup()
-        actionGroup.addAction(RefreshAction())
+        val actionPopup = DefaultActionGroup()
         val actionToolbar: ActionToolbar = actionManager.createActionToolbar("ACTION_TOOLBAR", actionGroup, true)
         setToolbar(actionToolbar.component)
         val refreshAction = actionManager.getAction(RefreshAction.ID)
-        println(refreshAction)
+        val copyKeyAction = actionManager.getAction(CopyKeyAction.ID)
+        val toggleFlagAction = actionManager.getAction(ToggleFlagAction.ID)
+        actionGroup.addAction(refreshAction)
+
 
         PopupHandler.installPopupHandler(
                 tree,
-                actionGroup.apply {
+                actionPopup.apply {
                     add(refreshAction)
+                    add(copyKeyAction)
+                    add(toggleFlagAction)
                 },
                 ActionPlaces.POPUP,
                 ActionManager.getInstance()
