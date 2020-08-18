@@ -53,7 +53,7 @@ class FlagStore(project: Project) {
     fun flagsNotify(project: Project, settings: LaunchDarklyConfig.ConfigState): FeatureFlags {
         val publisher = project.messageBus.syncPublisher(messageBusService.flagsUpdatedTopic)
         flags = flags(project, settings)
-        publisher.notify(true)
+        publisher.notify(true, "")
         return flags
     }
 
@@ -70,7 +70,7 @@ class FlagStore(project: Project) {
             println("flag changed ${event.key}")
             val publisher = project.messageBus.syncPublisher(messageBusService.flagsUpdatedTopic)
             flagTargeting(store)
-            publisher.notify(true)
+            publisher.notify(true, event.key as String)
         }
         client.getFlagTracker().addFlagChangeListener(listenForChanges)
     }

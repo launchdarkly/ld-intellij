@@ -74,7 +74,7 @@ class ToggleFlagAction : AnAction {
     }
 
     /**
-     * Determines whether this menu item is available for the current context.
+     * Check that this is a top level flag node.
      * Requires a project to be open.
      * @param e Event received when the associated group-id menu is chosen.
      */

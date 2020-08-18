@@ -37,14 +37,15 @@ class LDDocumentationProvider() : AbstractDocumentationProvider() {
             result.append("<pre>")
             result.append("LaunchDarkly Feature Flag * ${flag.name ?: flag.key}")
             result.append("</pre>")
+            result.append("Prerequisites: ${env.prerequisites.size}\n")
             //result.append("Enabled: ${flag.environments[settings.environment]!!.isOn}")
             result.append("<b>${flag.description}</b>")
             result.append("<b>Variations</b>")
             flag.variations.map {
-                if (it.name != "") {
+                if (it.name != "" && it.name != null) {
                     result.append("<p>Name: ${it.name ?: ""}</p>")
                 }
-                if (it.description != "") {
+                if (it.description != "" && it.description != null) {
                     result.append("<p>Description: ${it.description ?: ""}</p>")
                 }
                 result.append("<p>Value: ${it.value}</p>")

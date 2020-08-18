@@ -33,50 +33,45 @@ class RootNode(flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>,
 }
 
 class FlagNodeParent(flag: FeatureFlag, settings: LaunchDarklyConfig, flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>) : SimpleNode() {
-    private var myChildren: MutableList<SimpleNode> = ArrayList()
+    private var children: MutableList<SimpleNode> = ArrayList()
     val flag: FeatureFlag = flag
     val flags = flags
-    val flagConfigs = flagConfigs
     val settings = settings
     val env = flagConfigs[flag.key]!!
-    val key = flag.key
+    val key: String = flag.key
 
 
     override fun getChildren(): Array<SimpleNode> {
-        if (myChildren.isEmpty()) {
-            myChildren.add(FlagNodeBase("Key: ${flag.key}", LDIcons.FLAG_KEY))
+        if (children.isEmpty()) {
+            children.add(FlagNodeBase("Key: ${flag.key}", LDIcons.FLAG_KEY))
             if (flag.description != "") {
-                myChildren.add(FlagNodeBase("Description: ${flag.description}", LDIcons.DESCRIPTION))
+                children.add(FlagNodeBase("Description: ${flag.description}", LDIcons.DESCRIPTION))
             }
-            myChildren.add(FlagNodeVariations(flag))
+            children.add(FlagNodeVariations(flag))
 
             if (env.prerequisites.size > 0) {
-                myChildren.add(FlagNodePrerequisites(flag, env.prerequisites, flags))
+                children.add(FlagNodePrerequisites(flag, env.prerequisites, flags))
             }
             if (env.fallthrough != null) {
-                myChildren.add(FlagNodeFallthrough(flag, env))
+                children.add(FlagNodeFallthrough(flag, env))
             }
             if (env.offVariation != null) {
-                myChildren.add(FlagNodeBase("Off Variation: ${flag.variations[env.offVariation as Int].name ?: flag.variations[env.offVariation as Int].value}", LDIcons.OFF_VARIATION))
+                children.add(FlagNodeBase("Off Variation: ${flag.variations[env.offVariation as Int].name ?: flag.variations[env.offVariation as Int].value}", LDIcons.OFF_VARIATION))
             }
             if (flag.tags.size > 0) {
-                myChildren.add(FlagNodeTags(flag.tags))
+                children.add(FlagNodeTags(flag.tags))
             }
             if (flag.defaults != null) {
-                myChildren.add(FlagNodeDefaults(flag))
+                children.add(FlagNodeDefaults(flag))
             }
         }
-        return myChildren.toTypedArray()
+        return children.toTypedArray()
     }
 
     override fun update(data: PresentationData) {
         super.update(data)
         var enabledIcon: Icon
-        if (env.on) {
-            enabledIcon = LDIcons.TOGGLE_ON
-        } else {
-            enabledIcon = LDIcons.TOGGLE_OFF
-        }
+        enabledIcon = if (env.on) LDIcons.TOGGLE_ON else LDIcons.TOGGLE_OFF
         val label = flag.name ?: flag.key
         data.setPresentableText(label)
         data.setIcon(enabledIcon)

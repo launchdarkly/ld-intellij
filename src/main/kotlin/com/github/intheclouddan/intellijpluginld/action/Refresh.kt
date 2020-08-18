@@ -60,16 +60,6 @@ class RefreshAction : AnAction {
     override fun update(e: AnActionEvent) {
         super.update(e)
         val project = e.project
-        if (project != null) {
-//            val selectedNode = project.service<FlagToolWindow>().getPanel()?.tree?.lastSelectedPathComponent.toString()
-//            if (selectedNode != null) {
-//                println(selectedNode)
-//                println(selectedNode.startsWith("Key:"))
-//                e.presentation.isEnabled = e.presentation.isEnabled && selectedNode.startsWith("Key:")
-//            }
-            e.presentation.isEnabledAndVisible = true
-        } else {
-            e.presentation.isEnabledAndVisible = false
-        }
+        e.presentation.isEnabledAndVisible = project != null
     }
 }

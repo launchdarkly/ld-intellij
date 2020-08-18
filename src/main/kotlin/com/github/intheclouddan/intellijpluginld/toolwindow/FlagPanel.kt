@@ -25,6 +25,7 @@ import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.tree.TreeUtil
 import java.awt.CardLayout
 import javax.swing.JPanel
+import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.TreeSelectionModel
 
 
@@ -36,6 +37,12 @@ private const val SPLITTER_PROPERTY = "BuildAttribution.Splitter.Proportion"
 class FlagPanel(private val myProject: Project, messageBusService: MessageBusService) : SimpleToolWindowPanel(false, false), Disposable {
     private val settings = LaunchDarklyConfig.getInstance(myProject)
     lateinit var tree: Tree
+
+//    val flagNodeListener = object : TreeModelListenerAdapter{
+//        override fun treeNodesInserted(e: TreeModelEvent?) {
+//            logTree.expandPath(e?.getTreePath());
+//        }
+//    }
 
     private fun createTreeStructure(): SimpleTreeStructure {
         val getFlags = myProject.service<FlagStore>()
@@ -55,10 +62,16 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         return tree
     }
 
-    fun start() {
-        val treeStucture = createTreeStructure()
-        val treeModel = StructureTreeModel(treeStucture, this)
+    fun updateNodeInfo() {
+        var treeStructure = createTreeStructure()
+        val treeModel = StructureTreeModel(treeStructure, this)
+        var reviewTreeBuilder = AsyncTreeModel(treeModel, this)
+        tree.model = reviewTreeBuilder
+    }
 
+    fun start(): Tree {
+        var treeStructure = createTreeStructure()
+        val treeModel = StructureTreeModel(treeStructure, this)
         var reviewTreeBuilder = AsyncTreeModel(treeModel, this)
         tree = initTree(reviewTreeBuilder)
 
@@ -69,6 +82,10 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
             add(ScrollPaneFactory.createScrollPane(tree, SideBorder.NONE), "Tree")
         }
         setContent(componentsSplitter)
+        return tree
+    }
+
+    fun actions(tree: Tree) {
         val actionManager: ActionManager = ActionManager.getInstance()
         val actionGroup = DefaultActionGroup()
         val actionPopup = DefaultActionGroup()
@@ -90,19 +107,59 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                 ActionPlaces.POPUP,
                 ActionManager.getInstance()
         )
+    }
 
+    fun updateNode(event: String) {
+        val getFlags = myProject.service<FlagStore>()
+        try {
+            val defaultTree = tree.model as AsyncTreeModel
+            val root = defaultTree.root as DefaultMutableTreeNode
+            val e = root.depthFirstEnumeration()
+            while (e.hasMoreElements()) {
+                val node = e.nextElement()
+                val parent = node as DefaultMutableTreeNode
+                if (parent.userObject is FlagNodeParent) {
+                    var parentNode = parent.userObject as FlagNodeParent
+                    if (parentNode.key == event) {
+                        val flag = getFlags.flags.items.find { it.key == parentNode.key }
+                        println(parentNode.env.on)
+                        parent.userObject = FlagNodeParent(flag!!, settings, getFlags.flags, getFlags.flagConfigs)
+                        //parentNode.apply { FlagNodeParent(flag!!, settings, getFlags.flags, getFlags.flagConfigs) }
+                        //tree.repaint()
+                        //println(updated)
+                        println(parentNode.env.on)
+                    }
+                    break
+                } else {
+                    continue
+                }
+            }
+        } catch (e: Error) {
+            println(e)
+        }
     }
 
     init {
         if (settings.isConfigured()) {
-            start()
+            tree = start()
+            actions(tree)
         }
         try {
             myProject.messageBus.connect().subscribe(messageBusService.flagsUpdatedTopic,
                     object : FlagNotifier {
-                        override fun notify(isConfigured: Boolean) {
+                        override fun notify(isConfigured: Boolean, flag: String) {
                             if (isConfigured) {
-                                start()
+                                //println("received update")
+                                //Thread.sleep(1_000)
+                                if (flag != "") {
+                                    println("updating tree")
+                                    updateNode(flag)
+                                    println("updating node info")
+                                    updateNodeInfo()
+                                } else {
+                                    start()
+                                }
+                                //tree.repaint()
                             } else {
                                 val notification = Notification("ProjectOpenNotification", "LaunchDarkly",
                                         String.format("LaunchDarkly Plugin is not configured"), NotificationType.WARNING);

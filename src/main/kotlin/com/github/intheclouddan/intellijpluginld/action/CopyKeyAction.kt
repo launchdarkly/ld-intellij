@@ -51,19 +51,15 @@ class CopyKeyAction : AnAction {
      * @param event Event received when the associated menu item is chosen.
      */
     override fun actionPerformed(event: AnActionEvent) {
-        // from string to clipboard
-        // from string to clipboard
         val project = event.project
         var selection = StringSelection("")
         if (project != null) {
             val selectedNode = project.service<FlagToolWindow>().getPanel()?.tree?.lastSelectedPathComponent as DefaultMutableTreeNode
-            //selectedNode.
             if (selectedNode != null) {
-                println(selectedNode.depth)
+                // Right clicking on Key node. Will break if order changes.
                 if (selectedNode.childCount == 0 && selectedNode.toString().startsWith("Key:")) {
                     selection = StringSelection(selectedNode.toString().substringAfter(" "))
-                } else if (selectedNode.depth == FLAG_NAME_DEPTH) {
-                    println(selectedNode.firstChild.toString().substringAfter(" "))
+                } else if (selectedNode.depth == FLAG_NAME_DEPTH) { //
                     selection = StringSelection(selectedNode.firstChild.toString().substringAfter(" "))
                 }
                 val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
