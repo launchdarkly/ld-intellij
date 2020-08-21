@@ -26,6 +26,7 @@ import com.intellij.util.ui.tree.TreeUtil
 import java.awt.CardLayout
 import javax.swing.JPanel
 import javax.swing.tree.DefaultMutableTreeNode
+import javax.swing.tree.TreePath
 import javax.swing.tree.TreeSelectionModel
 
 
@@ -53,11 +54,12 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
     override fun dispose() {}
 
     private fun initTree(model: AsyncTreeModel): Tree {
-        val tree = Tree(model)
+        tree = Tree(model)
         tree.isRootVisible = false
         TreeSpeedSearch(tree).comparator = SpeedSearchComparator(false)
         TreeUtil.installActions(tree)
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        tree.setEditable(true);
 
         return tree
     }
@@ -66,7 +68,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         var treeStructure = createTreeStructure()
         val treeModel = StructureTreeModel(treeStructure, this)
         var reviewTreeBuilder = AsyncTreeModel(treeModel, this)
-        tree.model = reviewTreeBuilder
+        treeStructure.tree.model = reviewTreeBuilder
     }
 
     fun start(): Tree {
@@ -123,13 +125,15 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                     if (parentNode.key == event) {
                         val flag = getFlags.flags.items.find { it.key == parentNode.key }
                         println(parentNode.env.on)
-                        parent.userObject = FlagNodeParent(flag!!, settings, getFlags.flags, getFlags.flagConfigs)
-                        //parentNode.apply { FlagNodeParent(flag!!, settings, getFlags.flags, getFlags.flagConfigs) }
-                        //tree.repaint()
-                        //println(updated)
+                        tree.model.valueForPathChanged(TreePath(parent.path), FlagNodeParent(flag!!, settings, getFlags.flags, getFlags.flagConfigs))
+                        println("Parent Node Updated: ${parentNode.update()}")
+                        tree.node
+                        println("updating changes")
                         println(parentNode.env.on)
+
+                        break
                     }
-                    break
+
                 } else {
                     continue
                 }
@@ -155,7 +159,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                                     println("updating tree")
                                     updateNode(flag)
                                     println("updating node info")
-                                    updateNodeInfo()
+                                    //updateNodeInfo()
                                 } else {
                                     start()
                                 }
