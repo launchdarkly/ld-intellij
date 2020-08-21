@@ -127,7 +127,6 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                         println(parentNode.env.on)
                         tree.model.valueForPathChanged(TreePath(parent.path), FlagNodeParent(flag!!, settings, getFlags.flags, getFlags.flagConfigs))
                         println("Parent Node Updated: ${parentNode.update()}")
-                        tree.node
                         println("updating changes")
                         println(parentNode.env.on)
 
