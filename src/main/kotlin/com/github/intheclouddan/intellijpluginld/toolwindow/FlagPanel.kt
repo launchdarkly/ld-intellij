@@ -7,6 +7,7 @@ import com.github.intheclouddan.intellijpluginld.action.ToggleFlagAction
 import com.github.intheclouddan.intellijpluginld.messaging.FlagNotifier
 import com.github.intheclouddan.intellijpluginld.messaging.MessageBusService
 import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
+import com.intellij.ide.util.treeView.TreeState
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.Disposable
@@ -14,6 +15,7 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.ActionToolbar
 import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.application.invokeLater
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
@@ -37,18 +39,14 @@ private const val SPLITTER_PROPERTY = "BuildAttribution.Splitter.Proportion"
  */
 class FlagPanel(private val myProject: Project, messageBusService: MessageBusService) : SimpleToolWindowPanel(false, false), Disposable {
     private val settings = LaunchDarklyConfig.getInstance(myProject)
+    private val getFlags = myProject.service<FlagStore>()
+    private var root = RootNode(getFlags.flags, getFlags.flagConfigs, settings, myProject)
+    private val treeStructure = createTreeStructure()
+    private val treeModel = StructureTreeModel(treeStructure, this)
     lateinit var tree: Tree
 
-//    val flagNodeListener = object : TreeModelListenerAdapter{
-//        override fun treeNodesInserted(e: TreeModelEvent?) {
-//            logTree.expandPath(e?.getTreePath());
-//        }
-//    }
-
     private fun createTreeStructure(): SimpleTreeStructure {
-        val getFlags = myProject.service<FlagStore>()
-        val rootNode = RootNode(getFlags.flags, getFlags.flagConfigs, settings)
-        return FlagTreeStructure(myProject, rootNode)
+        return FlagTreeStructure(myProject, root)
     }
 
     override fun dispose() {}
@@ -64,16 +62,9 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         return tree
     }
 
-    fun updateNodeInfo() {
-        var treeStructure = createTreeStructure()
-        val treeModel = StructureTreeModel(treeStructure, this)
-        var reviewTreeBuilder = AsyncTreeModel(treeModel, this)
-        treeStructure.tree.model = reviewTreeBuilder
-    }
-
     fun start(): Tree {
-        var treeStructure = createTreeStructure()
-        val treeModel = StructureTreeModel(treeStructure, this)
+        // var treeStructure = createTreeStructure()
+
         var reviewTreeBuilder = AsyncTreeModel(treeModel, this)
         tree = initTree(reviewTreeBuilder)
 
@@ -111,6 +102,31 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         )
     }
 
+    /**
+     * Invalidates tree nodes, causing IntelliJ to redraw the tree. Preserves node state.
+     * Provide an AbstractTreeNode in order to redraw the tree from that point downwards
+     * Otherwise redraws the entire tree
+     *
+     * @param selectedNode AbstractTreeNode to redraw the tree from
+     */
+    fun invalidateTree(selectedNode: DefaultMutableTreeNode?) {
+        withSavedState(tree) {
+            if (selectedNode != null) {
+                treeModel.invalidate(selectedNode, false)
+            } else {
+                treeModel.invalidate()
+            }
+        }
+    }
+
+    // Save the state and reapply it after we invalidate (which is the point where the state is wiped).
+    // Items are expanded again if their user object is unchanged (.equals()).
+    private fun withSavedState(tree: Tree, block: () -> Unit) {
+        val state = TreeState.createOn(tree)
+        block()
+        state.applyTo(tree)
+    }
+
     fun updateNode(event: String) {
         val getFlags = myProject.service<FlagStore>()
         try {
@@ -124,12 +140,9 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                     var parentNode = parent.userObject as FlagNodeParent
                     if (parentNode.key == event) {
                         val flag = getFlags.flags.items.find { it.key == parentNode.key }
-                        println(parentNode.env.on)
-                        tree.model.valueForPathChanged(TreePath(parent.path), FlagNodeParent(flag!!, settings, getFlags.flags, getFlags.flagConfigs))
-                        println("Parent Node Updated: ${parentNode.update()}")
-                        println("updating changes")
-                        println(parentNode.env.on)
-
+                        tree.setEditable(true);
+                        parentNode = FlagNodeParent(flag!!, settings, getFlags.flags, myProject/*, getFlags.flagConfigs*/)
+                        treeModel.invalidate(TreePath(parent), true)
                         break
                     }
 
@@ -152,17 +165,13 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                     object : FlagNotifier {
                         override fun notify(isConfigured: Boolean, flag: String) {
                             if (isConfigured) {
-                                //println("received update")
-                                //Thread.sleep(1_000)
                                 if (flag != "") {
-                                    println("updating tree")
-                                    updateNode(flag)
-                                    println("updating node info")
-                                    //updateNodeInfo()
+                                    invokeLater {
+                                        updateNode(flag)
+                                    }
                                 } else {
                                     start()
                                 }
-                                //tree.repaint()
                             } else {
                                 val notification = Notification("ProjectOpenNotification", "LaunchDarkly",
                                         String.format("LaunchDarkly Plugin is not configured"), NotificationType.WARNING);

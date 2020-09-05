@@ -1,24 +1,28 @@
 package com.github.intheclouddan.intellijpluginld.toolwindow
 
+import com.github.intheclouddan.intellijpluginld.FlagStore
 import com.github.intheclouddan.intellijpluginld.LDIcons
 import com.github.intheclouddan.intellijpluginld.featurestore.FlagConfiguration
 import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
 import com.intellij.ide.projectView.PresentationData
+import com.intellij.openapi.components.service
+import com.intellij.openapi.project.Project
 import com.intellij.ui.treeStructure.SimpleNode
 import com.launchdarkly.api.model.*
 import java.util.*
 import javax.swing.Icon
 
-class RootNode(flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>, settings: LaunchDarklyConfig) : SimpleNode() {
+class RootNode(flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>, settings: LaunchDarklyConfig, project: Project) : SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
     private val flags = flags
     private val flagConfigs = flagConfigs
     private val settings = settings
+    private val intProject = project
 
     override fun getChildren(): Array<SimpleNode> {
         if (myChildren.isEmpty() && flags.items != null) {
             for (flag in flags.items) {
-                myChildren.add(FlagNodeParent(flag, settings, flags, flagConfigs))
+                myChildren.add(FlagNodeParent(flag, settings, flags, intProject /*flagConfigs*/))
             }
         } else {
             myChildren.add(FlagNodeBase("LaunchDarkly Plugin is not configurable properly."))
@@ -27,17 +31,19 @@ class RootNode(flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>,
     }
 
     override fun update(data: PresentationData) {
+        super.update(data)
         data.setPresentableText("root")
     }
 
 }
 
-class FlagNodeParent(flag: FeatureFlag, settings: LaunchDarklyConfig, flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>) : SimpleNode() {
+class FlagNodeParent(flag: FeatureFlag, settings: LaunchDarklyConfig, flags: FeatureFlags, myProject: Project /* flagConfigs: Map<String, FlagConfiguration>*/) : SimpleNode() {
     private var children: MutableList<SimpleNode> = ArrayList()
-    val flag: FeatureFlag = flag
-    val flags = flags
+    private val getFlags = myProject.service<FlagStore>()
+    var flag: FeatureFlag = flag
+    var flags = flags
     val settings = settings
-    val env = flagConfigs[flag.key]!!
+    var env = getFlags.flagConfigs[flag.key]!!
     val key: String = flag.key
 
 
@@ -70,6 +76,7 @@ class FlagNodeParent(flag: FeatureFlag, settings: LaunchDarklyConfig, flags: Fea
 
     override fun update(data: PresentationData) {
         super.update(data)
+        env = getFlags.flagConfigs[flag.key]!!
         var enabledIcon: Icon
         enabledIcon = if (env.on) LDIcons.TOGGLE_ON else LDIcons.TOGGLE_OFF
         val label = flag.name ?: flag.key
@@ -87,6 +94,7 @@ class FlagNodeBase(label: String, labelIcon: Icon? = null) : SimpleNode() {
     }
 
     override fun update(data: PresentationData) {
+        super.update(data)
         data.setPresentableText(label)
         data.tooltip = label
         if (labelIcon != null) {
@@ -108,6 +116,7 @@ class FlagNodeVariations(flag: FeatureFlag) : SimpleNode() {
     }
 
     override fun update(data: PresentationData) {
+        super.update(data)
         data.setPresentableText("Variations")
         data.setIcon(LDIcons.VARIATION)
     }
@@ -128,6 +137,7 @@ class FlagNodeVariation(variation: Variation) : SimpleNode() {
     }
 
     override fun update(data: PresentationData) {
+        super.update(data)
         var label: String = variation.name ?: variation.value.toString()
         data.setPresentableText(label)
     }
@@ -146,6 +156,7 @@ class FlagNodeTags(tags: List<String>) : SimpleNode() {
     }
 
     override fun update(data: PresentationData) {
+        super.update(data)
         data.setPresentableText("Tags")
         data.setIcon(LDIcons.TAGS)
     }
@@ -166,6 +177,7 @@ class FlagNodeFallthrough(flag: FeatureFlag, flagConfig: FlagConfiguration) : Si
     }
 
     override fun update(data: PresentationData) {
+        super.update(data)
         var label: String
         if (flagConfig.fallthrough?.variation != null) {
             label = "Fallthrough: ${flag.variations[flagConfig.fallthrough?.variation as Int].name ?: flag.variations[flagConfig.fallthrough?.variation as Int].value}"
@@ -197,6 +209,7 @@ class FlagNodeRollout(rollout: Rollout?, variations: List<Variation>) : SimpleNo
     }
 
     override fun update(data: PresentationData) {
+        super.update(data)
         data.setPresentableText("Rollout")
         data.setIcon(LDIcons.VARIATION)
     }
@@ -214,6 +227,7 @@ class FlagNodeDefaults(flag: FeatureFlag) : SimpleNode() {
     }
 
     override fun update(data: PresentationData) {
+        super.update(data)
         data.setPresentableText("Default Variations")
         data.setIcon(LDIcons.VARIATION)
     }
@@ -237,6 +251,7 @@ class FlagNodePrerequisites(flag: FeatureFlag, prereqs: List<Prerequisite>, flag
     }
 
     override fun update(data: PresentationData) {
+        super.update(data)
         data.setPresentableText("Prequisites")
         data.setIcon(LDIcons.PREREQUISITE)
     }
