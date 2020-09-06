@@ -11,6 +11,7 @@ import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.SimpleListCellRenderer
+import com.intellij.ui.layout.*
 import com.intellij.ui.layout.PropertyBinding
 import com.intellij.ui.layout.panel
 import com.intellij.ui.layout.withTextBinding
@@ -65,7 +66,7 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
         var project = ""
         var environment = ""
         var refreshRate: Int = 120
-
+	var baseUri = "https://app.launchdarkly.com/"
         // Stored in System Credential store
         var authorization: String
             get() = PasswordSafe.instance.getPassword(credentialAttributes) ?: ""
@@ -110,7 +111,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
         panel = panel {
             commentRow("Add your LaunchDarkly API Key and click Apply. Project and Environment selections will populate based on key permissions.")
             row("API Key:") { apiField().withTextBinding(PropertyBinding({ settings.authorization }, { settings.authorization = it })) }
-            //row("Refresh Rate(in Minutes):") { intTextField(settings::refreshRate, 0, 0..1440) }
+            row("Refresh Rate(in Minutes):") { intTextField(settings::refreshRate, 0, 0..1440) }
 
             if (::projectContainer.isInitialized) {
                 projectBox = DefaultComboBoxModel<String>(projectContainer.map { it -> it.key }.toTypedArray())

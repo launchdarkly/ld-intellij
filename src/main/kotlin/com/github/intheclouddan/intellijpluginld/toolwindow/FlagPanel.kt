@@ -2,6 +2,7 @@ package com.github.intheclouddan.intellijpluginld.toolwindow
 
 import com.github.intheclouddan.intellijpluginld.FlagStore
 import com.github.intheclouddan.intellijpluginld.action.CopyKeyAction
+import com.github.intheclouddan.intellijpluginld.action.OpenInBrowserAction
 import com.github.intheclouddan.intellijpluginld.action.RefreshAction
 import com.github.intheclouddan.intellijpluginld.action.ToggleFlagAction
 import com.github.intheclouddan.intellijpluginld.messaging.FlagNotifier
@@ -87,6 +88,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         val refreshAction = actionManager.getAction(RefreshAction.ID)
         val copyKeyAction = actionManager.getAction(CopyKeyAction.ID)
         val toggleFlagAction = actionManager.getAction(ToggleFlagAction.ID)
+        val openBrowserAction = actionManager.getAction(OpenInBrowserAction.ID)
         actionGroup.addAction(refreshAction)
 
 
@@ -96,6 +98,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                     add(refreshAction)
                     add(copyKeyAction)
                     add(toggleFlagAction)
+                    add(openBrowserAction)
                 },
                 ActionPlaces.POPUP,
                 ActionManager.getInstance()

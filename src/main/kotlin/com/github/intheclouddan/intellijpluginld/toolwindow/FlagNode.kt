@@ -15,7 +15,6 @@ import javax.swing.Icon
 class RootNode(flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>, settings: LaunchDarklyConfig, project: Project) : SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
     private val flags = flags
-    private val flagConfigs = flagConfigs
     private val settings = settings
     private val intProject = project
 
@@ -24,8 +23,8 @@ class RootNode(flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>,
             for (flag in flags.items) {
                 myChildren.add(FlagNodeParent(flag, settings, flags, intProject /*flagConfigs*/))
             }
-        } else {
-            myChildren.add(FlagNodeBase("LaunchDarkly Plugin is not configurable properly."))
+        } else if (flags.items == null) {
+            myChildren.add(FlagNodeBase("LaunchDarkly Plugin is not configured."))
         }
         return myChildren.toTypedArray()
     }
