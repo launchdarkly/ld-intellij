@@ -17,8 +17,8 @@ class LaunchDarklyApiClient(project: Project) {
         fun flagInstance(project: Project): FeatureFlagsApi {
             val settings = LaunchDarklyConfig.getInstance(project)
             val client: ApiClient = Configuration.getDefaultApiClient()
+            client.basePath = "${settings.ldState.baseUri}/api/v2"
             val token = client.getAuthentication("Token") as ApiKeyAuth
-            // Temporarily hard coded until handling secrets is implemented
             token.apiKey = settings.ldState.authorization
 
             return FeatureFlagsApi()
@@ -26,12 +26,14 @@ class LaunchDarklyApiClient(project: Project) {
 
         @JvmStatic
         fun projectInstance(project: Project, apiKey: String? = null): ProjectsApi {
+            val settings = LaunchDarklyConfig.getInstance(project)
             var ldApiKey = apiKey
             if (ldApiKey == null) {
                 val settings = LaunchDarklyConfig.getInstance(project)
                 ldApiKey = settings.ldState.authorization
             }
             val client: ApiClient = Configuration.getDefaultApiClient()
+            client.basePath = "${settings.ldState.baseUri}/api/v2"
             val token = client.getAuthentication("Token") as ApiKeyAuth
             token.apiKey = ldApiKey
             return ProjectsApi()

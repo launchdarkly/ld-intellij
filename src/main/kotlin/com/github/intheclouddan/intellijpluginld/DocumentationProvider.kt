@@ -64,7 +64,7 @@ class LDDocumentationProvider() : AbstractDocumentationProvider() {
                 buildEnvString += targets
             }
             result.append("<html>")
-            result.append("<img src=\"${LDIcons.FLAG}\"> <b>LaunchDarkly Feature Flag \u2022 ${flag.name ?: flag.key}</b> <img align=\"right\" src=\"${LDIcons.FLAG}\"> <br />")
+            result.append("<img src=\"${LDIcons.FLAG}\"> <b>LaunchDarkly Feature Flag \u2022 ${flag.name ?: flag.key}</b> <img align=\"right\" style='float: right;' src=\"${LDIcons.FLAG}\"> <br />")
             //result.append("Enabled: ${flag.environments[settings.environment]!!.isOn}")
             val enabledIcon = if (env.on) {
                 "<img src=\"${LDIcons.TOGGLE_ON}\" alt=\"On\">"

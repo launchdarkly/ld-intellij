@@ -12,10 +12,10 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.util.concurrency.EdtExecutorService
+import com.launchdarkly.api.model.FeatureFlag
 import com.launchdarkly.api.model.FeatureFlags
-import com.launchdarkly.sdk.server.Components
+import com.launchdarkly.sdk.server.DataModel
 import com.launchdarkly.sdk.server.LDClient
-import com.launchdarkly.sdk.server.LDConfig
 import com.launchdarkly.sdk.server.interfaces.DataStore
 import com.launchdarkly.sdk.server.interfaces.FlagChangeListener
 import java.util.concurrent.TimeUnit
@@ -30,17 +30,24 @@ class FlagStore(project: Project) {
     var flags: FeatureFlags
     var flagConfigs = emptyMap<String, FlagConfiguration>()
     val messageBusService = project.service<DefaultMessageBusService>()
-    // Get latest flags via REST API.
+    private val project = project
+    private val settings = LaunchDarklyConfig.getInstance(project).ldState
+    private var envList = listOf(settings.environment)
+    lateinit var flagStore: DataStore
+    lateinit var flagClient: LDClient
+
     /**
      * This method is gets the latest flags via REST API.
      * @param project the Intellij project open
      * @param settings  LaunchDarkly settings
      * @return FeatureFlags returns the flags, filtered to a specific environment, with summary true.
      */
-    private fun flags(project: Project, settings: LaunchDarklyConfig.ConfigState): FeatureFlags {
-        val envList = listOf(settings.environment)
-        val ldProject: String = settings.project
-        val getFlags = LaunchDarklyApiClient.flagInstance(project)
+    private fun flags(): FeatureFlags {
+        var ldProject: String = settings.project
+        var getFlags = LaunchDarklyApiClient.flagInstance(project)
+        envList = listOf(settings.environment)
+        println(envList)
+        println(ldProject)
         return getFlags.getFeatureFlags(ldProject, envList, true, null, null, null, null, null, null)
     }
 
@@ -50,10 +57,16 @@ class FlagStore(project: Project) {
      * @param settings  LaunchDarkly settings
      * @return FeatureFlags returns the flags, filtered to a specific environment, with summary true.
      */
-    fun flagsNotify(project: Project, settings: LaunchDarklyConfig.ConfigState): FeatureFlags {
+    fun flagsNotify(reinit: Boolean = false): FeatureFlags {
         val publisher = project.messageBus.syncPublisher(messageBusService.flagsUpdatedTopic)
-        flags = flags(project, settings)
-        publisher.notify(true, "")
+        flags = flags()
+        if (reinit) {
+            println("reiniting A")
+            publisher.reinit()
+        } else {
+            println("flags update called")
+            publisher.notify(true, "")
+        }
         return flags
     }
 
@@ -64,12 +77,24 @@ class FlagStore(project: Project) {
      * @param store  {link #com.launchdarkly.sdk.server.interfaces.DataStore}
 
      */
-    private fun flagListener(project: Project, client: com.launchdarkly.sdk.server.LDClient, store: DataStore) {
-        println("listener added")
+    private fun flagListener(client: com.launchdarkly.sdk.server.LDClient, store: DataStore) {
         val listenForChanges = FlagChangeListener { event ->
             println("flag changed ${event.key}")
+            val flag: FeatureFlag? = flags.items.find { it.key == event.key }
+            if (flag == null) {
+                val getFlags = LaunchDarklyApiClient.flagInstance(project)
+                val newFlag = getFlags.getFeatureFlag(settings.project, event.key, envList)
+                flags.items.add(newFlag)
+                println("not here")
+            }
+            if (store.get(DataModel.FEATURES, event.key) == null) {
+                val flag = flags.items.find { it.key == event.key }
+                flags.items.remove(flag)
+                println("do not remove")
+            }
             val publisher = project.messageBus.syncPublisher(messageBusService.flagsUpdatedTopic)
             flagTargeting(store)
+            println("why not reload")
             publisher.notify(true, event.key as String)
         }
         client.getFlagTracker().addFlagChangeListener(listenForChanges)
@@ -89,19 +114,34 @@ class FlagStore(project: Project) {
     init {
         val settings = LaunchDarklyConfig.getInstance(project).ldState
         var refreshRate: Long = settings.refreshRate.toLong()
-        flags = flagsNotify(project, settings)
+        flags = flagsNotify()
         val ldProject = LaunchDarklyApiClient.projectInstance(project, settings.authorization).getProject(settings.project)
-        val (store, client) = createClientAndGetStore(ldProject.environments.find { it.key == settings.environment }!!.apiKey)
+        var (store, client) = createClientAndGetStore(ldProject.environments.find { it.key == settings.environment }!!.apiKey)
+        flagStore = store!!
+        flagClient = client
         flagTargeting(store!!)
-        flagListener(project, client, store!!)
+        flagListener(client, store!!)
 
-        EdtExecutorService.getScheduledExecutorInstance().scheduleWithFixedDelay({ flags = flagsNotify(project, settings) }, refreshRate, refreshRate, TimeUnit.MINUTES)
+        EdtExecutorService.getScheduledExecutorInstance().scheduleWithFixedDelay({ flags = flagsNotify() }, refreshRate, refreshRate, TimeUnit.MINUTES)
+
         project.messageBus.connect().subscribe(messageBusService.configurationEnabledTopic,
                 object : ConfigurationNotifier {
                     override fun notify(isConfigured: Boolean) {
                         println("notified")
                         if (isConfigured) {
-                            flags = flagsNotify(project, settings)
+                            println(settings.environment)
+                            val ldProject = LaunchDarklyApiClient.projectInstance(project, settings.authorization).getProject(settings.project)
+                            println(ldProject.environments.find { it.key == settings.environment }!!.apiKey)
+                            var (store, client) = createClientAndGetStore(ldProject.environments.find { it.key == settings.environment }!!.apiKey)
+                            if (flagClient != null) {
+                                println("closing SDK")
+                                flagClient.close()
+                            }
+                            flagStore = store!!
+                            flagClient = client
+                            flagTargeting(store!!)
+                            flagListener(client, store!!)
+                            flags = flagsNotify(true)
                         }
                     }
                 })

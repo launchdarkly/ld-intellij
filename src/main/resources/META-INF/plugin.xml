@@ -1,7 +1,7 @@
 <idea-plugin url="www.jetbrains.com">
     <id>com.github.intheclouddan.intellijpluginld</id>
-    <name>intellij-plugin-ld</name>
-    <vendor>intheclouddan</vendor>
+    <name>LaunchDarkly</name>
+    <vendor>LaunchDarkly</vendor>
 
     <!-- Product and plugin compatibility requirements -->
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
@@ -10,8 +10,6 @@
     <depends optional="true" config-file="withGoModule.xml">org.jetbrains.plugins.go</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService
-                serviceImplementation="com.github.intheclouddan.intellijpluginld.services.MyApplicationService"/>
         <projectConfigurable instance="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfigurable"
                              displayName="LaunchDarkly Plugin" id="launchdarkly.settings"/>
         <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.FlagStore"/>

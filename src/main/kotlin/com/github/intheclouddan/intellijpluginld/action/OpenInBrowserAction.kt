@@ -53,7 +53,7 @@ class OpenInBrowserAction : AnAction {
             val selectedNode = project.service<FlagToolWindow>().getPanel()?.tree?.lastSelectedPathComponent as DefaultMutableTreeNode
             val nodeInfo: FlagNodeParent = selectedNode.userObject as FlagNodeParent
             if (nodeInfo != null) {
-                val url = "${settings.baseUri}${settings.project}/${settings.environment}/features/${nodeInfo.flag.key}"
+                val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features/${nodeInfo.flag.key}"
                 BrowserLauncher.instance.open(url)
             }
         }

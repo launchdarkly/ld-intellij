@@ -42,8 +42,8 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
     private val settings = LaunchDarklyConfig.getInstance(myProject)
     private val getFlags = myProject.service<FlagStore>()
     private var root = RootNode(getFlags.flags, getFlags.flagConfigs, settings, myProject)
-    private val treeStructure = createTreeStructure()
-    private val treeModel = StructureTreeModel(treeStructure, this)
+    private var treeStructure = createTreeStructure()
+    private var treeModel = StructureTreeModel(treeStructure, this)
     lateinit var tree: Tree
 
     private fun createTreeStructure(): SimpleTreeStructure {
@@ -61,6 +61,14 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         tree.setEditable(true);
 
         return tree
+    }
+
+    fun updateNodeInfo() {
+        root = RootNode(getFlags.flags, getFlags.flagConfigs, settings, myProject)
+        treeStructure = createTreeStructure()
+        treeModel = StructureTreeModel(treeStructure, this)
+        var reviewTreeBuilder = AsyncTreeModel(treeModel, this)
+        tree.model = reviewTreeBuilder
     }
 
     fun start(): Tree {
@@ -131,17 +139,19 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
     }
 
     fun updateNode(event: String) {
-        val getFlags = myProject.service<FlagStore>()
+        var getFlags = myProject.service<FlagStore>()
         try {
             val defaultTree = tree.model as AsyncTreeModel
             val root = defaultTree.root as DefaultMutableTreeNode
             val e = root.depthFirstEnumeration()
+            var found = false
             while (e.hasMoreElements()) {
                 val node = e.nextElement()
                 val parent = node as DefaultMutableTreeNode
                 if (parent.userObject is FlagNodeParent) {
                     var parentNode = parent.userObject as FlagNodeParent
                     if (parentNode.key == event) {
+                        found = true
                         val flag = getFlags.flags.items.find { it.key == parentNode.key }
                         tree.setEditable(true);
                         parentNode = FlagNodeParent(flag!!, settings, getFlags.flags, myProject/*, getFlags.flagConfigs*/)
@@ -152,6 +162,15 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                 } else {
                     continue
                 }
+            }
+            if (!found) {
+                println("should be found")
+                val flag = getFlags.flags.items.find { it.key == event }
+                val root = tree.model.root as DefaultMutableTreeNode
+                val newNode = DefaultMutableTreeNode()
+                newNode.userObject = FlagNodeParent(flag!!, settings, getFlags.flags, myProject/*, getFlags.flagConfigs*/)
+                tree.setEditable(true)
+                root.add(newNode)
             }
         } catch (e: Error) {
             println(e)
@@ -167,8 +186,10 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
             myProject.messageBus.connect().subscribe(messageBusService.flagsUpdatedTopic,
                     object : FlagNotifier {
                         override fun notify(isConfigured: Boolean, flag: String) {
+                            println("updating")
                             if (isConfigured) {
                                 if (flag != "") {
+                                    println("invoking later")
                                     invokeLater {
                                         updateNode(flag)
                                     }
@@ -180,6 +201,11 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                                         String.format("LaunchDarkly Plugin is not configured"), NotificationType.WARNING);
                                 notification.notify(myProject);
                             }
+                        }
+
+                        override fun reinit() {
+                            println("reiniting")
+                            updateNodeInfo()
                         }
                     })
         } catch (err: Error) {

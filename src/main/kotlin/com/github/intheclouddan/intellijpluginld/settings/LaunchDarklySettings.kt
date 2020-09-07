@@ -66,7 +66,7 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
         var project = ""
         var environment = ""
         var refreshRate: Int = 120
-	var baseUri = "https://app.launchdarkly.com/"
+	var baseUri = "https://app.launchdarkly.com"
         // Stored in System Credential store
         var authorization: String
             get() = PasswordSafe.instance.getPassword(credentialAttributes) ?: ""
@@ -102,7 +102,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                 environmentContainer = projectContainer.find { it.key == settings.project }
                         ?: projectContainer.firstOrNull() as com.launchdarkly.api.model.Project
             }
-        } catch (err: ApiException) {
+        } catch (err: Exception) {
             defaultMessage = "Check API Key"
         }
     }
@@ -111,8 +111,9 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
         panel = panel {
             commentRow("Add your LaunchDarkly API Key and click Apply. Project and Environment selections will populate based on key permissions.")
             row("API Key:") { apiField().withTextBinding(PropertyBinding({ settings.authorization }, { settings.authorization = it })) }
-            row("Refresh Rate(in Minutes):") { intTextField(settings::refreshRate, 0, 0..1440) }
-
+            row("Refresh Rate(in Minutes):") { intTextField(settings::refreshRate) }
+            row("Base URL:") { textField(settings::baseUri) }
+	    try {
             if (::projectContainer.isInitialized) {
                 projectBox = DefaultComboBoxModel<String>(projectContainer.map { it -> it.key }.toTypedArray())
             } else {
@@ -134,7 +135,12 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                     label.text = value
                 })
             }
-        }
+        
+	}
+	catch(err: Exception) {
+	println(err)
+	}
+	}
         return panel as DialogPanel
     }
 

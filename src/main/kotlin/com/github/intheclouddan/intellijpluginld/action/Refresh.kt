@@ -1,7 +1,6 @@
 package com.github.intheclouddan.intellijpluginld.action
 
 import com.github.intheclouddan.intellijpluginld.FlagStore
-import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
@@ -47,9 +46,9 @@ class RefreshAction : AnAction {
     override fun actionPerformed(event: AnActionEvent) {
         // Using the event, create and show a dialog
         val currentProject = event.project
-        val settings = LaunchDarklyConfig.getInstance(currentProject!!).ldState
+        //val settings = LaunchDarklyConfig.getInstance(currentProject!!).ldState
         val flags = currentProject!!.service<FlagStore>()
-        flags.flagsNotify(currentProject, settings)
+        flags.flagsNotify()
     }
 
     /**
