@@ -20,6 +20,7 @@ class RootNode(flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>,
 
     override fun getChildren(): Array<SimpleNode> {
         if (myChildren.isEmpty() && flags.items != null) {
+            myChildren.add(FlagNodeBase("${settings.ldState.project} / ${settings.ldState.environment}", LDIcons.FLAG))
             for (flag in flags.items) {
                 myChildren.add(FlagNodeParent(flag, settings, flags, intProject /*flagConfigs*/))
             }

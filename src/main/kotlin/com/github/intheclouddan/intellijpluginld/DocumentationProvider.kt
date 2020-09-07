@@ -18,7 +18,7 @@ class LDDocumentationProvider() : AbstractDocumentationProvider() {
         val flag: FeatureFlag? = getFlags.flags.items.find { it.key == element.text.drop(1).dropLast(1) }
 
         if (flag != null) {
-            return listOf(flag!!.links!!.self.href)
+            return listOf(flag.links!!.self.href)
         }
 
         return null
@@ -49,7 +49,7 @@ class LDDocumentationProvider() : AbstractDocumentationProvider() {
                     }
                 }
                 targets += "<br />"
-            } else ""
+            }
             var buildEnvString = ""
             if (prereqs.length > 1) {
                 buildEnvString += prereqs + " "

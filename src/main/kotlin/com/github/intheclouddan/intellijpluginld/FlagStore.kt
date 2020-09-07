@@ -29,12 +29,13 @@ import java.util.concurrent.TimeUnit
 class FlagStore(project: Project) {
     var flags: FeatureFlags
     var flagConfigs = emptyMap<String, FlagConfiguration>()
+    var flagStore: DataStore
+    var flagClient: LDClient
     val messageBusService = project.service<DefaultMessageBusService>()
     private val project = project
     private val settings = LaunchDarklyConfig.getInstance(project).ldState
     private var envList = listOf(settings.environment)
-    lateinit var flagStore: DataStore
-    lateinit var flagClient: LDClient
+
 
     /**
      * This method is gets the latest flags via REST API.
@@ -46,8 +47,6 @@ class FlagStore(project: Project) {
         var ldProject: String = settings.project
         var getFlags = LaunchDarklyApiClient.flagInstance(project)
         envList = listOf(settings.environment)
-        println(envList)
-        println(ldProject)
         return getFlags.getFeatureFlags(ldProject, envList, true, null, null, null, null, null, null)
     }
 
@@ -61,10 +60,8 @@ class FlagStore(project: Project) {
         val publisher = project.messageBus.syncPublisher(messageBusService.flagsUpdatedTopic)
         flags = flags()
         if (reinit) {
-            println("reiniting A")
             publisher.reinit()
         } else {
-            println("flags update called")
             publisher.notify(true, "")
         }
         return flags
@@ -79,22 +76,18 @@ class FlagStore(project: Project) {
      */
     private fun flagListener(client: com.launchdarkly.sdk.server.LDClient, store: DataStore) {
         val listenForChanges = FlagChangeListener { event ->
-            println("flag changed ${event.key}")
             val flag: FeatureFlag? = flags.items.find { it.key == event.key }
             if (flag == null) {
                 val getFlags = LaunchDarklyApiClient.flagInstance(project)
                 val newFlag = getFlags.getFeatureFlag(settings.project, event.key, envList)
                 flags.items.add(newFlag)
-                println("not here")
             }
             if (store.get(DataModel.FEATURES, event.key) == null) {
-                val flag = flags.items.find { it.key == event.key }
-                flags.items.remove(flag)
-                println("do not remove")
+                val newFlag = flags.items.find { it.key == event.key }
+                flags.items.remove(newFlag)
             }
             val publisher = project.messageBus.syncPublisher(messageBusService.flagsUpdatedTopic)
             flagTargeting(store)
-            println("why not reload")
             publisher.notify(true, event.key as String)
         }
         client.getFlagTracker().addFlagChangeListener(listenForChanges)
@@ -105,7 +98,7 @@ class FlagStore(project: Project) {
      */
     fun flagTargeting(store: DataStore) {
         val g = Gson()
-        val flagTargetingJson: String = getFlagsAsJSONStrings(store!!)!!.joinToString(prefix = "[", postfix = "]")
+        val flagTargetingJson: String = getFlagsAsJSONStrings(store)!!.joinToString(prefix = "[", postfix = "]")
         val listflagTargetingJson = object : TypeToken<List<FlagConfiguration>>() {}.type
         val flagList = g.fromJson<List<FlagConfiguration>>(flagTargetingJson, listflagTargetingJson)
         flagConfigs = flagList.associateBy { it.key }
@@ -119,26 +112,20 @@ class FlagStore(project: Project) {
         var (store, client) = createClientAndGetStore(ldProject.environments.find { it.key == settings.environment }!!.apiKey)
         flagStore = store!!
         flagClient = client
-        flagTargeting(store!!)
-        flagListener(client, store!!)
+        flagTargeting(store)
+        flagListener(client, store)
 
         EdtExecutorService.getScheduledExecutorInstance().scheduleWithFixedDelay({ flags = flagsNotify() }, refreshRate, refreshRate, TimeUnit.MINUTES)
 
         project.messageBus.connect().subscribe(messageBusService.configurationEnabledTopic,
                 object : ConfigurationNotifier {
                     override fun notify(isConfigured: Boolean) {
-                        println("notified")
                         if (isConfigured) {
-                            println(settings.environment)
-                            val ldProject = LaunchDarklyApiClient.projectInstance(project, settings.authorization).getProject(settings.project)
-                            println(ldProject.environments.find { it.key == settings.environment }!!.apiKey)
-                            var (store, client) = createClientAndGetStore(ldProject.environments.find { it.key == settings.environment }!!.apiKey)
-                            if (flagClient != null) {
-                                println("closing SDK")
-                                flagClient.close()
-                            }
-                            flagStore = store!!
-                            flagClient = client
+                            val curProject = LaunchDarklyApiClient.projectInstance(project, settings.authorization).getProject(settings.project)
+                            var (curStore, curClient) = createClientAndGetStore(curProject.environments.find { it.key == settings.environment }!!.apiKey)
+                            flagClient.close()
+                            flagStore = curStore!!
+                            flagClient = curClient
                             flagTargeting(store!!)
                             flagListener(client, store!!)
                             flags = flagsNotify(true)
