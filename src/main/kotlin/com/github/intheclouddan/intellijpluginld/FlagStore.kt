@@ -126,8 +126,8 @@ class FlagStore(project: Project) {
                             flagClient.close()
                             flagStore = curStore!!
                             flagClient = curClient
-                            flagTargeting(store!!)
-                            flagListener(client, store!!)
+                            flagTargeting(curStore)
+                            flagListener(curClient, curStore)
                             flags = flagsNotify(true)
                         }
                     }

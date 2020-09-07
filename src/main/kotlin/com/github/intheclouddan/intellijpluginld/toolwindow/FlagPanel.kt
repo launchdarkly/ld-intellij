@@ -186,10 +186,8 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
             myProject.messageBus.connect().subscribe(messageBusService.flagsUpdatedTopic,
                     object : FlagNotifier {
                         override fun notify(isConfigured: Boolean, flag: String) {
-                            println("updating")
                             if (isConfigured) {
                                 if (flag != "") {
-                                    println("invoking later")
                                     invokeLater {
                                         updateNode(flag)
                                     }
@@ -204,7 +202,6 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                         }
 
                         override fun reinit() {
-                            println("reiniting")
                             updateNodeInfo()
                         }
                     })
