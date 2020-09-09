@@ -147,12 +147,13 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
         if (settings.authorization != origApiKey && !apiUpdate) {
             try {
                 projectContainer = LaunchDarklyApiClient.projectInstance(project, settings.authorization).projects.items
-                projectBox.removeAllElements()
-                if (projectBox.selectedItem == null || projectBox.selectedItem.toString() == "Check API Key") {
-                    projectBox.selectedItem = projectContainer.map { it.key }.firstOrNull()
+                with(projectBox) {
+                    this.removeAllElements()
+                    if (projectBox.selectedItem == null || projectBox.selectedItem.toString() == "Check API Key") {
+                        projectBox.selectedItem = projectContainer.map { it.key }.firstOrNull()
+                    }
+                    addAll(projectContainer.map { it.key })
                 }
-                @Suppress("UNUSED_VARIABLE")
-                val updatedBox = projectBox.addAll(projectContainer.map { it.key })
                 apiUpdate = true
             } catch (err: Error) {
                 println(err)
@@ -162,12 +163,13 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
         if (settings.baseUri != origBaseUri) {
             try {
                 projectContainer = LaunchDarklyApiClient.projectInstance(project, settings.authorization).projects.items
-                projectBox.removeAllElements()
-                if (projectBox.selectedItem == null || projectBox.selectedItem.toString() == "Check API Key") {
-                    projectBox.selectedItem = projectContainer.map { it.key }.firstOrNull()
+                with(projectBox) {
+                    this.removeAllElements()
+                    if (projectBox.selectedItem == null || projectBox.selectedItem.toString() == "Check API Key") {
+                        projectBox.selectedItem = projectContainer.map { it.key }.firstOrNull()
+                    }
+                    addAll(projectContainer.map { it.key })
                 }
-                @Suppress("UNUSED_VARIABLE")
-                val updatedBox = projectBox.addAll(projectContainer.map { it.key })
                 apiUpdate = true
             } catch (err: Error) {
                 println(err)
@@ -178,14 +180,15 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                 environmentContainer = projectContainer.find { it.key == projectBox.selectedItem.toString() }!!
                 val envMap = environmentContainer.environments.map { it.key }
                 if (::environmentBox.isInitialized) {
-                    environmentBox.removeAllElements()
-                    @Suppress("UNUSED_VARIABLE")
-                    val updatedBox = environmentBox.addAll(envMap)
-                    if (environmentBox.selectedItem == null || environmentBox.selectedItem.toString() == "Please select a Project") {
-                        if (settings.environment != "") {
-                            environmentBox.selectedItem = settings.environment
-                        } else {
-                            environmentBox.selectedItem = envMap.firstOrNull()
+                    with(environmentBox) {
+                        this.removeAllElements()
+                        addAll(envMap)
+                        if (this.selectedItem == null || this.selectedItem.toString() == "Please select a Project") {
+                            if (settings.environment != "") {
+                                this.selectedItem = settings.environment
+                            } else {
+                                this.selectedItem = envMap.firstOrNull()
+                            }
                         }
                     }
                 }
