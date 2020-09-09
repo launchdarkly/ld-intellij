@@ -154,8 +154,14 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                         found = true
                         val flag = getFlags.flags.items.find { it.key == parentNode.key }
                         tree.setEditable(true);
-                        parentNode = FlagNodeParent(flag!!, settings, getFlags.flags, myProject/*, getFlags.flagConfigs*/)
-                        treeModel.invalidate(TreePath(parent), true)
+                        if (flag != null && getFlags.flagConfigs[flag.key] != null) {
+                            parentNode = FlagNodeParent(flag, settings, getFlags.flags, myProject)
+                            treeModel.invalidate(TreePath(parent), true)
+                        } else {
+                            // If the flag does not exist in the SDK DataStore it should not be part of Environment.
+                            getFlags.flags.items.remove(flag)
+                            updateNodeInfo()
+                        }
                         break
                     }
 
@@ -164,13 +170,47 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                 }
             }
             if (!found) {
-                println("should be found")
-                val flag = getFlags.flags.items.find { it.key == event }
-                val root = tree.model.root as DefaultMutableTreeNode
-                val newNode = DefaultMutableTreeNode()
-                newNode.userObject = FlagNodeParent(flag!!, settings, getFlags.flags, myProject/*, getFlags.flagConfigs*/)
-                tree.setEditable(true)
-                root.add(newNode)
+                // re-render tree because it does not support adding/removing nodes in TreeStructureModel.
+                updateNodeInfo()
+            }
+        } catch (e: Error) {
+            println(e)
+        }
+    }
+
+    fun updateNodes() {
+        println("called")
+        var getFlags = myProject.service<FlagStore>()
+        try {
+            val defaultTree = tree.model as AsyncTreeModel
+            val root = defaultTree.root as DefaultMutableTreeNode
+            val flagFind = getFlags.flags.items
+            for (flag in flagFind) {
+                var found = false
+                var e = root.depthFirstEnumeration()
+                while (e.hasMoreElements()) {
+                    val node = e.nextElement()
+                    val parent = node as DefaultMutableTreeNode
+                    if (parent.userObject is FlagNodeParent) {
+                        var parentNode = parent.userObject as FlagNodeParent
+                        if (parentNode.key == flag.key && parentNode.flag.version < flag.version) {
+                            found = true
+                            tree.setEditable(true);
+                            parentNode = FlagNodeParent(flag, settings, getFlags.flags, myProject)
+                            treeModel.invalidate(TreePath(parent), true)
+                            break
+                        }
+                        if (parentNode.key == flag.key) {
+                            found = true
+                            break
+                        }
+                    }
+                }
+
+                if (!found) {
+                    updateNodeInfo()
+                }
+                tree.invalidate()
             }
         } catch (e: Error) {
             println(e)
@@ -185,12 +225,14 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         try {
             myProject.messageBus.connect().subscribe(messageBusService.flagsUpdatedTopic,
                     object : FlagNotifier {
-                        override fun notify(isConfigured: Boolean, flag: String) {
+                        override fun notify(isConfigured: Boolean, flag: String, rebuild: Boolean) {
                             if (isConfigured) {
                                 if (flag != "") {
                                     invokeLater {
                                         updateNode(flag)
                                     }
+                                } else if (rebuild) {
+                                    updateNodes()
                                 } else {
                                     start()
                                 }

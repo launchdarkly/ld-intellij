@@ -37,10 +37,10 @@ class RootNode(flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>,
 
 }
 
-class FlagNodeParent(flag: FeatureFlag, settings: LaunchDarklyConfig, flags: FeatureFlags, myProject: Project /* flagConfigs: Map<String, FlagConfiguration>*/) : SimpleNode() {
+class FlagNodeParent(FFlag: FeatureFlag, settings: LaunchDarklyConfig, flags: FeatureFlags, myProject: Project /* flagConfigs: Map<String, FlagConfiguration>*/) : SimpleNode() {
     private var children: MutableList<SimpleNode> = ArrayList()
     private val getFlags = myProject.service<FlagStore>()
-    var flag: FeatureFlag = flag
+    var flag: FeatureFlag = FFlag
     var flags = flags
     val settings = settings
     var env = getFlags.flagConfigs[flag.key]!!
@@ -90,6 +90,7 @@ class FlagNodeParent(flag: FeatureFlag, settings: LaunchDarklyConfig, flags: Fea
     override fun update(data: PresentationData) {
         super.update(data)
         env = getFlags.flagConfigs[flag.key]!!
+        flag = getFlags.flags.items.find { it.key == flag.key }!!
         var enabledIcon: Icon
         enabledIcon = if (env.on) LDIcons.TOGGLE_ON else LDIcons.TOGGLE_OFF
         val label = flag.name ?: flag.key
@@ -99,7 +100,7 @@ class FlagNodeParent(flag: FeatureFlag, settings: LaunchDarklyConfig, flags: Fea
 }
 
 class FlagNodeBase(label: String, labelIcon: Icon? = null) : SimpleNode() {
-    val label: String = label
+    var label: String = label
     val labelIcon = labelIcon
 
     override fun getChildren(): Array<SimpleNode> {
@@ -157,7 +158,7 @@ class FlagNodeVariation(variation: Variation) : SimpleNode() {
 }
 
 class FlagNodeTags(tags: List<String>) : SimpleNode() {
-    val tags: List<String> = tags
+    var tags: List<String> = tags
     private var myChildren: MutableList<SimpleNode> = ArrayList()
 
 
@@ -204,8 +205,8 @@ class FlagNodeFallthrough(flag: FeatureFlag, flagConfig: FlagConfiguration) : Si
 
 class FlagNodeRollout(rollout: Rollout?, variations: List<Variation>) : SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
-    val rollout = rollout
-    val variations = variations
+    var rollout = rollout as Rollout
+    var variations = variations
 
     override fun getChildren(): Array<SimpleNode> {
         if (rollout?.bucketBy != null) {
@@ -257,7 +258,6 @@ class FlagNodePrerequisites(flag: FeatureFlag, prereqs: List<Prerequisite>, flag
             myChildren.add(FlagNodeBase("Flag Key: ${it.key}", LDIcons.FLAG))
             val flagKey = it.key
             var flagVariation = flags.items.find { findFlag -> findFlag.key == flagKey }
-            println(flagVariation)
             myChildren.add(FlagNodeBase("Variation: ${flagVariation!!.variations[it.variation].name ?: flagVariation!!.variations[it.variation].value}", LDIcons.VARIATION))
         }
         return myChildren.toTypedArray()

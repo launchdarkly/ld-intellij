@@ -1,5 +1,6 @@
 package com.github.intheclouddan.intellijpluginld.featurestore
 
+import com.jetbrains.rd.util.URI
 import com.launchdarkly.sdk.server.Components
 import com.launchdarkly.sdk.server.DataModel
 import com.launchdarkly.sdk.server.LDClient
@@ -35,9 +36,13 @@ class DataStoreFactoryWithStoreAccess internal constructor(underlyingFactory: Da
     }
 }
 
-fun createClientAndGetStore(token: String): Pair<DataStore?, LDClient> {
+fun createClientAndGetStore(token: String, myStreamBaseURI: String): Pair<DataStore?, LDClient> {
     val storeFactory = DataStoreFactoryWithStoreAccess(Components.inMemoryDataStore())
     val config: LDConfig = LDConfig.Builder()
+            .dataSource(
+                    Components.streamingDataSource().baseURI(URI(myStreamBaseURI))
+            )
+            .events(Components.noEvents())
             .dataStore(storeFactory)
             .build()
     val client = LDClient(token, config)

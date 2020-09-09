@@ -48,7 +48,7 @@ class RefreshAction : AnAction {
         val currentProject = event.project
         //val settings = LaunchDarklyConfig.getInstance(currentProject!!).ldState
         val flags = currentProject!!.service<FlagStore>()
-        flags.flagsNotify()
+        flags.flagsNotify(rebuild = true)
     }
 
     /**

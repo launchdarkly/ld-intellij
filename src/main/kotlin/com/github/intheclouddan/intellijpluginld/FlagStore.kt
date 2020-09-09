@@ -56,13 +56,26 @@ class FlagStore(project: Project) {
      * @param settings  LaunchDarkly settings
      * @return FeatureFlags returns the flags, filtered to a specific environment, with summary true.
      */
-    fun flagsNotify(reinit: Boolean = false): FeatureFlags {
+    fun flagsNotify(reinit: Boolean = false, rebuild: Boolean = false): FeatureFlags {
         val publisher = project.messageBus.syncPublisher(messageBusService.flagsUpdatedTopic)
+        //if (flags.items.size > 0) {
+        //    val newFlags = flags()
+//            flags.items.forEachIndexed { idx, curFlag ->
+//                var foundFlag = newFlags.items.find { it.key == curFlag.key }
+//                if (foundFlag != null && curFlag.version < foundFlag.version) {
+//                    flags.items[idx] = foundFlag
+//                }
+//                newFlags.items.remove(foundFlag)
+//            }
+//            newFlags.items.forEach
+        //}
         flags = flags()
         if (reinit) {
             publisher.reinit()
+        } else if (rebuild) {
+            publisher.notify(true, "", true)
         } else {
-            publisher.notify(true, "")
+            publisher.notify(true)
         }
         return flags
     }
@@ -109,20 +122,22 @@ class FlagStore(project: Project) {
         var refreshRate: Long = settings.refreshRate.toLong()
         flags = flagsNotify()
         val ldProject = LaunchDarklyApiClient.projectInstance(project, settings.authorization).getProject(settings.project)
-        var (store, client) = createClientAndGetStore(ldProject.environments.find { it.key == settings.environment }!!.apiKey)
+        val MyStreamBaseURI = settings.baseUri.replace("app", "stream")
+        var (store, client) = createClientAndGetStore(ldProject.environments.find { it.key == settings.environment }!!.apiKey, MyStreamBaseURI)
         flagStore = store!!
         flagClient = client
         flagTargeting(store)
         flagListener(client, store)
 
-        EdtExecutorService.getScheduledExecutorInstance().scheduleWithFixedDelay({ flags = flagsNotify() }, refreshRate, refreshRate, TimeUnit.MINUTES)
+        EdtExecutorService.getScheduledExecutorInstance().scheduleWithFixedDelay({ flags = flagsNotify(rebuild = true) }, refreshRate, refreshRate, TimeUnit.MINUTES)
 
         project.messageBus.connect().subscribe(messageBusService.configurationEnabledTopic,
                 object : ConfigurationNotifier {
                     override fun notify(isConfigured: Boolean) {
                         if (isConfigured) {
                             val curProject = LaunchDarklyApiClient.projectInstance(project, settings.authorization).getProject(settings.project)
-                            var (curStore, curClient) = createClientAndGetStore(curProject.environments.find { it.key == settings.environment }!!.apiKey)
+                            val MyStreamBaseURI = settings.baseUri.replace("app", "stream")
+                            var (curStore, curClient) = createClientAndGetStore(curProject.environments.find { it.key == settings.environment }!!.apiKey, MyStreamBaseURI)
                             flagClient.close()
                             flagStore = curStore!!
                             flagClient = curClient
