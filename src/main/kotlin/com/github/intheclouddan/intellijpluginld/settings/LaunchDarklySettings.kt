@@ -149,8 +149,8 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                 projectContainer = LaunchDarklyApiClient.projectInstance(project, settings.authorization).projects.items
                 with(projectBox) {
                     this.removeAllElements()
-                    if (projectBox.selectedItem == null || projectBox.selectedItem.toString() == "Check API Key") {
-                        projectBox.selectedItem = projectContainer.map { it.key }.firstOrNull()
+                    if (selectedItem == null || selectedItem.toString() == "Check API Key") {
+                        selectedItem = projectContainer.map { it.key }.firstOrNull()
                     }
                     addAll(projectContainer.map { it.key })
                 }
@@ -164,9 +164,9 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
             try {
                 projectContainer = LaunchDarklyApiClient.projectInstance(project, settings.authorization).projects.items
                 with(projectBox) {
-                    this.removeAllElements()
-                    if (projectBox.selectedItem == null || projectBox.selectedItem.toString() == "Check API Key") {
-                        projectBox.selectedItem = projectContainer.map { it.key }.firstOrNull()
+                    removeAllElements()
+                    if (selectedItem == null || selectedItem.toString() == "Check API Key") {
+                        selectedItem = projectContainer.map { it.key }.firstOrNull()
                     }
                     addAll(projectContainer.map { it.key })
                 }
@@ -181,13 +181,13 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                 val envMap = environmentContainer.environments.map { it.key }
                 if (::environmentBox.isInitialized) {
                     with(environmentBox) {
-                        this.removeAllElements()
+                        removeAllElements()
                         addAll(envMap)
-                        if (this.selectedItem == null || this.selectedItem.toString() == "Please select a Project") {
+                        if (selectedItem == null || selectedItem.toString() == "Please select a Project") {
                             if (settings.environment != "") {
-                                this.selectedItem = settings.environment
+                                selectedItem = settings.environment
                             } else {
-                                this.selectedItem = envMap.firstOrNull()
+                                selectedItem = envMap.firstOrNull()
                             }
                         }
                     }
