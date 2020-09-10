@@ -148,11 +148,11 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
             try {
                 projectContainer = LaunchDarklyApiClient.projectInstance(project, settings.authorization).projects.items
                 with(projectBox) {
-                    this.removeAllElements()
+                    removeAllElements()
                     if (selectedItem == null || selectedItem.toString() == "Check API Key") {
                         selectedItem = projectContainer.map { it.key }.firstOrNull()
                     }
-                    addAll(projectContainer.map { it.key.toString() })
+                    projectContainer.map { addElement(it.key) }
                 }
                 apiUpdate = true
             } catch (err: Error) {
@@ -168,7 +168,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                     if (selectedItem == null || selectedItem.toString() == "Check API Key") {
                         selectedItem = projectContainer.map { it.key }.firstOrNull()
                     }
-                    addAll(projectContainer.map { it.key.toString() })
+                    projectContainer.map { addElement(it.key) }
                 }
                 apiUpdate = true
             } catch (err: Error) {
@@ -182,7 +182,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                 if (::environmentBox.isInitialized) {
                     with(environmentBox) {
                         removeAllElements()
-                        addAll(envMap)
+                        envMap.map { addElement(it) }
                         if (selectedItem == null || selectedItem.toString() == "Please select a Project") {
                             selectedItem = if (settings.environment != "") settings.environment else envMap.firstOrNull()
                         }
