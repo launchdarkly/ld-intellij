@@ -114,9 +114,9 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
             row("Base URL:") { textField(settings::baseUri) }
             try {
                 if (::projectContainer.isInitialized) {
-                    projectBox = DefaultComboBoxModel<String>(projectContainer.map { it -> it.key }.toTypedArray())
+                    projectBox = DefaultComboBoxModel(projectContainer.map { it.key }.toTypedArray())
                 } else {
-                    projectBox = DefaultComboBoxModel<String>(arrayOf(defaultMessage))
+                    projectBox = DefaultComboBoxModel(arrayOf(defaultMessage))
                 }
                 row("Project") {
                     comboBox(projectBox, settings::project, renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
@@ -126,9 +126,9 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                 }
 
                 if (::environmentContainer.isInitialized) {
-                    environmentBox = DefaultComboBoxModel<String>(environmentContainer.environments.map { it -> it.key }.toTypedArray())
+                    environmentBox = DefaultComboBoxModel(environmentContainer.environments.map { it.key }.toTypedArray())
                 } else {
-                    environmentBox = DefaultComboBoxModel<String>(arrayOf("Please select a Project"))
+                    environmentBox = DefaultComboBoxModel(arrayOf("Please select a Project"))
                 }
                 row("Environments:") {
                     comboBox(environmentBox, settings::environment, renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
@@ -152,7 +152,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                     if (selectedItem == null || selectedItem.toString() == "Check API Key") {
                         selectedItem = projectContainer.map { it.key }.firstOrNull()
                     }
-                    addAll(projectContainer.map { it.key })
+                    addAll(projectContainer.map { it.key.toString() })
                 }
                 apiUpdate = true
             } catch (err: Error) {
@@ -168,7 +168,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                     if (selectedItem == null || selectedItem.toString() == "Check API Key") {
                         selectedItem = projectContainer.map { it.key }.firstOrNull()
                     }
-                    addAll(projectContainer.map { it.key })
+                    addAll(projectContainer.map { it.key.toString() })
                 }
                 apiUpdate = true
             } catch (err: Error) {
