@@ -152,7 +152,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                     if (selectedItem == null || selectedItem.toString() == "Check API Key") {
                         selectedItem = projectContainer.map { it.key }.firstOrNull()
                     }
-                    addAll(projectContainer.map { it.key }!!)
+                    addAll(projectContainer.map { it.key })
                 }
                 apiUpdate = true
             } catch (err: Error) {
@@ -168,7 +168,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                     if (selectedItem == null || selectedItem.toString() == "Check API Key") {
                         selectedItem = projectContainer.map { it.key }.firstOrNull()
                     }
-                    addAll(projectContainer.map { it.key }!!)
+                    addAll(projectContainer.map { it.key })
                 }
                 apiUpdate = true
             } catch (err: Error) {
@@ -184,11 +184,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                         removeAllElements()
                         addAll(envMap)
                         if (selectedItem == null || selectedItem.toString() == "Please select a Project") {
-                            if (settings.environment != "") {
-                                selectedItem = settings.environment
-                            } else {
-                                selectedItem = envMap.firstOrNull()
-                            }
+                            selectedItem = if (settings.environment != "") settings.environment else envMap.firstOrNull()
                         }
                     }
                 }
