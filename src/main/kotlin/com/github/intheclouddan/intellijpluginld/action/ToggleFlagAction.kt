@@ -52,7 +52,7 @@ class ToggleFlagAction : AnAction {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project
         if (project != null) {
-            val selectedNode = project.service<FlagToolWindow>().getPanel()?.tree?.lastSelectedPathComponent as DefaultMutableTreeNode
+            val selectedNode = project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
             val nodeInfo: FlagNodeParent = selectedNode.userObject as FlagNodeParent
             // Relies on implicit behavior of key being first child.
             val flagKey = selectedNode.firstChild.toString().substringAfter(" ")

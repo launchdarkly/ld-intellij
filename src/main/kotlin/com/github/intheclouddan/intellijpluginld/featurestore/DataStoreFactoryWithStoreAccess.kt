@@ -53,6 +53,21 @@ fun createClientAndGetStore(token: String, myStreamBaseURI: String): Pair<DataSt
     return Pair(dataStore, client)
 }
 
+fun createClientAndGetStoreOffline(): Pair<DataStore?, LDClient> {
+    val storeFactory = DataStoreFactoryWithStoreAccess(Components.inMemoryDataStore())
+    val config: LDConfig = LDConfig.Builder()
+            .offline(true)
+            .events(Components.noEvents())
+            .dataStore(storeFactory)
+            .build()
+    val client = LDClient("sdk-12345", config)
+    // Creating the client causes the SDK to call createDataStore on the factory
+    val dataStore: DataStore? = storeFactory.getStoreInstance()
+    // do something with them
+
+    return Pair(dataStore, client)
+}
+
 fun getFlagsAsJSONStrings(store: DataStore): List<String>? {
     val ret: MutableList<String> = ArrayList()
     val items: KeyedItems<ItemDescriptor> = store.getAll(DataModel.FEATURES)

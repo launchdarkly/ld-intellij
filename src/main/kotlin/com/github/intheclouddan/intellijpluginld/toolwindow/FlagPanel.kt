@@ -40,7 +40,7 @@ private const val SPLITTER_PROPERTY = "BuildAttribution.Splitter.Proportion"
  */
 class FlagPanel(private val myProject: Project, messageBusService: MessageBusService) : SimpleToolWindowPanel(false, false), Disposable {
     private val settings = LaunchDarklyConfig.getInstance(myProject)
-    private val getFlags = myProject.service<FlagStore>()
+    private var getFlags = myProject.service<FlagStore>()
     private var root = RootNode(getFlags.flags, getFlags.flagConfigs, settings, myProject)
     private var treeStructure = createTreeStructure()
     private var treeModel = StructureTreeModel(treeStructure, this)
@@ -183,34 +183,36 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         var getFlags = myProject.service<FlagStore>()
         try {
             val defaultTree = tree.model as AsyncTreeModel
-            val root = defaultTree.root as DefaultMutableTreeNode
-            val flagFind = getFlags.flags.items
-            for (flag in flagFind) {
-                var found = false
-                var e = root.depthFirstEnumeration()
-                while (e.hasMoreElements()) {
-                    val node = e.nextElement()
-                    val parent = node as DefaultMutableTreeNode
-                    if (parent.userObject is FlagNodeParent) {
-                        var parentNode = parent.userObject as FlagNodeParent
-                        if (parentNode.key == flag.key && parentNode.flag.version < flag.version) {
-                            found = true
-                            tree.setEditable(true);
-                            parentNode = FlagNodeParent(flag, settings, getFlags.flags, myProject)
-                            treeModel.invalidate(TreePath(parent), true)
-                            break
-                        }
-                        if (parentNode.key == flag.key) {
-                            found = true
-                            break
+            if (defaultTree.root != null) {
+                val root = defaultTree.root as DefaultMutableTreeNode
+                val flagFind = getFlags.flags.items
+                for (flag in flagFind) {
+                    var found = false
+                    var e = root.depthFirstEnumeration()
+                    while (e.hasMoreElements()) {
+                        val node = e.nextElement()
+                        val parent = node as DefaultMutableTreeNode
+                        if (parent.userObject is FlagNodeParent) {
+                            var parentNode = parent.userObject as FlagNodeParent
+                            if (parentNode.key == flag.key && parentNode.flag.version < flag.version) {
+                                found = true
+                                tree.setEditable(true);
+                                parentNode = FlagNodeParent(flag, settings, getFlags.flags, myProject)
+                                treeModel.invalidate(TreePath(parent), true)
+                                break
+                            }
+                            if (parentNode.key == flag.key) {
+                                found = true
+                                break
+                            }
                         }
                     }
-                }
 
-                if (!found) {
-                    updateNodeInfo()
+                    if (!found) {
+                        updateNodeInfo()
+                    }
+                    tree.invalidate()
                 }
-                tree.invalidate()
             }
         } catch (e: Error) {
             println(e)
@@ -222,11 +224,19 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
             tree = start()
             actions(tree)
         }
+        var start = false
+        if (!this::tree.isInitialized) {
+            start = true
+        }
         try {
             myProject.messageBus.connect().subscribe(messageBusService.flagsUpdatedTopic,
                     object : FlagNotifier {
                         override fun notify(isConfigured: Boolean, flag: String, rebuild: Boolean) {
                             if (isConfigured) {
+                                if (start) {
+                                    tree = start()
+                                    actions(tree)
+                                }
                                 if (flag != "") {
                                     invokeLater {
                                         updateNode(flag)
@@ -244,6 +254,10 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                         }
 
                         override fun reinit() {
+                            if (start) {
+                                tree = start()
+                                actions(tree)
+                            }
                             updateNodeInfo()
                         }
                     })

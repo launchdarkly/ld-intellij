@@ -54,7 +54,7 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
         return CRED_NAMESPACE + "-" + project.name
     }
 
-    class ConfigState {
+    inner class ConfigState {
         private val key = "apiKey"
         private val credentialAttributes: CredentialAttributes =
                 CredentialAttributes(generateServiceName(
@@ -79,7 +79,6 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
 class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable(displayName = "LaunchDarkly Plugin") {
     private val apiField = JPasswordField()
     private val messageBusService = project.service<DefaultMessageBusService>()
-    private val projectApi = LaunchDarklyApiClient.projectInstance(project)
     private val settings = LaunchDarklyConfig.getInstance(project).ldState
     private val origApiKey = settings.authorization
     private val origBaseUri = settings.baseUri
@@ -96,7 +95,10 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
 
     init {
         try {
-            projectContainer = projectApi.projects.items
+            println(settings.baseUri)
+            println(settings.authorization)
+            println(settings.project)
+            projectContainer = getProjects(null, null)
             if (projectContainer.size > 0) {
                 environmentContainer = projectContainer.find { it.key == settings.project }
                         ?: projectContainer.firstOrNull() as com.launchdarkly.api.model.Project
@@ -113,10 +115,10 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
             row("Refresh Rate(in Minutes):") { intTextField(settings::refreshRate) }
             row("Base URL:") { textField(settings::baseUri) }
             try {
-                if (::projectContainer.isInitialized) {
-                    projectBox = DefaultComboBoxModel(projectContainer.map { it.key }.toTypedArray())
+                projectBox = if (::projectContainer.isInitialized) {
+                    DefaultComboBoxModel(projectContainer.map { it.key }.toTypedArray())
                 } else {
-                    projectBox = DefaultComboBoxModel(arrayOf(defaultMessage))
+                    DefaultComboBoxModel(arrayOf(defaultMessage))
                 }
                 row("Project") {
                     comboBox(projectBox, settings::project, renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
@@ -144,9 +146,11 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
     }
 
     override fun isModified(): Boolean {
-        if (settings.authorization != origApiKey && !apiUpdate) {
+        if ((settings.authorization != origApiKey || settings.baseUri != origBaseUri) && !apiUpdate) {
             try {
-                projectContainer = LaunchDarklyApiClient.projectInstance(project, settings.authorization).projects.items
+                println(settings.baseUri)
+                println(settings.authorization)
+                projectContainer = getProjects(settings.authorization, settings.baseUri)
                 with(projectBox) {
                     removeAllElements()
                     if (selectedItem == null || selectedItem.toString() == "Check API Key") {
@@ -159,26 +163,27 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                 println(err)
             }
         }
-
-        if (settings.baseUri != origBaseUri) {
-            try {
-                projectContainer = LaunchDarklyApiClient.projectInstance(project, settings.authorization).projects.items
-                with(projectBox) {
-                    removeAllElements()
-                    if (selectedItem == null || selectedItem.toString() == "Check API Key") {
-                        selectedItem = projectContainer.map { it.key }.firstOrNull()
-                    }
-                    projectContainer.map { addElement(it.key) }
-                }
-                apiUpdate = true
-            } catch (err: Error) {
-                println(err)
-            }
-        }
+//
+//        if () {
+//            try {
+//                projectContainer = getProjects()
+//                with(projectBox) {
+//                    removeAllElements()
+//                    if (selectedItem == null || selectedItem.toString() == "Check API Key") {
+//                        selectedItem = projectContainer.map { it.key }.firstOrNull()
+//                    }
+//                    projectContainer.map { addElement(it.key) }
+//                }
+//                apiUpdate = true
+//            } catch (err: Error) {
+//                println(err)
+//            }
+//        }
         if (::projectContainer.isInitialized && lastSelectedProject != projectBox.selectedItem.toString()) {
+            lastSelectedProject = projectBox.selectedItem.toString()
             try {
                 environmentContainer = projectContainer.find { it.key == projectBox.selectedItem.toString() }!!
-                val envMap = environmentContainer.environments.map { it.key }
+                val envMap = environmentContainer.environments.map { it.key }.sorted()
                 if (::environmentBox.isInitialized) {
                     with(environmentBox) {
                         removeAllElements()
@@ -188,7 +193,6 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                         }
                     }
                 }
-                lastSelectedProject = projectBox.selectedItem.toString()
             } catch (err: Error) {
                 println(err)
             }
@@ -210,7 +214,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
 
     override fun apply() {
         super.apply()
-        if (modified && origApiKey != "") {
+        if ((projectBox.selectedItem != "Check API Key") && modified && origApiKey != "") {
             val publisher = project.messageBus.syncPublisher(messageBusService.configurationEnabledTopic)
             publisher.notify(true)
             println("notifying")
@@ -223,6 +227,11 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
             settings.environment = environmentBox.selectedItem.toString()
         }
 
+    }
+
+    fun getProjects(apiKey: String?, baseUri: String?): MutableList<com.launchdarkly.api.model.Project> {
+        val projectApi = LaunchDarklyApiClient.projectInstance(project, apiKey, baseUri)
+        return projectApi.projects.items.sortedBy { it.key } as MutableList<com.launchdarkly.api.model.Project>
     }
 
 }

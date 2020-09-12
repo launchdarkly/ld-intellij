@@ -14,26 +14,28 @@ class LaunchDarklyApiClient(project: Project) {
 
     companion object {
         @JvmStatic
-        fun flagInstance(project: Project): FeatureFlagsApi {
+        fun flagInstance(project: Project, apiKey: String? = null, baseUri: String? = null): FeatureFlagsApi {
             val settings = LaunchDarklyConfig.getInstance(project)
+            var ldBaseUri = baseUri ?: settings.ldState.baseUri
+            var ldApiKey = apiKey ?: settings.ldState.authorization
+            println("inside flag instance")
+            println(ldBaseUri)
+            println(ldApiKey)
             val client: ApiClient = Configuration.getDefaultApiClient()
-            client.basePath = "${settings.ldState.baseUri}/api/v2"
+            client.basePath = "${ldBaseUri}/api/v2"
             val token = client.getAuthentication("Token") as ApiKeyAuth
-            token.apiKey = settings.ldState.authorization
+            token.apiKey = ldApiKey
 
             return FeatureFlagsApi()
         }
 
         @JvmStatic
-        fun projectInstance(project: Project, apiKey: String? = null): ProjectsApi {
+        fun projectInstance(project: Project, apiKey: String? = null, baseUri: String? = null): ProjectsApi {
             val settings = LaunchDarklyConfig.getInstance(project)
-            var ldApiKey = apiKey
-            if (ldApiKey == null) {
-                val settings = LaunchDarklyConfig.getInstance(project)
-                ldApiKey = settings.ldState.authorization
-            }
+            var ldBaseUri = baseUri ?: settings.ldState.baseUri
+            var ldApiKey = apiKey ?: settings.ldState.authorization
             val client: ApiClient = Configuration.getDefaultApiClient()
-            client.basePath = "${settings.ldState.baseUri}/api/v2"
+            client.basePath = "${ldBaseUri}/api/v2"
             val token = client.getAuthentication("Token") as ApiKeyAuth
             token.apiKey = ldApiKey
             return ProjectsApi()
