@@ -10,8 +10,16 @@
     <depends optional="true" config-file="withGoModule.xml">org.jetbrains.plugins.go</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <applicationConfigurable
+                instance="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyApplicationConfigurable"
+                id="launchdarkly.app.settings" displayName="LaunchDarkly Plugin App"/>
+
         <projectConfigurable instance="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfigurable"
-                             displayName="LaunchDarkly Plugin" id="launchdarkly.settings"/>
+                             displayName="LaunchDarkly Plugin" id="launchdarkly.settings"
+                             parentId="launchdarkly.app.settings"/>
+        <applicationService
+                serviceImplementation="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyApplicationConfig"/>
+
         <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.FlagStore"/>
         <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig"/>
         <projectService serviceInterface="com.github.intheclouddan.intellijpluginld.messaging.MessageBusService"

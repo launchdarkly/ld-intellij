@@ -127,7 +127,7 @@ class FlagStore(project: Project) {
     init {
         val settings = LaunchDarklyConfig.getInstance(project).ldState
         var refreshRate: Long = settings.refreshRate.toLong()
-        if (settings.project != "") {
+        if (settings.project != "" && settings.authorization != "") {
             flags = flagsNotify()
             val ldProject = LaunchDarklyApiClient.projectInstance(project, settings.authorization).getProject(settings.project)
             val MyStreamBaseURI = settings.baseUri.replace("app", "stream")

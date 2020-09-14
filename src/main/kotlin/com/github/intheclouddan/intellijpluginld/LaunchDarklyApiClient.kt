@@ -1,5 +1,6 @@
 package com.github.intheclouddan.intellijpluginld
 
+import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyApplicationConfig
 import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
 import com.intellij.openapi.project.Project
 import com.launchdarkly.api.ApiClient
@@ -30,10 +31,12 @@ class LaunchDarklyApiClient(project: Project) {
         }
 
         @JvmStatic
-        fun projectInstance(project: Project, apiKey: String? = null, baseUri: String? = null): ProjectsApi {
-            val settings = LaunchDarklyConfig.getInstance(project)
-            var ldBaseUri = baseUri ?: settings.ldState.baseUri
-            var ldApiKey = apiKey ?: settings.ldState.authorization
+        fun projectInstance(project: Project?, apiKey: String? = null, baseUri: String? = null): ProjectsApi {
+            var settings = if (project != null) LaunchDarklyConfig.getInstance(project!!).ldState else {
+                LaunchDarklyApplicationConfig.getInstance().ldState
+            }
+            var ldBaseUri = baseUri ?: settings.baseUri
+            var ldApiKey = apiKey ?: settings.authorization
             val client: ApiClient = Configuration.getDefaultApiClient()
             client.basePath = "${ldBaseUri}/api/v2"
             val token = client.getAuthentication("Token") as ApiKeyAuth

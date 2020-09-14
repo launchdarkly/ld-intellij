@@ -1,14 +1,15 @@
 package com.github.intheclouddan.intellijpluginld.settings
 
 import com.github.intheclouddan.intellijpluginld.LaunchDarklyApiClient
-import com.github.intheclouddan.intellijpluginld.messaging.DefaultMessageBusService
 import com.intellij.credentialStore.CredentialAttributes
 import com.intellij.credentialStore.Credentials
 import com.intellij.credentialStore.generateServiceName
 import com.intellij.ide.passwordSafe.PasswordSafe
-import com.intellij.openapi.components.*
+import com.intellij.openapi.components.PersistentStateComponent
+import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.components.State
+import com.intellij.openapi.components.Storage
 import com.intellij.openapi.options.BoundConfigurable
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.SimpleListCellRenderer
 import com.intellij.ui.layout.PropertyBinding
@@ -18,17 +19,18 @@ import javax.swing.DefaultComboBoxModel
 import javax.swing.JPanel
 import javax.swing.JPasswordField
 
+val CHECK_API = "Check API Key"
+
 /*
  * Maintain state of what LaunchDarkly Project to connect to.
  */
-@State(name = "LaunchDarklyConfig", storages = [Storage("launchdarkly.xml")])
-open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<LaunchDarklyConfig.ConfigState> {
-    val project: Project = project
+@State(name = "LaunchDarklyApplicationConfig", storages = [Storage("launchdarkly.xml")])
+open class LaunchDarklyApplicationConfig() : PersistentStateComponent<LaunchDarklyApplicationConfig.ConfigState> {
     var ldState: ConfigState = ConfigState()
 
     companion object {
-        fun getInstance(project: Project): LaunchDarklyConfig {
-            return ServiceManager.getService(project, LaunchDarklyConfig(project)::class.java)
+        fun getInstance(): LaunchDarklyApplicationConfig {
+            return ServiceManager.getService(LaunchDarklyApplicationConfig()::class.java)
         }
     }
 
@@ -48,11 +50,10 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
         return true
     }
 
-//    fun creds(key: String) {
-//        var setKey = ConfigState::credName.javaClass as String
-//        setKey = key
-//
-//    }
+    fun creds(key: String) {
+        var setKey = ConfigState::credName.javaClass as String
+        setKey = key
+    }
 
     data class ConfigState(
             override var credName: String = "",
@@ -61,31 +62,27 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
             override var refreshRate: Int = 120,
             override var baseUri: String = "https://app.launchdarkly.com"
     ) : LDSettings {
-        private val key: String = "apiKey"
-        //var credStoreName = "launchdarkly-intellij-$credName"
-        //private var credentialAttributes: CredentialAttributes =
+        private val key = "apiKey"
+        private val credentialAttributes: CredentialAttributes =
+                CredentialAttributes(generateServiceName(
+                        "launchdarkly-intellij",
+                        key
+                ))
 
 
         // Stored in System Credential store
         override var authorization: String
-            get() = PasswordSafe.instance.getPassword(CredentialAttributes(generateServiceName(
-                    "launchdarkly-intellij-$credName",
-                    key
-            ))) ?: ""
+            get() = PasswordSafe.instance.getPassword(credentialAttributes) ?: ""
             set(value) {
                 val credentials = Credentials("", value)
-                PasswordSafe.instance.set(CredentialAttributes(generateServiceName(
-                        "launchdarkly-intellij-$credName",
-                        key
-                )), credentials)
+                PasswordSafe.instance.set(credentialAttributes, credentials)
             }
     }
 }
 
-class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable(displayName = "LaunchDarkly Plugin") {
+class LaunchDarklyApplicationConfigurable() : BoundConfigurable(displayName = "LaunchDarkly Application Plugin") {
     private val apiField = JPasswordField()
-    private val messageBusService = project.service<DefaultMessageBusService>()
-    private val settings = LaunchDarklyConfig.getInstance(project).ldState
+    private val settings = LaunchDarklyApplicationConfig.getInstance().ldState
     private val origApiKey = settings.authorization
     private val origBaseUri = settings.baseUri
     private var modified = false
@@ -101,16 +98,16 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
 
     init {
         try {
-            println(settings.baseUri)
-            println(settings.authorization)
-            println(settings.project)
             projectContainer = getProjects(null, null)
             if (projectContainer.size > 0) {
                 environmentContainer = projectContainer.find { it.key == settings.project }
                         ?: projectContainer.firstOrNull() as com.launchdarkly.api.model.Project
             }
         } catch (err: Exception) {
-            defaultMessage = "Check API Key"
+            println(err)
+            println(settings.authorization)
+            println(settings.baseUri)
+            defaultMessage = CHECK_API
         }
     }
 
@@ -152,20 +149,14 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
     }
 
     override fun isModified(): Boolean {
-        if (settings.credName != project.name) settings.credName = project.name
-        println(settings.credName)
         if ((settings.authorization != origApiKey || settings.baseUri != origBaseUri) && !apiUpdate) {
             try {
-                println("settings")
                 println(settings.baseUri)
                 println(settings.authorization)
-                println("Cred Before: $settings.credName")
-                settings.credName = project.name
-                println(settings.credName)
                 projectContainer = getProjects(settings.authorization, settings.baseUri)
                 with(projectBox) {
                     removeAllElements()
-                    if (selectedItem == null || selectedItem.toString() == "Check API Key") {
+                    if (selectedItem == null || selectedItem.toString() == CHECK_API) {
                         selectedItem = projectContainer.map { it.key }.firstOrNull()
                     }
                     projectContainer.map { addElement(it.key) }
@@ -181,7 +172,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
 //                projectContainer = getProjects()
 //                with(projectBox) {
 //                    removeAllElements()
-//                    if (selectedItem == null || selectedItem.toString() == "Check API Key") {
+//                    if (selectedItem == null || selectedItem.toString() == CHECK_API) {
 //                        selectedItem = projectContainer.map { it.key }.firstOrNull()
 //                    }
 //                    projectContainer.map { addElement(it.key) }
@@ -226,16 +217,10 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
 
     override fun apply() {
         super.apply()
-        println(settings.baseUri)
-        println(settings.authorization)
-        println("Cred Before: launchdarkly-intellij-${settings.credName}")
-        settings.credName = project.name
-        println(settings.credName)
-        if ((projectBox.selectedItem != "Check API Key") && modified) {
-            val publisher = project.messageBus.syncPublisher(messageBusService.configurationEnabledTopic)
-            publisher.notify(true)
+        if ((projectBox.selectedItem != CHECK_API) && modified && origApiKey != "") {
+            //val publisher = project.messageBus.syncPublisher(messageBusService.configurationEnabledTopic)
+            //publisher.notify(true)
             println("notifying")
-            println("settings")
         }
 
         if (settings.project != projectBox.selectedItem.toString()) {
@@ -248,7 +233,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
     }
 
     fun getProjects(apiKey: String?, baseUri: String?): MutableList<com.launchdarkly.api.model.Project> {
-        val projectApi = LaunchDarklyApiClient.projectInstance(project, apiKey, baseUri)
+        val projectApi = LaunchDarklyApiClient.projectInstance(null, apiKey, baseUri)
         return projectApi.projects.items.sortedBy { it.key } as MutableList<com.launchdarkly.api.model.Project>
     }
 
