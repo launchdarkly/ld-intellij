@@ -6,7 +6,7 @@ import com.github.intheclouddan.intellijpluginld.featurestore.createClientAndGet
 import com.github.intheclouddan.intellijpluginld.featurestore.getFlagsAsJSONStrings
 import com.github.intheclouddan.intellijpluginld.messaging.ConfigurationNotifier
 import com.github.intheclouddan.intellijpluginld.messaging.DefaultMessageBusService
-import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
+import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSettings
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.intellij.openapi.components.Service
@@ -35,7 +35,7 @@ class FlagStore(project: Project) {
     var flagClient: LDClient = LDClient("sdk-12345", LDConfig.Builder().offline(true).build())
     val messageBusService = project.service<DefaultMessageBusService>()
     private val project = project
-    private val settings = LaunchDarklyConfig.getInstance(project).ldState
+    private val settings = LaunchDarklyMergedSettings.getInstance(project)
     private var envList = listOf(settings.environment)
 
 
@@ -125,7 +125,7 @@ class FlagStore(project: Project) {
     }
 
     init {
-        val settings = LaunchDarklyConfig.getInstance(project).ldState
+        val settings = LaunchDarklyMergedSettings.getInstance(project)
         var refreshRate: Long = settings.refreshRate.toLong()
         if (settings.project != "" && settings.authorization != "") {
             flags = flagsNotify()

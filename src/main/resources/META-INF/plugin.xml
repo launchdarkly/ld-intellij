@@ -20,6 +20,9 @@
         <applicationService
                 serviceImplementation="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyApplicationConfig"/>
 
+        <projectService
+                serviceImplementation="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSettings"/>
+
         <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.FlagStore"/>
         <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig"/>
         <projectService serviceInterface="com.github.intheclouddan.intellijpluginld.messaging.MessageBusService"

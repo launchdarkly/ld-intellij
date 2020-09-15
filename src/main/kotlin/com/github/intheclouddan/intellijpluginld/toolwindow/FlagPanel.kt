@@ -7,7 +7,7 @@ import com.github.intheclouddan.intellijpluginld.action.RefreshAction
 import com.github.intheclouddan.intellijpluginld.action.ToggleFlagAction
 import com.github.intheclouddan.intellijpluginld.messaging.FlagNotifier
 import com.github.intheclouddan.intellijpluginld.messaging.MessageBusService
-import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
+import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSettings
 import com.intellij.ide.util.treeView.TreeState
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
@@ -39,7 +39,8 @@ private const val SPLITTER_PROPERTY = "BuildAttribution.Splitter.Proportion"
  * FlagPanel renders the ToolWindow Flag Treeview and associated action buttons.
  */
 class FlagPanel(private val myProject: Project, messageBusService: MessageBusService) : SimpleToolWindowPanel(false, false), Disposable {
-    private val settings = LaunchDarklyConfig.getInstance(myProject)
+    //private val settings = LaunchDarklyConfig.getInstance(myProject)
+    private val settings = LaunchDarklyMergedSettings.getInstance(myProject)
     private var getFlags = myProject.service<FlagStore>()
     private var root = RootNode(getFlags.flags, getFlags.flagConfigs, settings, myProject)
     private var treeStructure = createTreeStructure()

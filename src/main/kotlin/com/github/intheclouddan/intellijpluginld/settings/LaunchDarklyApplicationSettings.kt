@@ -77,6 +77,13 @@ open class LaunchDarklyApplicationConfig() : PersistentStateComponent<LaunchDark
                 val credentials = Credentials("", value)
                 PasswordSafe.instance.set(credentialAttributes, credentials)
             }
+
+        override fun isConfigured(): Boolean {
+            if (project == "" || environment == "" || authorization == "") {
+                return false
+            }
+            return true
+        }
     }
 }
 

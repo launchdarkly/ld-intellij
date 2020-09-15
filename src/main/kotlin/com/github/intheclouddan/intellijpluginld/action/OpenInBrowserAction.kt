@@ -1,6 +1,6 @@
 package com.github.intheclouddan.intellijpluginld.action
 
-import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
+import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSettings
 import com.github.intheclouddan.intellijpluginld.toolwindow.FlagNodeParent
 import com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindow
 import com.intellij.ide.browsers.BrowserLauncher
@@ -48,7 +48,7 @@ class OpenInBrowserAction : AnAction {
      */
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project
-        val settings = LaunchDarklyConfig.getInstance(project!!).ldState
+        val settings = LaunchDarklyMergedSettings.getInstance(project!!)
         if (project != null) {
             val selectedNode = project.service<FlagToolWindow>().getPanel()?.tree?.lastSelectedPathComponent as DefaultMutableTreeNode
             val nodeInfo: FlagNodeParent = selectedNode.userObject as FlagNodeParent

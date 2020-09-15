@@ -46,7 +46,6 @@ class RefreshAction : AnAction {
     override fun actionPerformed(event: AnActionEvent) {
         // Using the event, create and show a dialog
         val currentProject = event.project
-        //val settings = LaunchDarklyConfig.getInstance(currentProject!!).ldState
         val flags = currentProject!!.service<FlagStore>()
         flags.flagsNotify(rebuild = true)
     }

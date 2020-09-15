@@ -58,8 +58,8 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
             override var credName: String = "",
             override var project: String = "",
             override var environment: String = "",
-            override var refreshRate: Int = 120,
-            override var baseUri: String = "https://app.launchdarkly.com"
+            override var refreshRate: Int = -1,
+            override var baseUri: String = ""
     ) : LDSettings {
         private val key: String = "apiKey"
         //var credStoreName = "launchdarkly-intellij-$credName"
@@ -73,12 +73,22 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
                     key
             ))) ?: ""
             set(value) {
+                if (credName == "") {
+                    return
+                }
                 val credentials = Credentials("", value)
                 PasswordSafe.instance.set(CredentialAttributes(generateServiceName(
                         "launchdarkly-intellij-$credName",
                         key
                 )), credentials)
             }
+
+        override fun isConfigured(): Boolean {
+            if (project == "" || environment == "" || authorization == "") {
+                return false
+            }
+            return true
+        }
     }
 }
 
@@ -101,9 +111,6 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
 
     init {
         try {
-            println(settings.baseUri)
-            println(settings.authorization)
-            println(settings.project)
             projectContainer = getProjects(null, null)
             if (projectContainer.size > 0) {
                 environmentContainer = projectContainer.find { it.key == settings.project }
@@ -153,15 +160,9 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
 
     override fun isModified(): Boolean {
         if (settings.credName != project.name) settings.credName = project.name
-        println(settings.credName)
         if ((settings.authorization != origApiKey || settings.baseUri != origBaseUri) && !apiUpdate) {
             try {
-                println("settings")
-                println(settings.baseUri)
-                println(settings.authorization)
-                println("Cred Before: $settings.credName")
                 settings.credName = project.name
-                println(settings.credName)
                 projectContainer = getProjects(settings.authorization, settings.baseUri)
                 with(projectBox) {
                     removeAllElements()
@@ -226,16 +227,11 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
 
     override fun apply() {
         super.apply()
-        println(settings.baseUri)
-        println(settings.authorization)
-        println("Cred Before: launchdarkly-intellij-${settings.credName}")
         settings.credName = project.name
-        println(settings.credName)
         if ((projectBox.selectedItem != "Check API Key") && modified) {
             val publisher = project.messageBus.syncPublisher(messageBusService.configurationEnabledTopic)
             publisher.notify(true)
             println("notifying")
-            println("settings")
         }
 
         if (settings.project != projectBox.selectedItem.toString()) {

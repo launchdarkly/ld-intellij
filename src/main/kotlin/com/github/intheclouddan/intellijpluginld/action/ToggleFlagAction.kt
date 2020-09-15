@@ -1,7 +1,7 @@
 package com.github.intheclouddan.intellijpluginld.action
 
 import com.github.intheclouddan.intellijpluginld.LaunchDarklyApiClient
-import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
+import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSettings
 import com.github.intheclouddan.intellijpluginld.toolwindow.FlagNodeParent
 import com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindow
 import com.intellij.openapi.actionSystem.AnAction
@@ -56,7 +56,7 @@ class ToggleFlagAction : AnAction {
             val nodeInfo: FlagNodeParent = selectedNode.userObject as FlagNodeParent
             // Relies on implicit behavior of key being first child.
             val flagKey = selectedNode.firstChild.toString().substringAfter(" ")
-            val settings = LaunchDarklyConfig.getInstance(project).ldState
+            val settings = LaunchDarklyMergedSettings.getInstance(project)
             val patchComment = PatchComment()
             val patch = PatchOperation()
             patch.op = "replace"

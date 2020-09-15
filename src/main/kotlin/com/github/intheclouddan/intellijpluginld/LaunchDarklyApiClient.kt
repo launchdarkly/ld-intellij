@@ -1,7 +1,6 @@
 package com.github.intheclouddan.intellijpluginld
 
-import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyApplicationConfig
-import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
+import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSettings
 import com.intellij.openapi.project.Project
 import com.launchdarkly.api.ApiClient
 import com.launchdarkly.api.Configuration
@@ -16,9 +15,9 @@ class LaunchDarklyApiClient(project: Project) {
     companion object {
         @JvmStatic
         fun flagInstance(project: Project, apiKey: String? = null, baseUri: String? = null): FeatureFlagsApi {
-            val settings = LaunchDarklyConfig.getInstance(project)
-            var ldBaseUri = baseUri ?: settings.ldState.baseUri
-            var ldApiKey = apiKey ?: settings.ldState.authorization
+            val settings = LaunchDarklyMergedSettings.getInstance(project)
+            var ldBaseUri = baseUri ?: settings.baseUri
+            var ldApiKey = apiKey ?: settings.authorization
             println("inside flag instance")
             println(ldBaseUri)
             println(ldApiKey)
@@ -32,9 +31,7 @@ class LaunchDarklyApiClient(project: Project) {
 
         @JvmStatic
         fun projectInstance(project: Project?, apiKey: String? = null, baseUri: String? = null): ProjectsApi {
-            var settings = if (project != null) LaunchDarklyConfig.getInstance(project!!).ldState else {
-                LaunchDarklyApplicationConfig.getInstance().ldState
-            }
+            var settings = LaunchDarklyMergedSettings.getInstance(project!!)
             var ldBaseUri = baseUri ?: settings.baseUri
             var ldApiKey = apiKey ?: settings.authorization
             val client: ApiClient = Configuration.getDefaultApiClient()
@@ -45,10 +42,10 @@ class LaunchDarklyApiClient(project: Project) {
         }
 
         fun environmentInstance(project: Project): EnvironmentsApi {
-            val settings = LaunchDarklyConfig.getInstance(project)
+            val settings = LaunchDarklyMergedSettings.getInstance(project)
             val client: ApiClient = Configuration.getDefaultApiClient()
             val token = client.getAuthentication("Token") as ApiKeyAuth
-            token.apiKey = settings.ldState.authorization
+            token.apiKey = settings.authorization
             return EnvironmentsApi()
         }
     }

@@ -3,7 +3,7 @@ package com.github.intheclouddan.intellijpluginld.toolwindow
 import com.github.intheclouddan.intellijpluginld.FlagStore
 import com.github.intheclouddan.intellijpluginld.LDIcons
 import com.github.intheclouddan.intellijpluginld.featurestore.FlagConfiguration
-import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig
+import com.github.intheclouddan.intellijpluginld.settings.LDSettings
 import com.intellij.ide.projectView.PresentationData
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
@@ -12,15 +12,20 @@ import com.launchdarkly.api.model.*
 import java.util.*
 import javax.swing.Icon
 
-class RootNode(flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>, settings: LaunchDarklyConfig, project: Project) : SimpleNode() {
+class RootNode(flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>, settings: LDSettings, project: Project) : SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
     private val flags = flags
     private val settings = settings
     private val intProject = project
 
     override fun getChildren(): Array<SimpleNode> {
+        println(settings.authorization)
+        println(settings.baseUri)
+        println(settings.environment)
+        println(settings.project)
+
         if (myChildren.isEmpty() && flags.items != null) {
-            myChildren.add(FlagNodeBase("${settings.ldState.project} / ${settings.ldState.environment}", LDIcons.FLAG))
+            myChildren.add(FlagNodeBase("${settings.project} / ${settings.environment}", LDIcons.FLAG))
             for (flag in flags.items) {
                 myChildren.add(FlagNodeParent(flag, settings, flags, intProject /*flagConfigs*/))
             }
@@ -37,7 +42,7 @@ class RootNode(flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>,
 
 }
 
-class FlagNodeParent(FFlag: FeatureFlag, settings: LaunchDarklyConfig, flags: FeatureFlags, myProject: Project /* flagConfigs: Map<String, FlagConfiguration>*/) : SimpleNode() {
+class FlagNodeParent(FFlag: FeatureFlag, settings: LDSettings, flags: FeatureFlags, myProject: Project /* flagConfigs: Map<String, FlagConfiguration>*/) : SimpleNode() {
     private var children: MutableList<SimpleNode> = ArrayList()
     private val getFlags = myProject.service<FlagStore>()
     var flag: FeatureFlag = FFlag
