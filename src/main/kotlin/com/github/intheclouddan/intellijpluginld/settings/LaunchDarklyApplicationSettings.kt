@@ -1,14 +1,13 @@
 package com.github.intheclouddan.intellijpluginld.settings
 
 import com.github.intheclouddan.intellijpluginld.LaunchDarklyApiClient
+import com.github.intheclouddan.intellijpluginld.messaging.AppDefaultMessageBusService
 import com.intellij.credentialStore.CredentialAttributes
 import com.intellij.credentialStore.Credentials
 import com.intellij.credentialStore.generateServiceName
 import com.intellij.ide.passwordSafe.PasswordSafe
-import com.intellij.openapi.components.PersistentStateComponent
-import com.intellij.openapi.components.ServiceManager
-import com.intellij.openapi.components.State
-import com.intellij.openapi.components.Storage
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.*
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.SimpleListCellRenderer
@@ -171,6 +170,11 @@ class LaunchDarklyApplicationConfigurable() : BoundConfigurable(displayName = "L
                 apiUpdate = true
             } catch (err: Error) {
                 println(err)
+                with(projectBox) {
+                    removeAllElements()
+                    addElement(err.toString())
+                }
+
             }
         }
 //
@@ -224,17 +228,22 @@ class LaunchDarklyApplicationConfigurable() : BoundConfigurable(displayName = "L
 
     override fun apply() {
         super.apply()
-        if ((projectBox.selectedItem != CHECK_API) && modified && origApiKey != "") {
-            //val publisher = project.messageBus.syncPublisher(messageBusService.configurationEnabledTopic)
-            //publisher.notify(true)
-            println("notifying")
-        }
 
         if (settings.project != projectBox.selectedItem.toString()) {
             settings.project = projectBox.selectedItem.toString()
         }
+
         if (settings.environment != environmentBox.selectedItem.toString()) {
             settings.environment = environmentBox.selectedItem.toString()
+        }
+
+        if ((projectBox.selectedItem != CHECK_API) && modified) {
+            val appMsgService = ApplicationManager.getApplication().messageBus
+            val topic = service<AppDefaultMessageBusService>().configurationEnabledTopic
+
+            val publisher = appMsgService.syncPublisher(topic)
+            publisher.notify(true)
+            println("notifying app")
         }
 
     }

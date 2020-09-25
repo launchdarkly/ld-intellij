@@ -1,5 +1,6 @@
 package com.github.intheclouddan.intellijpluginld
 
+import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyApplicationConfig
 import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSettings
 import com.intellij.openapi.project.Project
 import com.launchdarkly.api.ApiClient
@@ -31,7 +32,7 @@ class LaunchDarklyApiClient(project: Project) {
 
         @JvmStatic
         fun projectInstance(project: Project?, apiKey: String? = null, baseUri: String? = null): ProjectsApi {
-            var settings = LaunchDarklyMergedSettings.getInstance(project!!)
+            var settings = if (project != null) LaunchDarklyMergedSettings.getInstance(project) else LaunchDarklyApplicationConfig.getInstance().ldState
             var ldBaseUri = baseUri ?: settings.baseUri
             var ldApiKey = apiKey ?: settings.authorization
             val client: ApiClient = Configuration.getDefaultApiClient()

@@ -123,7 +123,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
 
     override fun createPanel(): DialogPanel {
         panel = panel {
-            commentRow("Add your LaunchDarkly API Key and click Apply. Project and Environment selections will populate based on key permissions.")
+            commentRow("Any settings manually selected here will override the corresponding Application settings. Project and Environment selections will populate based on key permissions.")
             row("API Key:") { apiField().withTextBinding(PropertyBinding({ settings.authorization }, { settings.authorization = it })) }
             row("Refresh Rate(in Minutes):") { intTextField(settings::refreshRate) }
             row("Base URL:") { textField(settings::baseUri) }
@@ -227,18 +227,20 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
 
     override fun apply() {
         super.apply()
+
+        if (settings.project != projectBox.selectedItem.toString() && projectBox.selectedItem.toString() != defaultMessage) {
+            settings.project = projectBox.selectedItem.toString()
+        }
+
+        if (settings.environment != environmentBox.selectedItem.toString() && environmentBox.selectedItem.toString() != "Please select a Project") {
+            settings.environment = environmentBox.selectedItem.toString()
+        }
+
         settings.credName = project.name
         if ((projectBox.selectedItem != "Check API Key") && modified) {
             val publisher = project.messageBus.syncPublisher(messageBusService.configurationEnabledTopic)
             publisher.notify(true)
             println("notifying")
-        }
-
-        if (settings.project != projectBox.selectedItem.toString()) {
-            settings.project = projectBox.selectedItem.toString()
-        }
-        if (settings.environment != environmentBox.selectedItem.toString()) {
-            settings.environment = environmentBox.selectedItem.toString()
         }
 
     }

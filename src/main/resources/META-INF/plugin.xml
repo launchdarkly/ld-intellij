@@ -12,10 +12,10 @@
     <extensions defaultExtensionNs="com.intellij">
         <applicationConfigurable
                 instance="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyApplicationConfigurable"
-                id="launchdarkly.app.settings" displayName="LaunchDarkly Plugin App"/>
+                id="launchdarkly.app.settings" displayName="LaunchDarkly Plugin"/>
 
         <projectConfigurable instance="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfigurable"
-                             displayName="LaunchDarkly Plugin" id="launchdarkly.settings"
+                             displayName="Plugin Overrides" id="launchdarkly.settings"
                              parentId="launchdarkly.app.settings"/>
         <applicationService
                 serviceImplementation="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyApplicationConfig"/>
@@ -28,11 +28,19 @@
         <projectService serviceInterface="com.github.intheclouddan.intellijpluginld.messaging.MessageBusService"
                         serviceImplementation="com.github.intheclouddan.intellijpluginld.messaging.DefaultMessageBusService"
         />
+        <applicationService serviceInterface="com.github.intheclouddan.intellijpluginld.messaging.MessageBusService"
+                            serviceImplementation="com.github.intheclouddan.intellijpluginld.messaging.AppDefaultMessageBusService"
+        />
+
         <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindow"/>
         <toolWindow id="LaunchDarkly Flags" icon="/icons/flag.svg" anchor="right"
                     factoryClass="com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindowFactory"/>
     </extensions>
 
+    <!--    <applicationListeners>-->
+    <!--        <listener class="com.github.intheclouddan.intellijpluginld.messaging.MessageBusService"-->
+    <!--                  topic="com.github.intheclouddan.intellijpluginld.listeners.AppConfigListener"/>-->
+    <!--    </applicationListeners>-->
 
     <actions>
         <!-- CustomDefaultActionGroup demonstrates declaring an action group based on a ActionGroup class supplied by this plugin.

@@ -19,11 +19,6 @@ class RootNode(flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>,
     private val intProject = project
 
     override fun getChildren(): Array<SimpleNode> {
-        println(settings.authorization)
-        println(settings.baseUri)
-        println(settings.environment)
-        println(settings.project)
-
         if (myChildren.isEmpty() && flags.items != null) {
             myChildren.add(FlagNodeBase("${settings.project} / ${settings.environment}", LDIcons.FLAG))
             for (flag in flags.items) {
