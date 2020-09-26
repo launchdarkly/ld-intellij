@@ -23,7 +23,7 @@ class OpenInBrowserAction : AnAction {
      * class because a second constructor is overridden.
      * @see AnAction.AnAction
      */
-    constructor() : super() {}
+    constructor() : super()
 
     companion object {
         const val ID = "com.github.intheclouddan.intellijpluginld.action.OpenInBrowserAction"
@@ -37,8 +37,7 @@ class OpenInBrowserAction : AnAction {
      * @param description  The description of the menu item.
      * @param icon  The icon to be used with the menu item.
      */
-    constructor(text: String? = "Open in Browser", description: String?, icon: Icon?) : super(text, description, icon) {
-    }
+    constructor(text: String? = "Open in Browser", description: String?, icon: Icon?) : super(text, description, icon)
 
     /**
      * Gives the user feedback when the dynamic action menu is chosen.
@@ -49,13 +48,11 @@ class OpenInBrowserAction : AnAction {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project
         val settings = LaunchDarklyMergedSettings.getInstance(project!!)
-        if (project != null) {
-            val selectedNode = project.service<FlagToolWindow>().getPanel()?.tree?.lastSelectedPathComponent as DefaultMutableTreeNode
-            val nodeInfo: FlagNodeParent = selectedNode.userObject as FlagNodeParent
-            if (nodeInfo != null) {
-                val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features/${nodeInfo.flag.key}"
-                BrowserLauncher.instance.open(url)
-            }
+        val selectedNode = project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
+        val nodeInfo: FlagNodeParent = selectedNode.userObject as FlagNodeParent
+        if (nodeInfo != null) {
+            val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features/${nodeInfo.flag.key}"
+            BrowserLauncher.instance.open(url)
         }
     }
 
@@ -68,12 +65,10 @@ class OpenInBrowserAction : AnAction {
         super.update(e)
         val project = e.project
         if (project != null) {
-            if (project.service<FlagToolWindow>().getPanel()?.tree?.lastSelectedPathComponent != null) {
-                val selectedNode = project.service<FlagToolWindow>().getPanel()?.tree?.lastSelectedPathComponent.toString()
-                e.presentation.isEnabledAndVisible = e.presentation.isEnabled && (selectedNode.startsWith("Key:") || project.service<FlagToolWindow>().getPanel()?.tree?.selectionPath.path.size == FLAG_NAME_PATH)
+            if (project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent != null) {
+                val selectedNode = project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent.toString()
+                e.presentation.isEnabledAndVisible = e.presentation.isEnabled && (selectedNode.startsWith("Key:") || project.service<FlagToolWindow>().getPanel().tree.selectionPath.path.size == FLAG_NAME_PATH)
             }
-        } else {
-            e.presentation.isEnabledAndVisible = false
         }
     }
 }

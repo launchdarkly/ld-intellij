@@ -10,19 +10,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.ui.treeStructure.SimpleNode
 import com.launchdarkly.api.model.*
 import java.util.*
-import javax.swing.Icon
 
-class RootNode(flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>, settings: LDSettings, project: Project) : SimpleNode() {
+class RootNode(private val flags: FeatureFlags, private val settings: LDSettings, private val intProject: Project) : SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
-    private val flags = flags
-    private val settings = settings
-    private val intProject = project
 
     override fun getChildren(): Array<SimpleNode> {
         if (myChildren.isEmpty() && flags.items != null) {
             myChildren.add(FlagNodeBase("${settings.project} / ${settings.environment}", LDIcons.FLAG))
             for (flag in flags.items) {
-                myChildren.add(FlagNodeParent(flag, settings, flags, intProject /*flagConfigs*/))
+                myChildren.add(FlagNodeParent(flag, flags, intProject))
             }
         } else if (flags.items == null) {
             myChildren.add(FlagNodeBase("LaunchDarkly Plugin is not configured."))
@@ -32,17 +28,15 @@ class RootNode(flags: FeatureFlags, flagConfigs: Map<String, FlagConfiguration>,
 
     override fun update(data: PresentationData) {
         super.update(data)
-        data.setPresentableText("root")
+        data.presentableText = "root"
     }
 
 }
 
-class FlagNodeParent(FFlag: FeatureFlag, settings: LDSettings, flags: FeatureFlags, myProject: Project /* flagConfigs: Map<String, FlagConfiguration>*/) : SimpleNode() {
+class FlagNodeParent(FFlag: FeatureFlag, private var flags: FeatureFlags, myProject: Project) : SimpleNode() {
     private var children: MutableList<SimpleNode> = ArrayList()
     private val getFlags = myProject.service<FlagStore>()
     var flag: FeatureFlag = FFlag
-    var flags = flags
-    val settings = settings
     var env = getFlags.flagConfigs[flag.key]!!
     val key: String = flag.key
 
@@ -57,20 +51,20 @@ class FlagNodeParent(FFlag: FeatureFlag, settings: LDSettings, flags: FeatureFla
         return children.toTypedArray()
     }
 
-    fun buildChildren() {
+    private fun buildChildren() {
         children.add(FlagNodeBase("Key: ${flag.key}", LDIcons.FLAG_KEY))
         if (flag.description != "") {
             children.add(FlagNodeBase("Description: ${flag.description}", LDIcons.DESCRIPTION))
         }
         children.add(FlagNodeVariations(flag))
 
-        if (env.prerequisites.size > 0) {
-            children.add(FlagNodePrerequisites(flag, env.prerequisites, flags))
+        if (env.prerequisites.isNotEmpty()) {
+            children.add(FlagNodePrerequisites(env.prerequisites, flags))
         }
-        if (env.targets.size > 0) {
-            children.add(FlagNodeTargets(flag, env.targets, flags))
+        if (env.targets.isNotEmpty()) {
+            children.add(FlagNodeTargets(flag, env.targets))
         }
-        if (env.rules.size > 0) {
+        if (env.rules.isNotEmpty()) {
             children.add(FlagNodeBase("Rules: ${env.rules.size}", LDIcons.RULES))
         }
         if (env.fallthrough != null) {
@@ -91,36 +85,15 @@ class FlagNodeParent(FFlag: FeatureFlag, settings: LDSettings, flags: FeatureFla
         super.update(data)
         env = getFlags.flagConfigs[flag.key]!!
         flag = getFlags.flags.items.find { it.key == flag.key }!!
-        var enabledIcon: Icon
-        enabledIcon = if (env.on) LDIcons.TOGGLE_ON else LDIcons.TOGGLE_OFF
+        val enabledIcon = if (env.on) LDIcons.TOGGLE_ON else LDIcons.TOGGLE_OFF
         val label = flag.name ?: flag.key
-        data.setPresentableText(label)
+        data.presentableText = label
         data.setIcon(enabledIcon)
     }
 }
 
-class FlagNodeBase(label: String, labelIcon: Icon? = null) : SimpleNode() {
-    var label: String = label
-    val labelIcon = labelIcon
-
-    override fun getChildren(): Array<SimpleNode> {
-        return SimpleNode.NO_CHILDREN
-    }
-
-    override fun update(data: PresentationData) {
-        super.update(data)
-        data.setPresentableText(label)
-        data.tooltip = label
-        if (labelIcon != null) {
-            data.setIcon(labelIcon)
-        }
-    }
-}
-
-class FlagNodeVariations(flag: FeatureFlag) : SimpleNode() {
-    var flag: FeatureFlag = flag
+class FlagNodeVariations(private var flag: FeatureFlag) : SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
-
 
     override fun getChildren(): Array<SimpleNode> {
         for (variation in flag.variations) {
@@ -131,18 +104,17 @@ class FlagNodeVariations(flag: FeatureFlag) : SimpleNode() {
 
     override fun update(data: PresentationData) {
         super.update(data)
-        data.setPresentableText("Variations")
+        data.presentableText = "Variations"
         data.setIcon(LDIcons.VARIATION)
     }
 }
 
-class FlagNodeVariation(variation: Variation) : SimpleNode() {
-    val variation = variation
+class FlagNodeVariation(private val variation: Variation) : SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
 
     override fun getChildren(): Array<SimpleNode> {
         if (variation.name != null) {
-            myChildren.add(FlagNodeBase("Value: ${variation.value.toString()}", LDIcons.DESCRIPTION))
+            myChildren.add(FlagNodeBase("Value: ${variation.value}", LDIcons.DESCRIPTION))
         }
         if (variation.description != null) {
             myChildren.add(FlagNodeBase("Description ${variation.description}", LDIcons.DESCRIPTION))
@@ -152,8 +124,8 @@ class FlagNodeVariation(variation: Variation) : SimpleNode() {
 
     override fun update(data: PresentationData) {
         super.update(data)
-        var label: String = variation.name ?: variation.value.toString()
-        data.setPresentableText(label)
+        val label = variation.name ?: variation.value.toString()
+        data.presentableText = label
     }
 }
 
@@ -171,122 +143,106 @@ class FlagNodeTags(tags: List<String>) : SimpleNode() {
 
     override fun update(data: PresentationData) {
         super.update(data)
-        data.setPresentableText("Tags")
+        data.presentableText = "Tags"
         data.setIcon(LDIcons.TAGS)
     }
 }
 
-class FlagNodeFallthrough(flag: FeatureFlag, flagConfig: FlagConfiguration) : SimpleNode() {
-    val flag = flag
-    val flagConfig = flagConfig
+class FlagNodeFallthrough(var flag: FeatureFlag, private val flagConfig: FlagConfiguration) : SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
-    val env = flag.environments.keys.first()
 
     override fun getChildren(): Array<SimpleNode> {
         if (flagConfig.fallthrough?.variation != null) {
-            return SimpleNode.NO_CHILDREN
+            return NO_CHILDREN
+        } else if (flagConfig.fallthrough!!.rollout != null) {
+            myChildren.add(FlagNodeRollout(flagConfig.fallthrough!!.rollout, flag.variations))
         }
-        myChildren.add(FlagNodeRollout(flagConfig.fallthrough?.rollout, flag.variations))
         return myChildren.toTypedArray()
     }
 
     override fun update(data: PresentationData) {
         super.update(data)
-        var label: String
-        if (flagConfig.fallthrough?.variation != null) {
-            label = "Fallthrough: ${flag.variations[flagConfig.fallthrough?.variation as Int].name ?: flag.variations[flagConfig.fallthrough?.variation as Int].value}"
+        var label = if (flagConfig.fallthrough?.variation != null) {
+            "Fallthrough: ${flag.variations[flagConfig.fallthrough?.variation as Int].name ?: flag.variations[flagConfig.fallthrough?.variation as Int].value}"
         } else {
-            label = "Fallthrough"
+            "Fallthrough"
         }
-        data.setPresentableText(label)
+        data.presentableText = label
         data.setIcon(LDIcons.DESCRIPTION)
     }
 }
 
-class FlagNodeRollout(rollout: Rollout?, variations: List<Variation>) : SimpleNode() {
+class FlagNodeRollout(private var rollout: Rollout, private var variations: List<Variation>) : SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
-    var rollout = rollout as Rollout
-    var variations = variations
 
     override fun getChildren(): Array<SimpleNode> {
-        if (rollout?.bucketBy != null) {
+        if (rollout.bucketBy != null) {
             myChildren.add(FlagNodeBase("bucketBy ${rollout.bucketBy}", LDIcons.DESCRIPTION))
         }
-        if (rollout != null) {
-            for (variation in rollout.variations) {
-                myChildren.add(FlagNodeBase("Variation: ${variations[variation.variation].name ?: variations[variation.variation].value}"))
-                myChildren.add(FlagNodeBase("Weight: ${variation.weight / 1000.0}%"))
+        for (variation in rollout.variations) {
+            myChildren.add(FlagNodeBase("Variation: ${variations[variation.variation].name ?: variations[variation.variation].value}"))
+            myChildren.add(FlagNodeBase("Weight: ${variation.weight / 1000.0}%"))
 
-            }
         }
         return myChildren.toTypedArray()
     }
 
     override fun update(data: PresentationData) {
         super.update(data)
-        data.setPresentableText("Rollout")
+        data.presentableText = "Rollout"
         data.setIcon(LDIcons.VARIATION)
     }
 }
 
-class FlagNodeDefaults(flag: FeatureFlag) : SimpleNode() {
+class FlagNodeDefault(private val default: String, private var variation: Variation) : SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
-    val flag = flag
 
     override fun getChildren(): Array<SimpleNode> {
-        myChildren.add(FlagNodeBase("Off Variation: ${flag.variations[flag.defaults.offVariation]}", LDIcons.VARIATION))
-        myChildren.add(FlagNodeBase("On Variation: ${flag.variations[flag.defaults.onVariation]}", LDIcons.VARIATION))
+        myChildren.add(FlagNodeVariation(variation))
 
         return myChildren.toTypedArray()
     }
 
     override fun update(data: PresentationData) {
         super.update(data)
-        data.setPresentableText("Default Variations")
+        data.presentableText = default
         data.setIcon(LDIcons.VARIATION)
     }
 }
 
-class FlagNodePrerequisites(flag: FeatureFlag, prereqs: List<Prerequisite>, flags: FeatureFlags) : SimpleNode() {
+class FlagNodePrerequisites(private var prereqs: List<Prerequisite>, private var flags: FeatureFlags) : SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
-    var flag = flag
-    var flags = flags
-    var prereqs = prereqs
 
     override fun getChildren(): Array<SimpleNode> {
         prereqs.map {
             myChildren.add(FlagNodeBase("Flag Key: ${it.key}", LDIcons.FLAG))
             val flagKey = it.key
             var flagVariation = flags.items.find { findFlag -> findFlag.key == flagKey }
-            myChildren.add(FlagNodeBase("Variation: ${flagVariation!!.variations[it.variation].name ?: flagVariation!!.variations[it.variation].value}", LDIcons.VARIATION))
+            myChildren.add(FlagNodeBase("Variation: ${flagVariation!!.variations[it.variation].name ?: flagVariation.variations[it.variation].value}", LDIcons.VARIATION))
         }
         return myChildren.toTypedArray()
     }
 
     override fun update(data: PresentationData) {
         super.update(data)
-        data.setPresentableText("Prerequisites")
+        data.presentableText = "Prerequisites"
         data.setIcon(LDIcons.PREREQUISITE)
     }
 }
 
-class FlagNodeTargets(flag: FeatureFlag, targets: List<com.launchdarkly.api.model.Target>, flags: FeatureFlags) : SimpleNode() {
+class FlagNodeTargets(private var flag: FeatureFlag, private var targets: List<com.launchdarkly.api.model.Target>) : SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
-    var flag = flag
-    var flags = flags
-    var targets = targets
 
     override fun getChildren(): Array<SimpleNode> {
         targets.map {
-            val targetVariation = it.variation
-            myChildren.add(FlagNodeBase("${flag!!.variations[it.variation].name ?: flag!!.variations[it.variation].value}: ${it.values.size}", LDIcons.VARIATION))
+            myChildren.add(FlagNodeBase("${flag.variations[it.variation].name ?: flag.variations[it.variation].value}: ${it.values.size}", LDIcons.VARIATION))
         }
         return myChildren.toTypedArray()
     }
 
     override fun update(data: PresentationData) {
         super.update(data)
-        data.setPresentableText("Targets")
+        data.presentableText = "Targets"
         data.setIcon(LDIcons.TARGETS)
     }
 }

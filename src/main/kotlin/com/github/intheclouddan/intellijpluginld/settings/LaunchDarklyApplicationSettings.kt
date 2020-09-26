@@ -18,13 +18,13 @@ import javax.swing.DefaultComboBoxModel
 import javax.swing.JPanel
 import javax.swing.JPasswordField
 
-val CHECK_API = "Check API Key"
+const val CHECK_API = "Check API Key"
 
 /*
  * Maintain state of what LaunchDarkly Project to connect to.
  */
 @State(name = "LaunchDarklyApplicationConfig", storages = [Storage("launchdarkly.xml")])
-open class LaunchDarklyApplicationConfig() : PersistentStateComponent<LaunchDarklyApplicationConfig.ConfigState> {
+open class LaunchDarklyApplicationConfig : PersistentStateComponent<LaunchDarklyApplicationConfig.ConfigState> {
     var ldState: ConfigState = ConfigState()
 
     companion object {
@@ -86,7 +86,7 @@ open class LaunchDarklyApplicationConfig() : PersistentStateComponent<LaunchDark
     }
 }
 
-class LaunchDarklyApplicationConfigurable() : BoundConfigurable(displayName = "LaunchDarkly Application Plugin") {
+class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "LaunchDarkly Application Plugin") {
     private val apiField = JPasswordField()
     private val settings = LaunchDarklyApplicationConfig.getInstance().ldState
     private val origApiKey = settings.authorization
@@ -95,8 +95,8 @@ class LaunchDarklyApplicationConfigurable() : BoundConfigurable(displayName = "L
     private var panel = JPanel()
     private var apiUpdate = false
     private var lastSelectedProject = ""
-    lateinit var projectContainer: MutableList<com.launchdarkly.api.model.Project>
-    lateinit var environmentContainer: com.launchdarkly.api.model.Project
+    private lateinit var projectContainer: MutableList<com.launchdarkly.api.model.Project>
+    private lateinit var environmentContainer: com.launchdarkly.api.model.Project
 
     private lateinit var defaultMessage: String
     private lateinit var projectBox: DefaultComboBoxModel<String>
@@ -110,9 +110,6 @@ class LaunchDarklyApplicationConfigurable() : BoundConfigurable(displayName = "L
                         ?: projectContainer.firstOrNull() as com.launchdarkly.api.model.Project
             }
         } catch (err: Exception) {
-            println(err)
-            println(settings.authorization)
-            println(settings.baseUri)
             defaultMessage = CHECK_API
         }
     }
@@ -121,8 +118,8 @@ class LaunchDarklyApplicationConfigurable() : BoundConfigurable(displayName = "L
         panel = panel {
             commentRow("Add your LaunchDarkly API Key and click Apply. Project and Environment selections will populate based on key permissions.")
             row("API Key:") { apiField().withTextBinding(PropertyBinding({ settings.authorization }, { settings.authorization = it })) }
+            hideableRow("Base URL:") { textField(settings::baseUri) }
             row("Refresh Rate(in Minutes):") { intTextField(settings::refreshRate) }
-            row("Base URL:") { textField(settings::baseUri) }
             try {
                 projectBox = if (::projectContainer.isInitialized) {
                     DefaultComboBoxModel(projectContainer.map { it.key }.toTypedArray())
@@ -136,10 +133,10 @@ class LaunchDarklyApplicationConfigurable() : BoundConfigurable(displayName = "L
 
                 }
 
-                if (::environmentContainer.isInitialized) {
-                    environmentBox = DefaultComboBoxModel(environmentContainer.environments.map { it.key }.toTypedArray())
+                environmentBox = if (::environmentContainer.isInitialized) {
+                    DefaultComboBoxModel(environmentContainer.environments.map { it.key }.toTypedArray())
                 } else {
-                    environmentBox = DefaultComboBoxModel(arrayOf("Please select a Project"))
+                    DefaultComboBoxModel(arrayOf("Please select a Project"))
                 }
                 row("Environments:") {
                     comboBox(environmentBox, settings::environment, renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
@@ -177,22 +174,7 @@ class LaunchDarklyApplicationConfigurable() : BoundConfigurable(displayName = "L
 
             }
         }
-//
-//        if () {
-//            try {
-//                projectContainer = getProjects()
-//                with(projectBox) {
-//                    removeAllElements()
-//                    if (selectedItem == null || selectedItem.toString() == CHECK_API) {
-//                        selectedItem = projectContainer.map { it.key }.firstOrNull()
-//                    }
-//                    projectContainer.map { addElement(it.key) }
-//                }
-//                apiUpdate = true
-//            } catch (err: Error) {
-//                println(err)
-//            }
-//        }
+
         if (::projectContainer.isInitialized && lastSelectedProject != projectBox.selectedItem.toString()) {
             lastSelectedProject = projectBox.selectedItem.toString()
             try {

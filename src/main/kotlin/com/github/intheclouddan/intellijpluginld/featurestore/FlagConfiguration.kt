@@ -14,4 +14,4 @@ data class FlagConfiguration(
         var rules: Array<Rule>,
         var on: Boolean,
         var version: Number
-) {}
+)

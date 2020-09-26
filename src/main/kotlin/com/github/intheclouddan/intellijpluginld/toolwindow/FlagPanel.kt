@@ -8,7 +8,6 @@ import com.github.intheclouddan.intellijpluginld.action.ToggleFlagAction
 import com.github.intheclouddan.intellijpluginld.messaging.FlagNotifier
 import com.github.intheclouddan.intellijpluginld.messaging.MessageBusService
 import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSettings
-import com.intellij.ide.util.treeView.TreeState
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.Disposable
@@ -42,7 +41,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
     //private val settings = LaunchDarklyConfig.getInstance(myProject)
     private val settings = LaunchDarklyMergedSettings.getInstance(myProject)
     private var getFlags = myProject.service<FlagStore>()
-    private var root = RootNode(getFlags.flags, getFlags.flagConfigs, settings, myProject)
+    private var root = RootNode(getFlags.flags, settings, myProject)
     private var treeStructure = createTreeStructure()
     private var treeModel = StructureTreeModel(treeStructure, this)
     lateinit var tree: Tree
@@ -58,14 +57,14 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         tree.isRootVisible = false
         TreeSpeedSearch(tree).comparator = SpeedSearchComparator(false)
         TreeUtil.installActions(tree)
-        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        tree.setEditable(true);
+        tree.selectionModel.selectionMode = TreeSelectionModel.SINGLE_TREE_SELECTION
+        tree.isEditable = true
 
         return tree
     }
 
     fun updateNodeInfo() {
-        root = RootNode(getFlags.flags, getFlags.flagConfigs, settings, myProject)
+        root = RootNode(getFlags.flags, settings, myProject)
         treeStructure = createTreeStructure()
         treeModel = StructureTreeModel(treeStructure, this)
         var reviewTreeBuilder = AsyncTreeModel(treeModel, this)
@@ -93,7 +92,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         val actionGroup = DefaultActionGroup()
         val actionPopup = DefaultActionGroup()
         val actionToolbar: ActionToolbar = actionManager.createActionToolbar("ACTION_TOOLBAR", actionGroup, true)
-        setToolbar(actionToolbar.component)
+        toolbar = actionToolbar.component
         val refreshAction = actionManager.getAction(RefreshAction.ID)
         val copyKeyAction = actionManager.getAction(CopyKeyAction.ID)
         val toggleFlagAction = actionManager.getAction(ToggleFlagAction.ID)
@@ -114,31 +113,6 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         )
     }
 
-    /**
-     * Invalidates tree nodes, causing IntelliJ to redraw the tree. Preserves node state.
-     * Provide an AbstractTreeNode in order to redraw the tree from that point downwards
-     * Otherwise redraws the entire tree
-     *
-     * @param selectedNode AbstractTreeNode to redraw the tree from
-     */
-    fun invalidateTree(selectedNode: DefaultMutableTreeNode?) {
-        withSavedState(tree) {
-            if (selectedNode != null) {
-                treeModel.invalidate(selectedNode, false)
-            } else {
-                treeModel.invalidate()
-            }
-        }
-    }
-
-    // Save the state and reapply it after we invalidate (which is the point where the state is wiped).
-    // Items are expanded again if their user object is unchanged (.equals()).
-    private fun withSavedState(tree: Tree, block: () -> Unit) {
-        val state = TreeState.createOn(tree)
-        block()
-        state.applyTo(tree)
-    }
-
     fun updateNode(event: String) {
         var getFlags = myProject.service<FlagStore>()
         try {
@@ -154,9 +128,9 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                     if (parentNode.key == event) {
                         found = true
                         val flag = getFlags.flags.items.find { it.key == parentNode.key }
-                        tree.setEditable(true);
+                        tree.isEditable = true
                         if (flag != null && getFlags.flagConfigs[flag.key] != null) {
-                            parentNode = FlagNodeParent(flag, settings, getFlags.flags, myProject)
+                            parentNode = FlagNodeParent(flag, getFlags.flags, myProject)
                             treeModel.invalidate(TreePath(parent), true)
                         } else {
                             // If the flag does not exist in the SDK DataStore it should not be part of Environment.
@@ -197,8 +171,8 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                             var parentNode = parent.userObject as FlagNodeParent
                             if (parentNode.key == flag.key && parentNode.flag.version < flag.version) {
                                 found = true
-                                tree.setEditable(true);
-                                parentNode = FlagNodeParent(flag, settings, getFlags.flags, myProject)
+                                tree.isEditable = true
+                                parentNode = FlagNodeParent(flag, getFlags.flags, myProject)
                                 treeModel.invalidate(TreePath(parent), true)
                                 break
                             }
@@ -238,19 +212,23 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                                     tree = start()
                                     actions(tree)
                                 }
-                                if (flag != "") {
-                                    invokeLater {
-                                        updateNode(flag)
+                                when {
+                                    flag != "" -> {
+                                        invokeLater {
+                                            updateNode(flag)
+                                        }
                                     }
-                                } else if (rebuild) {
-                                    updateNodes()
-                                } else {
-                                    start()
+                                    rebuild -> {
+                                        updateNodes()
+                                    }
+                                    else -> {
+                                        start()
+                                    }
                                 }
                             } else {
                                 val notification = Notification("ProjectOpenNotification", "LaunchDarkly",
-                                        String.format("LaunchDarkly Plugin is not configured"), NotificationType.WARNING);
-                                notification.notify(myProject);
+                                        String.format("LaunchDarkly Plugin is not configured"), NotificationType.WARNING)
+                                notification.notify(myProject)
                             }
                         }
 

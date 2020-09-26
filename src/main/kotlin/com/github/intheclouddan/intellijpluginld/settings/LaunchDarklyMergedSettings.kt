@@ -3,13 +3,9 @@ package com.github.intheclouddan.intellijpluginld.settings
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 
-class LaunchDarklyMergedSettings(myProject: Project) : LDSettings {
-    val myProject: Project = myProject
+class LaunchDarklyMergedSettings(private val myProject: Project) : LDSettings {
     val projSettings = LaunchDarklyConfig.getInstance(myProject)
     val appSettings = LaunchDarklyApplicationConfig.getInstance()
-
-//    lateinit var baseUri: String
-//    lateinit var project: String
 
     companion object {
         fun getInstance(project: Project): LaunchDarklyMergedSettings {

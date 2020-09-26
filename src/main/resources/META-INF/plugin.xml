@@ -15,7 +15,7 @@
                 id="launchdarkly.app.settings" displayName="LaunchDarkly Plugin"/>
 
         <projectConfigurable instance="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfigurable"
-                             displayName="Plugin Overrides" id="launchdarkly.settings"
+                             displayName="Project Overrides" id="launchdarkly.settings"
                              parentId="launchdarkly.app.settings"/>
         <applicationService
                 serviceImplementation="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyApplicationConfig"/>

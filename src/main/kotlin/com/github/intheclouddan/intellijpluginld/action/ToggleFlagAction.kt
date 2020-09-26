@@ -24,9 +24,9 @@ class ToggleFlagAction : AnAction {
      * This default constructor is used by the IntelliJ Platform framework to
      * instantiate this class based on plugin.xml declarations. Only needed in PopupDialogAction
      * class because a second constructor is overridden.
-     * @see AnAction.AnAction
+     * @see AnAction
      */
-    constructor() : super() {}
+    constructor() : super()
 
     companion object {
         const val ID = "com.github.intheclouddan.intellijpluginld.action.ToggleFlagAction"
@@ -40,8 +40,7 @@ class ToggleFlagAction : AnAction {
      * @param description  The description of the menu item.
      * @param icon  The icon to be used with the menu item.
      */
-    constructor(text: String?, description: String?, icon: Icon?) : super(text, description, icon) {
-    }
+    constructor(text: String?, description: String?, icon: Icon?) : super(text, description, icon)
 
     /**
      * Gives the user feedback when the dynamic action menu is chosen.
@@ -62,7 +61,7 @@ class ToggleFlagAction : AnAction {
             patch.op = "replace"
             patch.path = "/environments/" + settings.environment + "/on"
             patch.value = !nodeInfo.env.on
-            patchComment.patch = listOf<PatchOperation>(patch)
+            patchComment.patch = listOf(patch)
             val ldFlag = LaunchDarklyApiClient.flagInstance(project)
             try {
                 ldFlag.patchFeatureFlag(settings.project, flagKey, patchComment)
@@ -82,8 +81,8 @@ class ToggleFlagAction : AnAction {
         super.update(e)
         val project = e.project
         if (project != null) {
-            if (project.service<FlagToolWindow>().getPanel()?.tree?.selectionPath != null) {
-                val nodePath = project.service<FlagToolWindow>().getPanel()?.tree?.selectionPath.path
+            if (project.service<FlagToolWindow>().getPanel().tree.selectionPath != null) {
+                val nodePath = project.service<FlagToolWindow>().getPanel().tree.selectionPath.path
                 if (nodePath != null && nodePath.size == FLAG_NAME_PATH) {
                     e.presentation.isEnabledAndVisible = e.presentation.isEnabled
                 }

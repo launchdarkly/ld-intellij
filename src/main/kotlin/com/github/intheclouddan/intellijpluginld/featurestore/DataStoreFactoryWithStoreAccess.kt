@@ -71,21 +71,9 @@ fun createClientAndGetStoreOffline(): Pair<DataStore?, LDClient> {
 fun getFlagsAsJSONStrings(store: DataStore): List<String>? {
     val ret: MutableList<String> = ArrayList()
     val items: KeyedItems<ItemDescriptor> = store.getAll(DataModel.FEATURES)
-    for (entry in items.getItems()) {
+    for (entry in items.items) {
         val json: String = DataModel.FEATURES.serialize(entry.value)
         ret.add(json)
-    }
-    return ret
-}
-
-fun getFlagAsJSONString(store: DataStore, key: String): String {
-    var ret: String = ""
-    val items: KeyedItems<ItemDescriptor> = store.getAll(DataModel.FEATURES)
-    for (entry in items.getItems()) {
-        if (entry.key == key) {
-            val json: String = DataModel.FEATURES.serialize(entry.value)
-            ret = json
-        }
     }
     return ret
 }

@@ -1,7 +1,7 @@
 package com.github.intheclouddan.intellijpluginld.toolwindow
 
 import junit.framework.TestCase
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class RootNodeTest : TestCase() {
     @Test

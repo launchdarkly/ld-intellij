@@ -7,13 +7,13 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.project.Project
 
 class ConfigNotifier {
-    private val NOTIFICATION_GROUP = NotificationGroup("Launchdarkly Configuration", NotificationDisplayType.BALLOON, true)
+    private val notificationGroup = NotificationGroup("Launchdarkly Configuration", NotificationDisplayType.BALLOON, true)
 //    fun notify(content: String?): Notification {
 //        return notify(null, content)
 //    }
 
     fun notify(project: Project?, content: String?): Notification {
-        val notification: Notification = NOTIFICATION_GROUP.createNotification(content!!, NotificationType.ERROR)
+        val notification: Notification = notificationGroup.createNotification(content!!, NotificationType.ERROR)
         notification.notify(project)
         return notification
     }

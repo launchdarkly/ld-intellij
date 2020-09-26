@@ -4,6 +4,7 @@ import com.intellij.openapi.util.IconLoader
 
 class LDIcons {
     companion object {
+        val DEFAULT_VARIATION = IconLoader.getIcon("/icons/variationDefault.svg")
         val DESCRIPTION = IconLoader.getIcon("/icons/description.svg")
         val FLAG = IconLoader.getIcon("/icons/flag.svg")
         val FLAG_KEY = IconLoader.getIcon("/icons/flagKey.svg")

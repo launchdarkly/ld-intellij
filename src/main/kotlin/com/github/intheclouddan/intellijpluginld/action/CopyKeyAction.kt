@@ -21,13 +21,7 @@ const val FLAG_NAME_PATH = 2
  * in the plugin.xml file. But when added at runtime this class is instantiated by an action group.
  */
 class CopyKeyAction : AnAction {
-    /**
-     * This default constructor is used by the IntelliJ Platform framework to
-     * instantiate this class based on plugin.xml declarations. Only needed in PopupDialogAction
-     * class because a second constructor is overridden.
-     * @see AnAction.AnAction
-     */
-    constructor() : super() {}
+    constructor() : super()
 
     companion object {
         const val ID = "com.github.intheclouddan.intellijpluginld.action.CopyKeyAction"
@@ -41,8 +35,7 @@ class CopyKeyAction : AnAction {
      * @param description  The description of the menu item.
      * @param icon  The icon to be used with the menu item.
      */
-    constructor(text: String? = "Copy Key", description: String?, icon: Icon?) : super(text, description, icon) {
-    }
+    constructor(text: String? = "Copy Key", description: String?, icon: Icon?) : super(text, description, icon)
 
     /**
      * Gives the user feedback when the dynamic action menu is chosen.
@@ -54,7 +47,7 @@ class CopyKeyAction : AnAction {
         val project = event.project
         var selection = StringSelection("")
         if (project != null) {
-            val selectedNode = project.service<FlagToolWindow>().getPanel()?.tree?.lastSelectedPathComponent as DefaultMutableTreeNode
+            val selectedNode = project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
             if (selectedNode != null) {
                 // Right clicking on Key node. Will break if order changes.
                 if (selectedNode.childCount == 0 && selectedNode.toString().startsWith("Key:")) {
@@ -77,9 +70,9 @@ class CopyKeyAction : AnAction {
         super.update(e)
         val project = e.project
         if (project != null) {
-            if (project.service<FlagToolWindow>().getPanel()?.tree?.lastSelectedPathComponent != null) {
-                val selectedNode = project.service<FlagToolWindow>().getPanel()?.tree?.lastSelectedPathComponent.toString()
-                e.presentation.isEnabledAndVisible = e.presentation.isEnabled && (selectedNode.startsWith("Key:") || project.service<FlagToolWindow>().getPanel()?.tree?.selectionPath.path.size == FLAG_NAME_PATH)
+            if (project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent != null) {
+                val selectedNode = project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent.toString()
+                e.presentation.isEnabledAndVisible = e.presentation.isEnabled && (selectedNode.startsWith("Key:") || project.service<FlagToolWindow>().getPanel().tree.selectionPath.path.size == FLAG_NAME_PATH)
             }
         } else {
             e.presentation.isEnabledAndVisible = false

@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.launchdarkly.api.model.FeatureFlag
 
-class LDDocumentationProvider() : AbstractDocumentationProvider() {
+class LDDocumentationProvider : AbstractDocumentationProvider() {
 
     override fun getUrlFor(element: PsiElement?, originalElement: PsiElement?): List<String>? {
         if (element == null) {
@@ -31,16 +31,16 @@ class LDDocumentationProvider() : AbstractDocumentationProvider() {
         val getFlags = element.project.service<FlagStore>()
         val flag: FeatureFlag? = getFlags.flags.items.find { it.key == element.text.drop(1).dropLast(1) }
         if (flag != null) {
-            val env: FlagConfiguration = getFlags.flagConfigs.get(element.text.drop(1).dropLast(1))!!
+            val env: FlagConfiguration = getFlags.flagConfigs[element.text.drop(1).dropLast(1)]!!
             val result = StringBuilder()
-            val prereqs = if (env.prerequisites.size > 0) {
+            val prereqs = if (env.prerequisites.isNotEmpty()) {
                 "• <b>Prerequisites</b> ${env.prerequisites.size} • "
             } else "• "
-            val rules = if (env.rules.size > 0) {
+            val rules = if (env.rules.isNotEmpty()) {
                 "<b>Rules</b> ${env.rules.size} •<br />"
             } else " •"
             var targets = ""
-            if (env.targets.size > 0) {
+            if (env.targets.isNotEmpty()) {
                 targets += "<b>Targets:</b> "
                 env.targets.forEachIndexed { i, t ->
                     targets += "${flag.variations[t.variation as Int].name ?: flag.variations[t.variation as Int].value} ${t.values.size} "
@@ -52,12 +52,9 @@ class LDDocumentationProvider() : AbstractDocumentationProvider() {
             }
             var buildEnvString = ""
             if (prereqs.length > 1) {
-                buildEnvString += prereqs + " "
+                buildEnvString += "$prereqs "
             }
             if (rules.length > 1) {
-//                if (prereqs != "") {
-//                    buildEnvString += "\u25C6 "
-//                }
                 buildEnvString += rules
             }
             if (targets != "") {
@@ -65,7 +62,6 @@ class LDDocumentationProvider() : AbstractDocumentationProvider() {
             }
             result.append("<html>")
             result.append("<img src=\"${LDIcons.FLAG}\"> <b>LaunchDarkly Feature Flag \u2022 ${flag.name ?: flag.key}</b> <img align=\"right\" style='float: right;' src=\"${LDIcons.FLAG}\"> <br />")
-            //result.append("Enabled: ${flag.environments[settings.environment]!!.isOn}")
             val enabledIcon = if (env.on) {
                 "<img src=\"${LDIcons.TOGGLE_ON}\" alt=\"On\">"
             } else {

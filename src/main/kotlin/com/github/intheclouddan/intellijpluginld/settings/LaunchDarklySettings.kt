@@ -123,10 +123,9 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
 
     override fun createPanel(): DialogPanel {
         panel = panel {
-            commentRow("Any settings manually selected here will override the corresponding Application settings. Project and Environment selections will populate based on key permissions.")
+            noteRow("Any settings manually selected here will override the corresponding Application settings.")
+            noteRow("Project and Environment selections will populate based on key permissions.")
             row("API Key:") { apiField().withTextBinding(PropertyBinding({ settings.authorization }, { settings.authorization = it })) }
-            row("Refresh Rate(in Minutes):") { intTextField(settings::refreshRate) }
-            row("Base URL:") { textField(settings::baseUri) }
             try {
                 projectBox = if (::projectContainer.isInitialized) {
                     DefaultComboBoxModel(projectContainer.map { it.key }.toTypedArray())
@@ -140,10 +139,10 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
 
                 }
 
-                if (::environmentContainer.isInitialized) {
-                    environmentBox = DefaultComboBoxModel(environmentContainer.environments.map { it.key }.toTypedArray())
+                environmentBox = if (::environmentContainer.isInitialized) {
+                    DefaultComboBoxModel(environmentContainer.environments.map { it.key }.toTypedArray())
                 } else {
-                    environmentBox = DefaultComboBoxModel(arrayOf("Please select a Project"))
+                    DefaultComboBoxModel(arrayOf("Please select a Project"))
                 }
                 row("Environments:") {
                     comboBox(environmentBox, settings::environment, renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
@@ -154,6 +153,9 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
             } catch (err: Exception) {
                 println(err)
             }
+            noteRow("Leaving Refresh Rate as -1 will inherit value from Application settings.")
+            hideableRow("Refresh Rate(in Minutes):") { intTextField(settings::refreshRate) }
+            hideableRow("Base URL:") { textField(settings::baseUri) }
         }
         return panel as DialogPanel
     }

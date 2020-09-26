@@ -18,9 +18,9 @@ class RefreshAction : AnAction {
      * This default constructor is used by the IntelliJ Platform framework to
      * instantiate this class based on plugin.xml declarations. Only needed in PopupDialogAction
      * class because a second constructor is overridden.
-     * @see AnAction.AnAction
+     * @see AnAction
      */
-    constructor() : super() {}
+    constructor() : super()
 
     companion object {
         const val ID = "com.github.intheclouddan.intellijpluginld.action.RefreshAction"
@@ -34,8 +34,7 @@ class RefreshAction : AnAction {
      * @param description  The description of the menu item.
      * @param icon  The icon to be used with the menu item.
      */
-    constructor(text: String? = "Refresh", description: String?, icon: Icon?) : super(text, description, icon) {
-    }
+    constructor(text: String? = "Refresh", description: String?, icon: Icon?) : super(text, description, icon)
 
     /**
      * Gives the user feedback when the dynamic action menu is chosen.
