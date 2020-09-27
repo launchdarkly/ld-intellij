@@ -89,6 +89,7 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
             }
             return true
         }
+        
     }
 }
 

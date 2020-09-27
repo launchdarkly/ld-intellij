@@ -37,11 +37,6 @@
                     factoryClass="com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindowFactory"/>
     </extensions>
 
-    <!--    <applicationListeners>-->
-    <!--        <listener class="com.github.intheclouddan.intellijpluginld.messaging.MessageBusService"-->
-    <!--                  topic="com.github.intheclouddan.intellijpluginld.listeners.AppConfigListener"/>-->
-    <!--    </applicationListeners>-->
-
     <actions>
         <!-- CustomDefaultActionGroup demonstrates declaring an action group based on a ActionGroup class supplied by this plugin.
          This group is to be inserted atop the Editor Popup Menu. It declares one action in the group. -->

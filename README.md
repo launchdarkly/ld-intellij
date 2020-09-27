@@ -18,3 +18,7 @@ LaunchDarkly Plugin provides a Tool Window Treeview to view and interact with yo
 
   Download the [latest release](https://github.com/InTheCloudDan/intellij-plugin-ld/releases/latest) and install it manually using
   <kbd>Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+  
+## Setup
+
+- Generate a LaunchDarkly Personal Access Token

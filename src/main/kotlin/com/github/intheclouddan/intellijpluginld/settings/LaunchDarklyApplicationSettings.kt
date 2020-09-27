@@ -49,11 +49,6 @@ open class LaunchDarklyApplicationConfig : PersistentStateComponent<LaunchDarkly
         return true
     }
 
-    fun creds(key: String) {
-        var setKey = ConfigState::credName.javaClass as String
-        setKey = key
-    }
-
     data class ConfigState(
             override var credName: String = "",
             override var project: String = "",

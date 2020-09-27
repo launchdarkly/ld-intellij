@@ -38,7 +38,6 @@ private const val SPLITTER_PROPERTY = "BuildAttribution.Splitter.Proportion"
  * FlagPanel renders the ToolWindow Flag Treeview and associated action buttons.
  */
 class FlagPanel(private val myProject: Project, messageBusService: MessageBusService) : SimpleToolWindowPanel(false, false), Disposable {
-    //private val settings = LaunchDarklyConfig.getInstance(myProject)
     private val settings = LaunchDarklyMergedSettings.getInstance(myProject)
     private var getFlags = myProject.service<FlagStore>()
     private var root = RootNode(getFlags.flags, settings, myProject)

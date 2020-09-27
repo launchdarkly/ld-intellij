@@ -55,4 +55,16 @@ class LaunchDarklyMergedSettings(private val myProject: Project) : LDSettings {
         }
         return true
     }
+
+    fun projectOverrides(): Boolean {
+        if (projSettings.ldState.credName.isNotEmpty()
+                || projSettings.ldState.authorization.isNotEmpty()
+                || projSettings.ldState.refreshRate != -1
+                || projSettings.ldState.environment.isNotEmpty()
+                || projSettings.ldState.project.isNotEmpty()
+                || projSettings.ldState.baseUri.isNotEmpty()) {
+            return true
+        }
+        return false
+    }
 }

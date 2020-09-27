@@ -155,8 +155,8 @@ class FlagStore(private var project: Project) {
                 object : ConfigurationNotifier {
                     override fun notify(isConfigured: Boolean) {
                         println("called configuration")
-                        println(flags)
-                        if (isConfigured && flags.items == null) {
+                        
+                        if (isConfigured && !settings.projectOverrides()) {
                             println(settings.authorization)
                             println(settings.project)
                             try {
