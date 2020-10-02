@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit
 class FlagStore(private var project: Project) {
     var flags: FeatureFlags = FeatureFlags()
     var flagConfigs = emptyMap<String, FlagConfiguration>()
-    var flagStore: DataStore
+    lateinit var flagStore: DataStore
     var flagClient: LDClient = LDClient("sdk-12345", LDConfig.Builder().offline(true).build())
     val messageBusService = project.service<DefaultMessageBusService>()
     val appBusService = service<AppDefaultMessageBusService>()
@@ -120,6 +120,12 @@ class FlagStore(private var project: Project) {
         flagConfigs = flagList.associateBy { it.key }
     }
 
+    fun offlineStore() {
+        val (store, client) = createClientAndGetStoreOffline()
+        flagStore = store!!
+        flagClient = client
+    }
+
     init {
         val settings = LaunchDarklyMergedSettings.getInstance(project)
         val refreshRate: Long = settings.refreshRate.toLong()
@@ -136,18 +142,11 @@ class FlagStore(private var project: Project) {
             } catch (err: ApiException) {
                 val notify = ConfigNotifier()
                 notify.notify(project, "Project: ${settings.project} Error: $err")
-                val (store, client) = createClientAndGetStoreOffline()
-                flagStore = store!!
-                flagClient = client
+                offlineStore()
             }
         } else {
-            val (store, client) = createClientAndGetStoreOffline()
-            flagStore = store!!
-            flagClient = client
+            offlineStore()
         }
-
-
-
 
         EdtExecutorService.getScheduledExecutorInstance().scheduleWithFixedDelay({ flags = flagsNotify(rebuild = true) }, refreshRate, refreshRate, TimeUnit.MINUTES)
 
@@ -155,10 +154,8 @@ class FlagStore(private var project: Project) {
                 object : ConfigurationNotifier {
                     override fun notify(isConfigured: Boolean) {
                         println("called configuration")
-                        
+
                         if (isConfigured && !settings.projectOverrides()) {
-                            println(settings.authorization)
-                            println(settings.project)
                             try {
                                 val curProject = LaunchDarklyApiClient.projectInstance(project, settings.authorization).getProject(settings.project)
                                 val myStreamBaseURI = settings.baseUri.replace("app", "stream")

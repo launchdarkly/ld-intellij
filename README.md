@@ -3,7 +3,9 @@
 ![Build](https://github.com/InTheCloudDan/intellij-plugin-ld/workflows/Build/badge.svg)
 
 <!-- Plugin description -->
-LaunchDarkly Plugin provides a Tool Window Treeview to view and interact with your flags.
+Interact with your LaunchDarkly Feature Flags directly in your IDE.
+- Ability to toggle a flag enabled status.
+- Visualize Flag information.
 
 <!-- Plugin description end -->
 

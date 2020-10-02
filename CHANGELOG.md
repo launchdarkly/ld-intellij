@@ -2,6 +2,8 @@
 
 # intellij-plugin-ld Changelog
 
-## [Unreleased]
+## 0.1.4
 ### Added
-- Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
+- Initial Toolwindow and Treeview to view all of your LaunchDarkly Feature Flags
+- Ability to Toggle flags from the Treeview
+- Open in Browser from any specific flag
