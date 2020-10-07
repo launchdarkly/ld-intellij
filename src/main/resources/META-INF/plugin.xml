@@ -1,4 +1,4 @@
-<idea-plugin url="www.jetbrains.com">
+<idea-plugin url="https://github.com/intheclouddan/intellij-plugin-ld">
     <id>com.github.intheclouddan.intellijpluginld</id>
     <name>LaunchDarkly</name>
     <vendor>LaunchDarkly</vendor>

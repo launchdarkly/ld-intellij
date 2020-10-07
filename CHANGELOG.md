@@ -2,7 +2,11 @@
 
 # intellij-plugin-ld Changelog
 
-## 0.1.4
+## [0.1.5]
+### Fixed
+- Changelog
+
+## [0.1.4]
 ### Added
 - Initial Toolwindow and Treeview to view all of your LaunchDarkly Feature Flags
 - Ability to Toggle flags from the Treeview
