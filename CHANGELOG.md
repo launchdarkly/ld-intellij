@@ -2,7 +2,7 @@
 
 # intellij-plugin-ld Changelog
 
-## [0.1.5-alpha]
+## [0.1.5-alpha] - 2020-10-07
 ### Fixed
 - Changelog
 - Make Java Dependencies Optional
@@ -14,6 +14,6 @@
 - Ability to Toggle flags from the Treeview
 - Open in Browser from any specific flag
 
-## [0.1.5-alpha] - 2020-10-07
+## [Unreleased] 
 ### Added
 - Java DocumentationProvider
