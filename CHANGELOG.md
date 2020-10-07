@@ -11,3 +11,7 @@
 - Initial Toolwindow and Treeview to view all of your LaunchDarkly Feature Flags
 - Ability to Toggle flags from the Treeview
 - Open in Browser from any specific flag
+
+## [Unreleased]
+### Added
+- Java DocumentationProvider

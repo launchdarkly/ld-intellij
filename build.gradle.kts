@@ -1,5 +1,6 @@
 import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.changelog.closure
+import org.jetbrains.changelog.date
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -11,7 +12,7 @@ plugins {
     // gradle-intellij-plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
     id("org.jetbrains.intellij") version "0.4.22"
     // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
-    id("org.jetbrains.changelog") version "0.3.2"
+    id("org.jetbrains.changelog") version "0.6.0"
     // detekt linter - read more: https://detekt.github.io/detekt/kotlindsl.html
     id("io.gitlab.arturbosch.detekt") version "1.10.0-RC1"
 }
@@ -93,6 +94,16 @@ tasks {
 
     withType<Detekt> {
         jvmTarget = "1.8"
+    }
+
+    changelog {
+        version = "${project.version}"
+        path = "${project.projectDir}/CHANGELOG.md"
+        header = closure { "[${project.version}] - ${date()}" }
+        itemPrefix = "-"
+        keepUnreleasedSection = false
+        unreleasedTerm = "[Unreleased]"
+        groups = listOf("Added", "Changed", "Deprecated", "Removed", "Fixed", "Security")
     }
 
     patchPluginXml {
