@@ -2,9 +2,11 @@
 
 # intellij-plugin-ld Changelog
 
-## [0.1.5]
+## [0.1.5-alpha]
 ### Fixed
 - Changelog
+- Make Java Dependencies Optional
+- Remove deprecated override
 
 ## [0.1.4]
 ### Added

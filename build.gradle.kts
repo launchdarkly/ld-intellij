@@ -10,7 +10,7 @@ plugins {
     // Kotlin support
     id("org.jetbrains.kotlin.jvm") version "1.3.72"
     // gradle-intellij-plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "0.4.22"
+    id("org.jetbrains.intellij") version "0.5.0"
     // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
     id("org.jetbrains.changelog") version "0.6.0"
     // detekt linter - read more: https://detekt.github.io/detekt/kotlindsl.html
@@ -46,7 +46,6 @@ dependencies {
 
     implementation("org.apache.logging.log4j", "log4j-slf4j-impl", "2.13.3")
     testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
-
 }
 
 tasks.withType<Test> {
@@ -101,7 +100,7 @@ tasks {
         path = "${project.projectDir}/CHANGELOG.md"
         header = closure { "[${project.version}] - ${date()}" }
         itemPrefix = "-"
-        keepUnreleasedSection = false
+        keepUnreleasedSection = true
         unreleasedTerm = "[Unreleased]"
         groups = listOf("Added", "Changed", "Deprecated", "Removed", "Fixed", "Security")
     }
@@ -128,4 +127,5 @@ tasks {
         dependsOn("patchChangelog")
         token(System.getenv("PUBLISH_TOKEN"))
     }
+
 }

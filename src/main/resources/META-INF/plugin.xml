@@ -6,7 +6,7 @@
     <!-- Product and plugin compatibility requirements -->
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
-    <depends config-file="withJavaModule.xml">com.intellij.modules.java</depends>
+    <depends optional="true" config-file="withJavaModule.xml">com.intellij.modules.java</depends>
     <depends optional="true" config-file="withGoModule.xml">org.jetbrains.plugins.go</depends>
 
     <extensions defaultExtensionNs="com.intellij">

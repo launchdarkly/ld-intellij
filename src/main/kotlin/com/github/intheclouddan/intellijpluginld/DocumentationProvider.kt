@@ -3,9 +3,7 @@ package com.github.intheclouddan.intellijpluginld
 import com.github.intheclouddan.intellijpluginld.featurestore.FlagConfiguration
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.openapi.components.service
-import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
 import com.launchdarkly.api.model.FeatureFlag
 
 class LDDocumentationProvider : AbstractDocumentationProvider() {
@@ -95,11 +93,6 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
     }
 
     override fun getQuickNavigateInfo(element: PsiElement?, originalElement: PsiElement?): String? {
-
-        return null
-    }
-
-    override fun getCustomDocumentationElement(editor: Editor, file: PsiFile, contextElement: PsiElement?): PsiElement? {
 
         return null
     }
