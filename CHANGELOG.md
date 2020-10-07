@@ -14,6 +14,6 @@
 - Ability to Toggle flags from the Treeview
 - Open in Browser from any specific flag
 
-## [Unreleased]
+## [0.1.5-alpha] - 2020-10-07
 ### Added
 - Java DocumentationProvider
