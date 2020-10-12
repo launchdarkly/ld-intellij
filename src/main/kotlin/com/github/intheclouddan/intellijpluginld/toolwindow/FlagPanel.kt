@@ -1,10 +1,7 @@
 package com.github.intheclouddan.intellijpluginld.toolwindow
 
 import com.github.intheclouddan.intellijpluginld.FlagStore
-import com.github.intheclouddan.intellijpluginld.action.CopyKeyAction
-import com.github.intheclouddan.intellijpluginld.action.OpenInBrowserAction
-import com.github.intheclouddan.intellijpluginld.action.RefreshAction
-import com.github.intheclouddan.intellijpluginld.action.ToggleFlagAction
+import com.github.intheclouddan.intellijpluginld.action.*
 import com.github.intheclouddan.intellijpluginld.messaging.FlagNotifier
 import com.github.intheclouddan.intellijpluginld.messaging.MessageBusService
 import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSettings
@@ -57,7 +54,6 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         TreeSpeedSearch(tree).comparator = SpeedSearchComparator(false)
         TreeUtil.installActions(tree)
         tree.selectionModel.selectionMode = TreeSelectionModel.SINGLE_TREE_SELECTION
-        tree.isEditable = true
 
         return tree
     }
@@ -96,6 +92,9 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         val copyKeyAction = actionManager.getAction(CopyKeyAction.ID)
         val toggleFlagAction = actionManager.getAction(ToggleFlagAction.ID)
         val openBrowserAction = actionManager.getAction(OpenInBrowserAction.ID)
+        val changeFallthroughAction = actionManager.getAction(ChangeFallthroughAction.ID)
+        val changeOffVariationAction = actionManager.getAction(ChangeOffVariationAction.ID)
+
         actionGroup.addAction(refreshAction)
 
 
@@ -106,6 +105,8 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                     add(copyKeyAction)
                     add(toggleFlagAction)
                     add(openBrowserAction)
+                    add(changeFallthroughAction)
+                    add(changeOffVariationAction)
                 },
                 ActionPlaces.POPUP,
                 ActionManager.getInstance()
@@ -127,7 +128,6 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                     if (parentNode.key == event) {
                         found = true
                         val flag = getFlags.flags.items.find { it.key == parentNode.key }
-                        tree.isEditable = true
                         if (flag != null && getFlags.flagConfigs[flag.key] != null) {
                             parentNode = FlagNodeParent(flag, getFlags.flags, myProject)
                             treeModel.invalidate(TreePath(parent), true)
@@ -153,7 +153,6 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
     }
 
     fun updateNodes() {
-        println("called")
         var getFlags = myProject.service<FlagStore>()
         try {
             val defaultTree = tree.model as AsyncTreeModel
@@ -170,7 +169,6 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                             var parentNode = parent.userObject as FlagNodeParent
                             if (parentNode.key == flag.key && parentNode.flag.version < flag.version) {
                                 found = true
-                                tree.isEditable = true
                                 parentNode = FlagNodeParent(flag, getFlags.flags, myProject)
                                 treeModel.invalidate(TreePath(parent), true)
                                 break
@@ -183,7 +181,9 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                     }
 
                     if (!found) {
-                        updateNodeInfo()
+                        invokeLater {
+                            updateNodeInfo()
+                        }
                     }
                     tree.invalidate()
                 }
@@ -218,7 +218,9 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                                         }
                                     }
                                     rebuild -> {
-                                        updateNodes()
+                                        invokeLater {
+                                            updateNodes()
+                                        }
                                     }
                                     else -> {
                                         start()

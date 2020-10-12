@@ -61,6 +61,16 @@
                 class="com.github.intheclouddan.intellijpluginld.action.OpenInBrowserAction"
                 text="Open in Browser" description="Open in Browser" icon="AllIcons.Actions.OpenNewTab">
         </action>
+        <action id="com.github.intheclouddan.intellijpluginld.action.ChangeFallthroughAction"
+                class="com.github.intheclouddan.intellijpluginld.action.ChangeFallthroughAction"
+                text="Change Fallthrough Variation" description="Change Fallthrough Variation"
+                icon="AllIcons.Actions.OpenNewTab">
+        </action>
+        <action id="com.github.intheclouddan.intellijpluginld.action.ChangeOffVariationAction"
+                class="com.github.intheclouddan.intellijpluginld.action.ChangeOffVariationAction"
+                text="Change Off Variation" description="Change Off Variation"
+                icon="AllIcons.Actions.OpenNewTab">
+        </action>
     </actions>
 
 </idea-plugin>
