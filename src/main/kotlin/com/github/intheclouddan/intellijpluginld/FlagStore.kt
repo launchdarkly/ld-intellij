@@ -153,8 +153,6 @@ class FlagStore(private var project: Project) {
         project.messageBus.connect().subscribe(appBusService.configurationEnabledTopic,
                 object : ConfigurationNotifier {
                     override fun notify(isConfigured: Boolean) {
-                        println("called configuration")
-
                         if (isConfigured && !settings.projectOverrides()) {
                             try {
                                 val curProject = LaunchDarklyApiClient.projectInstance(project, settings.authorization).getProject(settings.project)
@@ -177,7 +175,6 @@ class FlagStore(private var project: Project) {
         project.messageBus.connect().subscribe(messageBusService.configurationEnabledTopic,
                 object : ConfigurationNotifier {
                     override fun notify(isConfigured: Boolean) {
-                        println("called configuration")
                         if (isConfigured) {
                             val curProject = LaunchDarklyApiClient.projectInstance(project, settings.authorization).getProject(settings.project)
                             val myStreamBaseURI = settings.baseUri.replace("app", "stream")

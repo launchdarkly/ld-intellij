@@ -89,13 +89,14 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
             }
             return true
         }
-        
+
     }
 }
 
 class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable(displayName = "LaunchDarkly Plugin") {
     private val apiField = JPasswordField()
     private val messageBusService = project.service<DefaultMessageBusService>()
+    private val mergedSettings = project.service<LaunchDarklyMergedSettings>()
     private val settings = LaunchDarklyConfig.getInstance(project).ldState
     private val origApiKey = settings.authorization
     private val origBaseUri = settings.baseUri
@@ -166,7 +167,8 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
         if ((settings.authorization != origApiKey || settings.baseUri != origBaseUri) && !apiUpdate) {
             try {
                 settings.credName = project.name
-                projectContainer = getProjects(settings.authorization, settings.baseUri)
+                val uri = if (settings.baseUri != "") settings.baseUri else mergedSettings.baseUri
+                projectContainer = getProjects(settings.authorization, uri)
                 with(projectBox) {
                     removeAllElements()
                     if (selectedItem == null || selectedItem.toString() == "Check API Key") {

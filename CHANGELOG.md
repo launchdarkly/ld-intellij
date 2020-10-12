@@ -2,6 +2,14 @@
 
 # intellij-plugin-ld Changelog
 
+## [0.1.6-alpha] - 2020-10-07
+### Fixed
+- Use application level setting for baseUri if none present for project
+- Add Invoke later for tree build
+
+### Added
+- Ability to toggle Fallthrough variation and Off variation
+
 ## [0.1.5-alpha] - 2020-10-07
 ### Fixed
 - Changelog

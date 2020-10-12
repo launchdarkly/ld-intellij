@@ -67,7 +67,7 @@ class OpenInBrowserAction : AnAction {
         if (project != null) {
             if (project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent != null) {
                 val selectedNode = project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent.toString()
-                e.presentation.isEnabledAndVisible = e.presentation.isEnabled && (selectedNode.startsWith("Key:") || project.service<FlagToolWindow>().getPanel().tree.selectionPath.path.size == FLAG_NAME_PATH)
+                e.presentation.isEnabledAndVisible = e.presentation.isEnabled && project.service<FlagToolWindow>().getPanel().tree.selectionPath.path.size == FLAG_NAME_PATH
             }
         }
     }
