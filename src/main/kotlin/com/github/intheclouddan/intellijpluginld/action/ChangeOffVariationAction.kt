@@ -54,8 +54,7 @@ class ChangeOffVariationAction : AnAction {
      * @param event Event received when the associated menu item is chosen.
      */
     override fun actionPerformed(event: AnActionEvent) {
-        val project = event.project
-        val settings = LaunchDarklyMergedSettings.getInstance(project!!)
+        val project = event.project!!
         val currentComponent = event?.inputEvent?.component ?: return
         val selectedNode = project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
         val parentNodeMut = selectedNode.parent as DefaultMutableTreeNode

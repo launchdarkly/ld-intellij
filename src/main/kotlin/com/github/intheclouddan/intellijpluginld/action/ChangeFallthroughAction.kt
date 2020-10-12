@@ -45,7 +45,7 @@ class ChangeFallthroughAction : AnAction {
      * @param description  The description of the menu item.
      * @param icon  The icon to be used with the menu item.
      */
-    constructor(text: String? = "Open in Browser", description: String?, icon: Icon?) : super(text, description, icon)
+    constructor(text: String?, description: String?, icon: Icon?) : super(text, description, icon)
 
     /**
      * Gives the user feedback when the dynamic action menu is chosen.
@@ -54,8 +54,7 @@ class ChangeFallthroughAction : AnAction {
      * @param event Event received when the associated menu item is chosen.
      */
     override fun actionPerformed(event: AnActionEvent) {
-        val project = event.project
-        val settings = LaunchDarklyMergedSettings.getInstance(project!!)
+        val project = event.project!!
         val currentComponent = event?.inputEvent?.component ?: return
         val selectedNode = project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
         val parentNodeMut = selectedNode.parent as DefaultMutableTreeNode
