@@ -34,6 +34,18 @@
 ### Fixed
 
 ### Security
+## [0.1.6-alpha] - 2020-10-12
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
 ## [0.1.5-alpha] - 2020-10-07
 ### Added
 
