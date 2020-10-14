@@ -38,3 +38,15 @@
 ### Fixed
 
 ### Security
+## [0.1.7-alpha] - 2020-10-14
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
