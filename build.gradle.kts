@@ -35,6 +35,7 @@ version = pluginVersion
 repositories {
     mavenCentral()
     jcenter()
+    maven("https://www.jetbrains.com/intellij-repository/snapshots")
 }
 
 dependencies {
@@ -46,6 +47,7 @@ dependencies {
 
     implementation("org.apache.logging.log4j", "log4j-slf4j-impl", "2.13.3")
     testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
+    compileOnly(kotlin("stdlib-jdk8"))
 }
 
 tasks.withType<Test> {

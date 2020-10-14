@@ -4,7 +4,7 @@
 
 ## [0.1.7-alpha]
 ### Changed
-- pluginUntilBuild range to enable for 2020.3 EAP
+- Enable build range for 2020.3 EAP
 
 ## [0.1.6-alpha] - 2020-10-07
 ### Fixed
