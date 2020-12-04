@@ -32,14 +32,14 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
             val env: FlagConfiguration = getFlags.flagConfigs[element.text.drop(1).dropLast(1)]!!
             val result = StringBuilder()
             val prereqs = if (env.prerequisites.isNotEmpty()) {
-                "• <b>Prerequisites</b> ${env.prerequisites.size} • "
-            } else "• "
+                "<b>Prerequisites</b> ${env.prerequisites.size} • "
+            } else ""
             val rules = if (env.rules.isNotEmpty()) {
-                "<b>Rules</b> ${env.rules.size} •<br />"
+                "<b>Rules</b> ${env.rules.size}<br />"
             } else " •"
             var targets = ""
             if (env.targets.isNotEmpty()) {
-                targets += "<b>Targets:</b> "
+                targets += "<b>Targets</b><br /> "
                 env.targets.forEachIndexed { i, t ->
                     targets += "${flag.variations[t.variation as Int].name ?: flag.variations[t.variation as Int].value} ${t.values.size} "
                     if (i != env.targets.lastIndex) {
@@ -59,13 +59,13 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
                 buildEnvString += targets
             }
             result.append("<html>")
-            result.append("<img src=\"${LDIcons.FLAG}\"> <b>LaunchDarkly Feature Flag \u2022 ${flag.name ?: flag.key}</b> <img align=\"right\" style='float: right;' src=\"${LDIcons.FLAG}\"> <br />")
+            result.append("<img src=\"${LDIcons.FLAG}\"> <b>LaunchDarkly Feature Flag \u2022 ${flag.name ?: flag.key}</b><br />")
             val enabledIcon = if (env.on) {
                 "<img src=\"${LDIcons.TOGGLE_ON}\" alt=\"On\">"
             } else {
                 "<img src=\"${LDIcons.TOGGLE_OFF}\" alt=\"Off\">"
             }
-            result.append("$enabledIcon • ${flag.description}<br />")
+            result.append("$enabledIcon ${flag.description}<br />")
             //result.append("<pre>")
             result.append(buildEnvString)
             result.append("<br /><b>Variations</b><br />")

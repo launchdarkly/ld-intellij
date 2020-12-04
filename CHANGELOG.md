@@ -2,6 +2,11 @@
 
 # intellij-plugin-ld Changelog
 
+## [0.1.8-alpha]
+### Changed
+- Minor updates to Java Documentation Hover Provider
+- Searching treeview will include matches on flag key
+
 ## [0.1.7-alpha]
 ### Changed
 - Enable build range for 2020.3 EAP
