@@ -40,7 +40,7 @@ repositories {
 
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.10.0-RC1")
-    implementation("com.launchdarkly:api-client:3.1.0")
+    implementation("com.launchdarkly:api-client:3.10.0")
     implementation("com.launchdarkly:launchdarkly-java-server-sdk:5.+")
     implementation("com.google.code.gson:gson:2.7")
     implementation("com.googlecode.json-simple", "json-simple", "1.1.1")

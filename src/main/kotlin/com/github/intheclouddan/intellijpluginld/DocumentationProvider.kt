@@ -1,6 +1,7 @@
 package com.github.intheclouddan.intellijpluginld
 
 import com.github.intheclouddan.intellijpluginld.featurestore.FlagConfiguration
+import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSettings
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.openapi.components.service
 import com.intellij.psi.PsiElement
@@ -16,7 +17,8 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
         val flag: FeatureFlag? = getFlags.flags.items.find { it.key == element.text.drop(1).dropLast(1) }
 
         if (flag != null) {
-            return listOf(flag.links!!.self.href)
+            val settings = LaunchDarklyMergedSettings.getInstance(element.project)
+            return listOf("${settings.baseUri.removePrefix("https://")}${flag.environments[settings.environment]!!.site.href}")
         }
 
         return null
@@ -27,6 +29,7 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
             return null
         }
         val getFlags = element.project.service<FlagStore>()
+
         val flag: FeatureFlag? = getFlags.flags.items.find { it.key == element.text.drop(1).dropLast(1) }
         if (flag != null) {
             val env: FlagConfiguration = getFlags.flagConfigs[element.text.drop(1).dropLast(1)]!!
@@ -41,9 +44,9 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
             if (env.targets.isNotEmpty()) {
                 targets += "<b>Targets</b><br /> "
                 env.targets.forEachIndexed { i, t ->
-                    targets += "${flag.variations[t.variation as Int].name ?: flag.variations[t.variation as Int].value} ${t.values.size} "
+                    targets += "${flag.variations[t.variation as Int].name ?: flag.variations[t.variation as Int].value} ${t.values.size}"
                     if (i != env.targets.lastIndex) {
-                        targets += "\u2022 "
+                        targets += " \u2022 "
                     }
                 }
                 targets += "<br />"
@@ -66,24 +69,30 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
                 "<img src=\"${LDIcons.TOGGLE_OFF}\" alt=\"Off\">"
             }
             result.append("$enabledIcon ${flag.description}<br />")
-            //result.append("<pre>")
             result.append(buildEnvString)
-            result.append("<br /><b>Variations</b><br />")
+            result.append("<br /><b>Variations ${if (env.fallthrough?.rollout != null) " ◆ Rollout Configured" else ""}</b><br />")
             flag.variations.mapIndexed { i, it ->
+                val rolloutPercentage: Double = if (env.fallthrough?.rollout != null) {
+                    val rollout = env.fallthrough?.rollout
+                    val foundVariation = rollout!!.variations.filter { it.variation == i }
+                    (foundVariation[0].weight.toDouble() / 1000)
+                } else -1.000
                 var variationOut = "$i"
                 if (it.name != "" && it.name != null) {
                     variationOut += " ◆ ${it.name}"
                 }
-                variationOut += " ◆ <code>Return value:</code> <code>${it.value}</code>"
+                variationOut += " ◆ ${if (rolloutPercentage != null && rolloutPercentage != -1.000) "Rollout $rolloutPercentage% ◆ " else ""}<code>Return value:</code> <code>${it.value}</code><br />"
                 result.append(variationOut)
+                if (env.offVariation != null && env.offVariation == i) {
+                    result.append("<p><b>Off Variation</b></p>")
+                }
+                if (env.fallthrough?.variation != null && env.fallthrough?.variation == i) {
+                    result.append("<p><b>Fallthrough Variation</b></p>")
+                }
                 if (it.description != "" && it.description != null) {
                     result.append("<p>${it.description ?: ""}</p><br />")
-                } else {
-                    result.append("<p><br /></p>")
                 }
-                //result.append("<p>${it.value}</p>")
             }
-            //result.append("</pre>")
             result.append("</html>")
 
             return result.toString()

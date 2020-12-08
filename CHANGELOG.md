@@ -2,6 +2,17 @@
 
 # intellij-plugin-ld Changelog
 
+## [0.1.9-alpha]
+### Removed
+- Defaults from treeview
+
+### Added
+- External link for hovers
+- Show default rule rollout percentage on hover
+
+### Changed
+- Hover layout
+
 ## [0.1.8-alpha]
 ### Changed
 - Minor updates to Java Documentation Hover Provider

@@ -8,9 +8,6 @@ import com.intellij.openapi.project.Project
 
 class ConfigNotifier {
     private val notificationGroup = NotificationGroup("Launchdarkly Configuration", NotificationDisplayType.BALLOON, true)
-//    fun notify(content: String?): Notification {
-//        return notify(null, content)
-//    }
 
     fun notify(project: Project?, content: String?): Notification {
         val notification: Notification = notificationGroup.createNotification(content!!, NotificationType.ERROR)

@@ -53,9 +53,6 @@ class FlagNodeParent(FFlag: FeatureFlag, private var flags: FeatureFlags, myProj
         if (flag.tags.size > 0) {
             children.add(FlagNodeTags(flag.tags))
         }
-        if (flag.defaults != null) {
-            children.add(FlagNodeDefaults(flag))
-        }
     }
 
     override fun update(data: PresentationData) {
