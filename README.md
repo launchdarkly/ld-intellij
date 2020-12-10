@@ -23,4 +23,16 @@ Interact with your LaunchDarkly Feature Flags directly in your IDE.
   
 ## Setup
 
-- Generate a LaunchDarkly Personal Access Token
+- Generate a [LaunchDarkly Personal Access Token](https://app.launchdarkly.com/settings/authorization/tokens/new) with a writer role(if toggling flags). Example policy is below:
+```[
+  {
+    "resources": ["proj/*"],
+    "actions": ["viewProject"],
+    "effect": "allow"
+  },
+  {
+    "resources": ["proj/*:env/*:flag/*"],
+    "actions": ["updateOn", "updateFallthrough", "updateOffVariation"],
+    "effect": "allow"
+  }
+]```
