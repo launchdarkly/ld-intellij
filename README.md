@@ -38,3 +38,4 @@ Interact with your LaunchDarkly Feature Flags directly in your IDE.
   }
 ]
 ```
+- Under `Preferences` -> `LaunchDarkly Plugin` add the Access Token then click apply. A list of Projects and Environments should populate if the key has the correct permissions or an error show in the drop down. The environment list will auto update based on the Project selected.
