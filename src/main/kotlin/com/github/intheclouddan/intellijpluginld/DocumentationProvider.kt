@@ -9,26 +9,12 @@ import com.launchdarkly.api.model.FeatureFlag
 
 class LDDocumentationProvider : AbstractDocumentationProvider() {
 
-    override fun getUrlFor(element: PsiElement?, originalElement: PsiElement?): List<String>? {
-        if (element == null) {
-            return null
-        }
-        val getFlags = element.project.service<FlagStore>()
-        val flag: FeatureFlag? = getFlags.flags.items.find { it.key == element.text.drop(1).dropLast(1) }
-
-        if (flag != null) {
-            val settings = LaunchDarklyMergedSettings.getInstance(element.project)
-            return listOf("${settings.baseUri.removePrefix("https://")}${flag.environments[settings.environment]!!.site.href}")
-        }
-
-        return null
-    }
-
     override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
         if (element == null) {
             return null
         }
         val getFlags = element.project.service<FlagStore>()
+        val settings = LaunchDarklyMergedSettings.getInstance(element.project)
 
         val flag: FeatureFlag? = getFlags.flags.items.find { it.key == element.text.drop(1).dropLast(1) }
         if (flag != null) {
@@ -63,6 +49,7 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
             }
             result.append("<html>")
             result.append("<img src=\"${LDIcons.FLAG}\"> <b>LaunchDarkly Feature Flag \u2022 ${flag.name ?: flag.key}</b><br />")
+            result.append("<a href=\"${settings.baseUri}${flag.environments[settings.environment]!!.site.href}\">Open In LaunchDarkly</a><br />")
             val enabledIcon = if (env.on) {
                 "<img src=\"${LDIcons.TOGGLE_ON}\" alt=\"On\">"
             } else {

@@ -1,8 +1,6 @@
 package com.github.intheclouddan.intellijpluginld
 
 import com.intellij.openapi.util.IconLoader
-import com.intellij.util.ImageLoader
-import com.intellij.util.ui.JBImageIcon
 
 class LDIcons {
     companion object {
@@ -13,7 +11,7 @@ class LDIcons {
         val DESCRIPTION = IconLoader.getIcon("/icons/description.svg", javaClass)
 
         @JvmField
-        val FLAG = IconLoader.getIcon(LDIconsPath.FLAG, javaClass)
+        val FLAG = IconLoader.getIcon("/icons/flag.svg", javaClass)
 
         @JvmField
         val FLAG_KEY = IconLoader.getIcon("/icons/flagKey.svg", javaClass)
@@ -42,18 +40,5 @@ class LDIcons {
         @JvmField
         val VARIATION = IconLoader.getIcon("/icons/variation.svg", javaClass)
 
-
-        fun imageLoader(path: String): JBImageIcon {
-            val image = ImageLoader.loadFromResource(path);
-            return JBImageIcon(image!!);
-        }
-    }
-}
-
-class LDIconsPath {
-    companion object {
-        val FLAG = "/icons/flag.svg"
-        val TOGGLE_OFF = "/icons/toggleoff.svg"
-        val TOGGLE_ON = "/icons/toggleon.svg"
     }
 }
