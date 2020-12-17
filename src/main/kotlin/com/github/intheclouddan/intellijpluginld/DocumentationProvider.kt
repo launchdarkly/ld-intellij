@@ -2,12 +2,12 @@ package com.github.intheclouddan.intellijpluginld
 
 import com.github.intheclouddan.intellijpluginld.featurestore.FlagConfiguration
 import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSettings
-import com.intellij.lang.documentation.AbstractDocumentationProvider
+import com.intellij.lang.documentation.DocumentationProvider
 import com.intellij.openapi.components.service
 import com.intellij.psi.PsiElement
 import com.launchdarkly.api.model.FeatureFlag
 
-class LDDocumentationProvider : AbstractDocumentationProvider() {
+class LDDocumentationProvider : DocumentationProvider {
 
     override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
         if (element == null) {
@@ -17,8 +17,10 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
         val settings = LaunchDarklyMergedSettings.getInstance(element.project)
 
         val flag: FeatureFlag? = getFlags.flags.items.find { it.key == element.text.drop(1).dropLast(1) }
+        // TODO: gracefully handle API call working and Datastore being unavailable
         if (flag != null) {
-            val env: FlagConfiguration = getFlags.flagConfigs[element.text.drop(1).dropLast(1)]!!
+            val env: FlagConfiguration = getFlags.flagConfigs[element.text.drop(1).dropLast(1)]
+                    ?: FlagConfiguration(flag.key, null, null, listOf(), listOf(), arrayOf(), false, -1)
             val result = StringBuilder()
             val prereqs = if (env.prerequisites.isNotEmpty()) {
                 "<b>Prerequisites</b> ${env.prerequisites.size} • "
@@ -48,9 +50,14 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
                 buildEnvString += targets
             }
             result.append("<html>")
+            if (env.version === -1) {
+                result.append("<b>FLAG TARGETING INFORMATION IS NOT AVAILABLE. Below Values are placeholders</b><br />")
+            }
             result.append("<img src=\"${LDIcons.FLAG}\"> <b>LaunchDarkly Feature Flag \u2022 ${flag.name ?: flag.key}</b><br />")
             result.append("<a href=\"${settings.baseUri}${flag.environments[settings.environment]!!.site.href}\">Open In LaunchDarkly</a><br />")
-            val enabledIcon = if (env.on) {
+            val enabledIcon = if (env.version === -1) {
+                "<img src=\"${LDIcons.TOGGLE_DISCONNECTED}\" alt=\"Disconnected\">"
+            } else if (env.on) {
                 "<img src=\"${LDIcons.TOGGLE_ON}\" alt=\"On\">"
             } else {
                 "<img src=\"${LDIcons.TOGGLE_OFF}\" alt=\"Off\">"

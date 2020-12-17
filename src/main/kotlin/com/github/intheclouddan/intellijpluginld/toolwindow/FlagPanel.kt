@@ -168,7 +168,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                         val parent = node as DefaultMutableTreeNode
                         if (parent.userObject is FlagNodeParent) {
                             var parentNode = parent.userObject as FlagNodeParent
-                            if (parentNode.key == flag.key && parentNode.flag.version < flag.version) {
+                            if (parentNode.key == flag.key && parentNode.flag.version < flag.version && getFlags.flagConfigs[flag.key] !== null) {
                                 found = true
                                 parentNode = FlagNodeParent(flag, getFlags.flags, myProject)
                                 treeModel.invalidate(TreePath(parent), true)

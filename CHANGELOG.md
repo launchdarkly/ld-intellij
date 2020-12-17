@@ -2,6 +2,14 @@
 
 # intellij-plugin-ld Changelog
 
+## [0.1.11-alpha]
+### Fixed
+- Handling stream connection not being available
+
+### Changed
+- Icons for Toggle State have been updated
+- DocumentationProvider should work for all languages now, not just JVM
+
 ## [0.1.10-alpha]
 ### Removed
 - External Documentation override

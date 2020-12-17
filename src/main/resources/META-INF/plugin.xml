@@ -35,6 +35,7 @@
         <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindow"/>
         <toolWindow id="LaunchDarkly Flags" icon="/icons/flag.svg" anchor="right"
                     factoryClass="com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindowFactory"/>
+        <documentationProvider implementation="com.github.intheclouddan.intellijpluginld.LDDocumentationProvider"/>
     </extensions>
 
     <actions>

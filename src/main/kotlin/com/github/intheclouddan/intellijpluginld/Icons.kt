@@ -38,6 +38,9 @@ class LDIcons {
         val TOGGLE_ON = IconLoader.getIcon("/icons/toggleon.svg", javaClass)
 
         @JvmField
+        val TOGGLE_DISCONNECTED = IconLoader.getIcon("/icons/toggledisc.svg", javaClass)
+
+        @JvmField
         val VARIATION = IconLoader.getIcon("/icons/variation.svg", javaClass)
 
     }
