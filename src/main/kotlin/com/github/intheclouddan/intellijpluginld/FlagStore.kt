@@ -11,7 +11,7 @@ import com.github.intheclouddan.intellijpluginld.notifications.ConfigNotifier
 import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSettings
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.intellij.openapi.application.invokeLater
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
@@ -135,7 +135,7 @@ class FlagStore(private var project: Project) {
             try {
                 val ldProject = LaunchDarklyApiClient.projectInstance(project, settings.authorization).getProject(settings.project)
                 val myStreamBaseURI = settings.baseUri.replace("app", "stream")
-                invokeLater {
+                ApplicationManager.getApplication().executeOnPooledThread {
                     val (store, client) = createClientAndGetStore(ldProject.environments.find { it.key == settings.environment }!!.apiKey, myStreamBaseURI)
                     flagStore = store!!
                     flagClient = client

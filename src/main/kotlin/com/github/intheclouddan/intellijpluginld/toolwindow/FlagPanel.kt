@@ -12,7 +12,7 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.ActionToolbar
 import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.application.invokeLater
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
@@ -182,7 +182,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                     }
 
                     if (!found) {
-                        invokeLater {
+                        ApplicationManager.getApplication().executeOnPooledThread {
                             updateNodeInfo()
                         }
                     }
@@ -214,12 +214,12 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                                 }
                                 when {
                                     flag != "" -> {
-                                        invokeLater {
+                                        ApplicationManager.getApplication().executeOnPooledThread {
                                             updateNode(flag)
                                         }
                                     }
                                     rebuild -> {
-                                        invokeLater {
+                                        ApplicationManager.getApplication().executeOnPooledThread {
                                             updateNodes()
                                         }
                                     }

@@ -6,7 +6,7 @@ import com.github.intheclouddan.intellijpluginld.toolwindow.FlagNodeParent
 import com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindow
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.application.invokeLater
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.launchdarkly.api.ApiException
@@ -85,7 +85,7 @@ class ChangeOffVariationAction : AnAction {
                     patch.value = currentIdx
                     patchComment.patch = listOf(patch)
                     val ldFlag = LaunchDarklyApiClient.flagInstance(project)
-                    invokeLater {
+                    ApplicationManager.getApplication().executeOnPooledThread {
                         try {
                             ldFlag.patchFeatureFlag(settings.project, parentNode.key, patchComment)
                         } catch (e: ApiException) {

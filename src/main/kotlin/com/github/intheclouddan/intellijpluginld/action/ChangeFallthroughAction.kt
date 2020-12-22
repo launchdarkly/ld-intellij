@@ -6,7 +6,7 @@ import com.github.intheclouddan.intellijpluginld.toolwindow.FlagNodeParent
 import com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindow
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.application.invokeLater
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.launchdarkly.api.ApiException
@@ -76,7 +76,7 @@ class ChangeFallthroughAction : AnAction {
                     }
                 })
                 .setItemChosenCallback {
-                    invokeLater {
+                    ApplicationManager.getApplication().executeOnPooledThread {
                         val settings = LaunchDarklyMergedSettings.getInstance(project)
                         val patchComment = PatchComment()
                         val patch = PatchOperation()
