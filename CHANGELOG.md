@@ -2,6 +2,13 @@
 
 # intellij-plugin-ld Changelog
 
+## [0.1.12]
+### Fixed
+- Handle stream connections in separate thread
+
+### Changed
+- DocumentationProvider should work for all languages now, not just JVM
+
 ## [0.1.11-alpha]
 ### Fixed
 - Handling stream connection not being available

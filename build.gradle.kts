@@ -60,6 +60,7 @@ intellij {
     pluginName = pluginName
     version = platformVersion
     type = platformType
+    //alternativeIdePath = "/Applications/GoLand.app"
     downloadSources = platformDownloadSources.toBoolean()
     updateSinceUntilBuild = true
 
@@ -127,7 +128,8 @@ tasks {
     publishPlugin {
         dependsOn("patchChangelog")
         token(System.getenv("PUBLISH_TOKEN"))
-        channels("alpha")
+        @Suppress("NonNullable")
+        channels((System.getenv("GIT_RELEASE") ?: "").split('-').getOrElse(1) { "default" }.split('.').first())
     }
 
 }
