@@ -1,5 +1,6 @@
 package com.github.intheclouddan.intellijpluginld
 
+import com.github.intheclouddan.intellijpluginld.coderefs.FlagAliases
 import com.github.intheclouddan.intellijpluginld.featurestore.FlagConfiguration
 import com.github.intheclouddan.intellijpluginld.featurestore.createClientAndGetStore
 import com.github.intheclouddan.intellijpluginld.featurestore.createClientAndGetStoreOffline
@@ -130,6 +131,7 @@ class FlagStore(private var project: Project) {
     init {
         val settings = LaunchDarklyMergedSettings.getInstance(project)
         val refreshRate: Long = settings.refreshRate.toLong()
+        project.service<FlagAliases>()
         if (settings.project != "" && settings.authorization != "") {
             flags = flagsNotify()
             try {

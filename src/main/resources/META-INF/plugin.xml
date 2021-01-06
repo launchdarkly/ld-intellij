@@ -7,16 +7,16 @@
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
     <depends optional="true" config-file="withJavaModule.xml">com.intellij.modules.java</depends>
-    <depends optional="true" config-file="withGoModule.xml">org.jetbrains.plugins.go</depends>
-
+    <!--    <depends>com.intellij.modules.java</depends>-->
     <extensions defaultExtensionNs="com.intellij">
         <applicationConfigurable
                 instance="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyApplicationConfigurable"
                 id="launchdarkly.app.settings" displayName="LaunchDarkly Plugin"/>
-
         <projectConfigurable instance="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfigurable"
                              displayName="Project Overrides" id="launchdarkly.settings"
                              parentId="launchdarkly.app.settings"/>
+        <!--        <backgroundPostStartupActivity implementation="com.github.intheclouddan.intellijpluginld.coderefs.FlagAliases"/>-->
+        <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.coderefs.FlagAliases"/>
         <applicationService
                 serviceImplementation="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyApplicationConfig"/>
 
@@ -35,7 +35,11 @@
         <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindow"/>
         <toolWindow id="LaunchDarkly Flags" icon="/icons/flag.svg" anchor="right"
                     factoryClass="com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindowFactory"/>
-        <documentationProvider implementation="com.github.intheclouddan.intellijpluginld.LDDocumentationProvider"/>
+        <documentationProvider order="first"
+                               implementation="com.github.intheclouddan.intellijpluginld.LDDocumentationProvider"/>
+        <!--        <configurationType-->
+        <!--                implementation="com.github.intheclouddan.intellijpluginld.coderefs.CodeRefsRunConfigurationType"/>-->
+
     </extensions>
 
     <actions>

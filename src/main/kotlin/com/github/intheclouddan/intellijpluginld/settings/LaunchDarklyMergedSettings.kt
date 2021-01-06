@@ -49,6 +49,10 @@ class LaunchDarklyMergedSettings(private val myProject: Project) : LDSettings {
         }
         set(value) {}
 
+    override var codeReferences: Boolean
+        get() = appSettings.ldState.codeReferences
+        set(value) {}
+
     override fun isConfigured(): Boolean {
         if (project == "" || environment == "" || authorization == "") {
             return false
@@ -56,16 +60,21 @@ class LaunchDarklyMergedSettings(private val myProject: Project) : LDSettings {
         return true
     }
 
+    override var codeReferencesRefreshRate: Int
+        get() = appSettings.ldState.refreshRate
+        set(value) {}
+
     /*
      *   Check if project is using application defaults.
      */
     fun projectOverrides(): Boolean {
         if (projSettings.ldState.credName.isNotEmpty()
-                || projSettings.ldState.authorization.isNotEmpty()
-                || projSettings.ldState.refreshRate != -1
-                || projSettings.ldState.environment.isNotEmpty()
-                || projSettings.ldState.project.isNotEmpty()
-                || projSettings.ldState.baseUri.isNotEmpty()) {
+            || projSettings.ldState.authorization.isNotEmpty()
+            || projSettings.ldState.refreshRate != -1
+            || projSettings.ldState.environment.isNotEmpty()
+            || projSettings.ldState.project.isNotEmpty()
+            || projSettings.ldState.baseUri.isNotEmpty()
+        ) {
             return true
         }
         return false

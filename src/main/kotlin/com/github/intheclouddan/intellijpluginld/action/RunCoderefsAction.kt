@@ -1,11 +1,14 @@
 package com.github.intheclouddan.intellijpluginld.action
 
-import com.github.intheclouddan.intellijpluginld.FlagStore
+import com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindow
+import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.process.ScriptRunnerUtil
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
+import com.intellij.openapi.util.io.FileUtilRt
+import java.nio.charset.Charset
 import javax.swing.Icon
-
 
 /**
  * Action class to demonstrate how to interact with the IntelliJ Platform.
@@ -13,17 +16,17 @@ import javax.swing.Icon
  * Typically this class is instantiated by the IntelliJ Platform framework based on declarations
  * in the plugin.xml file. But when added at runtime this class is instantiated by an action group.
  */
-class RefreshAction : AnAction {
+class RunCoderefsAction : AnAction {
     /**
      * This default constructor is used by the IntelliJ Platform framework to
      * instantiate this class based on plugin.xml declarations. Only needed in PopupDialogAction
      * class because a second constructor is overridden.
-     * @see AnAction
+     * @see AnAction.AnAction
      */
     constructor() : super()
 
     companion object {
-        const val ID = "com.github.intheclouddan.intellijpluginld.action.RefreshAction"
+        const val ID = "com.github.intheclouddan.intellijpluginld.action.RunCoderefsAction"
     }
 
     /**
@@ -34,7 +37,7 @@ class RefreshAction : AnAction {
      * @param description  The description of the menu item.
      * @param icon  The icon to be used with the menu item.
      */
-    constructor(text: String? = "Refresh", description: String?, icon: Icon?) : super(text, description, icon)
+    constructor(text: String?, description: String?, icon: Icon?) : super(text, description, icon)
 
     /**
      * Gives the user feedback when the dynamic action menu is chosen.
@@ -43,10 +46,28 @@ class RefreshAction : AnAction {
      * @param event Event received when the associated menu item is chosen.
      */
     override fun actionPerformed(event: AnActionEvent) {
-        // Using the event, create and show a dialog
-        val currentProject = event.project
-        val flags = currentProject!!.service<FlagStore>()
-        flags.flagsNotify(reinit = true, rebuild = true)
+        val project = event.project!!
+        val projectPath = project.basePath
+        val tmpDir = FileUtilRt.createTempDirectory("ld-", null)
+        val commands = arrayListOf("")
+        val aliasFile = "${tmpDir}/coderefs_temp_file_scan.csv"
+        commands.add("ld-find-code-refs")
+        commands.add("--dir=${projectPath}")
+        commands.add("--dryRun")
+        commands.add("--outDir=${tmpDir}")
+        commands.add("--repoName=CHANGEME")
+        commands.add("--projectKey=${project.name}")
+        commands.add("--baseUri=CHANGEME")
+        commands.add("--contextLines=-1")
+        commands.add("--branch=scan")
+        commands.add("--revision=0")
+        val generalCommandLine = GeneralCommandLine(commands)
+        val procEnv = mapOf("LD_ACCESS_TOKEN" to "test", "GOMAXPROCS" to "1")
+        generalCommandLine.withEnvironment(procEnv)
+        generalCommandLine.setCharset(Charset.forName("UTF-8"))
+        //generalCommandLine.setWorkDirectory()
+        val snykResultJsonStr = ScriptRunnerUtil.getProcessOutput(generalCommandLine)
+
     }
 
     /**
@@ -57,6 +78,11 @@ class RefreshAction : AnAction {
     override fun update(e: AnActionEvent) {
         super.update(e)
         val project = e.project
-        e.presentation.isEnabledAndVisible = project != null
+        if (project != null) {
+            if (project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent != null) {
+                val selectedNode = project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent.toString()
+                e.presentation.isEnabledAndVisible = e.presentation.isEnabled && (selectedNode.startsWith("Fallthrough"))
+            }
+        }
     }
 }

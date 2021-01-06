@@ -1,5 +1,6 @@
 package com.github.intheclouddan.intellijpluginld
 
+import com.github.intheclouddan.intellijpluginld.coderefs.FlagAliases
 import com.github.intheclouddan.intellijpluginld.featurestore.FlagConfiguration
 import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSettings
 import com.intellij.lang.documentation.AbstractDocumentationProvider
@@ -12,7 +13,12 @@ import com.launchdarkly.api.model.FeatureFlag
 
 class LDDocumentationProvider : AbstractDocumentationProvider() {
     // Not sure how this is all working yet but it works for custom documentation in other IDEs than IDEA
-    override fun getCustomDocumentationElement(editor: Editor, file: PsiFile, contextElement: PsiElement?): PsiElement? {
+    override fun getCustomDocumentationElement(
+        editor: Editor,
+        file: PsiFile,
+        contextElement: PsiElement?,
+        offset: Int
+    ): PsiElement? {
         if (contextElement == null) return null
 
         if (editor.caretModel.currentCaret.offset == contextElement.textRange.startOffset) {
@@ -25,11 +31,13 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
     private fun getElementForDocumentation(contextElement: PsiElement?): PsiElement? {
         if (contextElement == null) return null
         val getFlags = contextElement.project.service<FlagStore>()
-
         var flag: FeatureFlag? = getFlags.flags?.items?.find { it.key == contextElement.text.removeSurrounding("\"") }
         if (flag != null) {
             return contextElement
         }
+        val getAliases = contextElement.project.service<FlagAliases>()
+        val aliasFlag = getAliases.aliases[contextElement.text.removeSurrounding("\"")]
+        if (aliasFlag != null) return contextElement
         return contextElement?.parent
     }
 
@@ -42,13 +50,19 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
             return null
         }
         val getFlags = element.project.service<FlagStore>()
+        val getAliases = element.project.service<FlagAliases>()
         val settings = LaunchDarklyMergedSettings.getInstance(element.project)
 
         var flag: FeatureFlag? = getFlags.flags.items.find { it.key == element.text.removeSurrounding("\"") }
+        var alias: String?
+        if (flag == null) {
+            alias = getAliases.aliases[element.text.removeSurrounding("\"")]
+            flag = getFlags.flags.items.find { it.key == alias }
+        }
         // TODO: gracefully handle API call working and Datastore being unavailable
         if (flag != null) {
             val env: FlagConfiguration = getFlags.flagConfigs[flag.key]
-                    ?: FlagConfiguration(flag.key, null, null, listOf(), listOf(), arrayOf(), false, -1)
+                ?: FlagConfiguration(flag.key, null, null, listOf(), listOf(), arrayOf(), false, -1)
             val result = StringBuilder()
             val prereqs = if (env.prerequisites.isNotEmpty()) {
                 "<b>Prerequisites</b> ${env.prerequisites.size} • "

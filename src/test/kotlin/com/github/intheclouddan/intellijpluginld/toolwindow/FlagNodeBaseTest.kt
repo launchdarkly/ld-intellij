@@ -4,6 +4,7 @@ import com.github.intheclouddan.intellijpluginld.LDIcons
 import junit.framework.TestCase
 import org.junit.jupiter.api.Test
 
+// Run Test
 class FlagNodeBaseTest : TestCase() {
 
     @Test

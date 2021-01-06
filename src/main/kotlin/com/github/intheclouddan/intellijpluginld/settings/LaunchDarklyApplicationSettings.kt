@@ -50,18 +50,22 @@ open class LaunchDarklyApplicationConfig : PersistentStateComponent<LaunchDarkly
     }
 
     data class ConfigState(
-            override var credName: String = "",
-            override var project: String = "",
-            override var environment: String = "",
-            override var refreshRate: Int = 120,
-            override var baseUri: String = "https://app.launchdarkly.com"
+        override var credName: String = "",
+        override var project: String = "",
+        override var environment: String = "",
+        override var refreshRate: Int = 120,
+        override var baseUri: String = "https://app.launchdarkly.com",
+        override var codeReferences: Boolean = true,
+        override var codeReferencesRefreshRate: Int = 240
     ) : LDSettings {
         private val key = "apiKey"
         private val credentialAttributes: CredentialAttributes =
-                CredentialAttributes(generateServiceName(
-                        "launchdarkly-intellij",
-                        key
-                ))
+            CredentialAttributes(
+                generateServiceName(
+                    "launchdarkly-intellij",
+                    key
+                )
+            )
 
 
         // Stored in System Credential store
@@ -102,7 +106,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             projectContainer = getProjects(null, null)
             if (projectContainer.size > 0) {
                 environmentContainer = projectContainer.find { it.key == settings.project }
-                        ?: projectContainer.firstOrNull() as com.launchdarkly.api.model.Project
+                    ?: projectContainer.firstOrNull() as com.launchdarkly.api.model.Project
             }
         } catch (err: Exception) {
             defaultMessage = CHECK_API
@@ -112,9 +116,16 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     override fun createPanel(): DialogPanel {
         panel = panel {
             commentRow("Add your LaunchDarkly API Key and click Apply. Project and Environment selections will populate based on key permissions.")
-            row("API Key:") { apiField().withTextBinding(PropertyBinding({ settings.authorization }, { settings.authorization = it })) }
+            row("API Key:") {
+                apiField().withTextBinding(
+                    PropertyBinding(
+                        { settings.authorization },
+                        { settings.authorization = it })
+                )
+            }
             hideableRow("Base URL:") { textField(settings::baseUri) }
             row("Refresh Rate(in Minutes):") { intTextField(settings::refreshRate) }
+
             try {
                 projectBox = if (::projectContainer.isInitialized) {
                     DefaultComboBoxModel(projectContainer.map { it.key }.toTypedArray())
@@ -122,9 +133,12 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     DefaultComboBoxModel(arrayOf(defaultMessage))
                 }
                 row("Project") {
-                    comboBox(projectBox, settings::project, renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
-                        label.text = value
-                    })
+                    comboBox(
+                        projectBox,
+                        settings::project,
+                        renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
+                            label.text = value
+                        })
 
                 }
 
@@ -134,11 +148,23 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     DefaultComboBoxModel(arrayOf("Please select a Project"))
                 }
                 row("Environments:") {
-                    comboBox(environmentBox, settings::environment, renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
-                        label.text = value
-                    })
+                    comboBox(
+                        environmentBox,
+                        settings::environment,
+                        renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
+                            label.text = value
+                        })
                 }
+                environmentBox.selectedItem = settings.environment
 
+                blockRow {
+                    row {
+                        checkBox("Enable Code References", settings::codeReferences)
+                    }
+                    row("Code References Refresh Rate") {
+                        intTextField(settings::codeReferencesRefreshRate)
+                    }
+                }
             } catch (err: Exception) {
                 println(err)
             }
@@ -147,10 +173,8 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     }
 
     override fun isModified(): Boolean {
-        if ((settings.authorization != origApiKey || settings.baseUri != origBaseUri) && !apiUpdate) {
+        if ((settings.authorization != origApiKey || settings.baseUri != origBaseUri) && apiUpdate) {
             try {
-                println(settings.baseUri)
-                println(settings.authorization)
                 projectContainer = getProjects(settings.authorization, settings.baseUri)
                 with(projectBox) {
                     removeAllElements()
@@ -179,9 +203,8 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     with(environmentBox) {
                         removeAllElements()
                         envMap.map { addElement(it) }
-                        if (selectedItem == null || selectedItem.toString() == "Please select a Project") {
-                            selectedItem = if (settings.environment != "") settings.environment else envMap.firstOrNull()
-                        }
+                        selectedItem =
+                            if (settings.environment != "" && envMap.contains(settings.environment)) settings.environment else envMap.firstOrNull()
                     }
                 }
             } catch (err: Error) {
@@ -189,8 +212,10 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             }
         }
 
-        if (::projectBox.isInitialized || settings.project != projectBox.selectedItem.toString()) {
-            modified = true
+        if (::projectBox.isInitialized) {
+            if (settings.project != projectBox.selectedItem.toString()) {
+                modified = true
+            }
         }
 
         if (::environmentBox.isInitialized) {
@@ -200,7 +225,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         }
 
         val sup = super.isModified()
-        return modified || sup
+        return sup || modified
     }
 
     override fun apply() {

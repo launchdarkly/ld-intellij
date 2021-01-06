@@ -55,11 +55,13 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
 //    }
 
     data class ConfigState(
-            override var credName: String = "",
-            override var project: String = "",
-            override var environment: String = "",
-            override var refreshRate: Int = -1,
-            override var baseUri: String = ""
+        override var credName: String = "",
+        override var project: String = "",
+        override var environment: String = "",
+        override var refreshRate: Int = -1,
+        override var baseUri: String = "",
+        override var codeReferences: Boolean = true,
+        override var codeReferencesRefreshRate: Int = 240
     ) : LDSettings {
         private val key: String = "apiKey"
         //var credStoreName = "launchdarkly-intellij-$credName"
@@ -68,19 +70,27 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
 
         // Stored in System Credential store
         override var authorization: String
-            get() = PasswordSafe.instance.getPassword(CredentialAttributes(generateServiceName(
-                    "launchdarkly-intellij-$credName",
-                    key
-            ))) ?: ""
+            get() = PasswordSafe.instance.getPassword(
+                CredentialAttributes(
+                    generateServiceName(
+                        "launchdarkly-intellij-$credName",
+                        key
+                    )
+                )
+            ) ?: ""
             set(value) {
                 if (credName == "") {
                     return
                 }
                 val credentials = Credentials("", value)
-                PasswordSafe.instance.set(CredentialAttributes(generateServiceName(
-                        "launchdarkly-intellij-$credName",
-                        key
-                )), credentials)
+                PasswordSafe.instance.set(
+                    CredentialAttributes(
+                        generateServiceName(
+                            "launchdarkly-intellij-$credName",
+                            key
+                        )
+                    ), credentials
+                )
             }
 
         override fun isConfigured(): Boolean {
@@ -103,6 +113,8 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
     private var modified = false
     private var panel = JPanel()
     private var apiUpdate = false
+    private var projectUpdatedSelection = false
+    private var envUpdatedSelection = false
     private var lastSelectedProject = ""
     lateinit var projectContainer: MutableList<com.launchdarkly.api.model.Project>
     lateinit var environmentContainer: com.launchdarkly.api.model.Project
@@ -116,7 +128,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
             projectContainer = getProjects(null, null)
             if (projectContainer.size > 0) {
                 environmentContainer = projectContainer.find { it.key == settings.project }
-                        ?: projectContainer.firstOrNull() as com.launchdarkly.api.model.Project
+                    ?: projectContainer.firstOrNull() as com.launchdarkly.api.model.Project
             }
         } catch (err: Exception) {
             defaultMessage = "Check API Key"
@@ -127,7 +139,13 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
         panel = panel {
             noteRow("Any settings manually selected here will override the corresponding Application settings.")
             noteRow("Project and Environment selections will populate based on key permissions.")
-            row("API Key:") { apiField().withTextBinding(PropertyBinding({ settings.authorization }, { settings.authorization = it })) }
+            row("API Key:") {
+                apiField().withTextBinding(
+                    PropertyBinding(
+                        { settings.authorization },
+                        { settings.authorization = it })
+                )
+            }
             try {
                 projectBox = if (::projectContainer.isInitialized) {
                     DefaultComboBoxModel(projectContainer.map { it.key }.toTypedArray())
@@ -135,10 +153,15 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                     DefaultComboBoxModel(arrayOf(defaultMessage))
                 }
                 row("Project") {
-                    comboBox(projectBox, settings::project, renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
-                        label.text = value
-                    })
-
+                    comboBox(
+                        projectBox,
+                        settings::project,
+                        renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
+                            label.text = value
+                        })
+                        .component.addActionListener {
+                            projectUpdatedSelection = true
+                        }
                 }
 
                 environmentBox = if (::environmentContainer.isInitialized) {
@@ -147,9 +170,16 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                     DefaultComboBoxModel(arrayOf("Please select a Project"))
                 }
                 row("Environments:") {
-                    comboBox(environmentBox, settings::environment, renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
-                        label.text = value
-                    })
+                    comboBox(
+                        environmentBox,
+                        settings::environment,
+                        renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
+                            label.text = value
+                        }
+                    )
+                        .component.addActionListener {
+                            envUpdatedSelection = true
+                        }
                 }
 
             } catch (err: Exception) {
@@ -163,9 +193,9 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
     }
 
     override fun isModified(): Boolean {
-        if (settings.credName != project.name) settings.credName = project.name
-        if ((settings.authorization != origApiKey || settings.baseUri != origBaseUri) && !apiUpdate) {
+        if ((settings.authorization != origApiKey || settings.baseUri != origBaseUri && !apiUpdate)) {
             try {
+                if (settings.credName != project.name) settings.credName = project.name
                 settings.credName = project.name
                 val uri = if (settings.baseUri != "") settings.baseUri else mergedSettings.baseUri
                 projectContainer = getProjects(settings.authorization, uri)
@@ -181,46 +211,34 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                 println(err)
             }
         }
-//
-//        if () {
-//            try {
-//                projectContainer = getProjects()
-//                with(projectBox) {
-//                    removeAllElements()
-//                    if (selectedItem == null || selectedItem.toString() == "Check API Key") {
-//                        selectedItem = projectContainer.map { it.key }.firstOrNull()
-//                    }
-//                    projectContainer.map { addElement(it.key) }
-//                }
-//                apiUpdate = true
-//            } catch (err: Error) {
-//                println(err)
-//            }
-//        }
+
         if (::projectContainer.isInitialized && lastSelectedProject != projectBox.selectedItem.toString()) {
             lastSelectedProject = projectBox.selectedItem.toString()
             try {
                 environmentContainer = projectContainer.find { it.key == projectBox.selectedItem.toString() }!!
                 val envMap = environmentContainer.environments.map { it.key }.sorted()
                 if (::environmentBox.isInitialized) {
+                    environmentBox.selectedItem = settings::environment
                     with(environmentBox) {
                         removeAllElements()
                         envMap.map { addElement(it) }
-                        if (selectedItem == null || selectedItem.toString() == "Please select a Project") {
-                            selectedItem = if (settings.environment != "") settings.environment else envMap.firstOrNull()
-                        }
+                        selectedItem =
+                            if (settings.environment != "" && envMap.contains(settings.environment)) settings.environment else envMap.firstOrNull()
                     }
+                    envUpdatedSelection = false // Set back to false because a user did not take an action
                 }
             } catch (err: Error) {
                 println(err)
             }
         }
 
-        if (::projectBox.isInitialized || settings.project != projectBox.selectedItem.toString()) {
-            modified = true
+        if ((::projectBox.isInitialized && projectBox.selectedItem != "") && projectUpdatedSelection) {
+            if (settings.project != projectBox.selectedItem.toString()) {
+                modified = true
+            }
         }
 
-        if (::environmentBox.isInitialized) {
+        if ((::environmentBox.isInitialized && environmentBox.selectedItem != "") && envUpdatedSelection) {
             if (settings.environment != environmentBox.selectedItem.toString()) {
                 modified = true
             }

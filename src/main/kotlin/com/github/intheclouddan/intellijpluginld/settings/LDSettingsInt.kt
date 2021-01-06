@@ -7,6 +7,8 @@ interface LDSettings {
     var refreshRate: Int
     var baseUri: String
     var authorization: String
+    var codeReferences: Boolean
+    var codeReferencesRefreshRate: Int
 
     fun isConfigured(): Boolean
 }
