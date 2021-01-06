@@ -99,6 +99,18 @@
 - Open in Browser from any specific flag
 
 ## [Unreleased]
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+## [0.2.0] - 2021-01-06
 
 ### Added
 
