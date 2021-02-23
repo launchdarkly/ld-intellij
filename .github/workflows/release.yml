@@ -11,7 +11,7 @@ jobs:
   # Prepare and publish the plugin to the Marketplace repository
   release:
     name: Publish Plugin
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     if: github.repository != 'JetBrains/intellij-platform-plugin-template'
     steps:
 
