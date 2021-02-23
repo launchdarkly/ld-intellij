@@ -32,7 +32,7 @@ jobs:
         env:
           PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
           GIT_RELEASE: ${{ github.event.release.tag_name }}
-        run: ./gradlew publishPlugin
+        run: ./gradlew publishPlugin --stacktrace
 
       # Commit patched Changelog
       - name: Commit files
