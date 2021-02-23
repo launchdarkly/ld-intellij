@@ -8,13 +8,15 @@ plugins {
     // Java support
     id("java")
     // Kotlin support
-    id("org.jetbrains.kotlin.jvm") version "1.4.20-M2"
+    id("org.jetbrains.kotlin.jvm") version "1.4.30"
     // gradle-intellij-plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
     id("org.jetbrains.intellij") version "0.8.0-SNAPSHOT"
     // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
-    id("org.jetbrains.changelog") version "0.6.0"
+    id("org.jetbrains.changelog") version "1.1.2"
     // detekt linter - read more: https://detekt.github.io/detekt/kotlindsl.html
     id("io.gitlab.arturbosch.detekt") version "1.10.0-RC1"
+    // ktlint
+    id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
 }
 
 buildscript {
