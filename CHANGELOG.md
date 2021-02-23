@@ -2,6 +2,22 @@
 
 # intellij-plugin-ld Changelog
 
+## [0.3.0]
+
+### Fixed
+
+- When selecting a project in Project Override settings it would revert to first in list
+- Hover throwing NPE if flags were not loaded
+
+### Changed
+
+- Load flags for flag panel in background thread
+- Do not show SVG on hover until YouTrack issue is fixed
+
+### Added
+
+- Code References will be downloaded and run based setting interval
+
 ## [0.2.0]
 
 ### Fixed
@@ -99,6 +115,7 @@
 - Open in Browser from any specific flag
 
 ## [Unreleased]
+
 ### Added
 
 ### Changed
@@ -110,6 +127,7 @@
 ### Fixed
 
 ### Security
+
 ## [0.2.0] - 2021-01-06
 
 ### Added

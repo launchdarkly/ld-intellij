@@ -6,6 +6,8 @@ import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSett
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
+import com.intellij.patterns.PlatformPatterns
+import com.intellij.patterns.StandardPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
@@ -29,9 +31,15 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
     }
 
     private fun getElementForDocumentation(contextElement: PsiElement?): PsiElement? {
-        if (contextElement == null) return null
+        if (contextElement == null || contextElement == StandardPatterns.not(
+                PlatformPatterns.psiElement().notEmpty()
+            )
+        ) return null
+
         val getFlags = contextElement.project.service<FlagStore>()
-        var flag: FeatureFlag? = getFlags.flags?.items?.find { it.key == contextElement.text.removeSurrounding("\"") }
+
+        var flag: FeatureFlag? =
+            getFlags.flags?.items?.find { contextElement.text.contains(it.key) }
         if (flag != null) {
             return contextElement
         }
@@ -50,10 +58,12 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
             return null
         }
         val getFlags = element.project.service<FlagStore>()
+        if (getFlags.flags.items == null) return null
         val getAliases = element.project.service<FlagAliases>()
         val settings = LaunchDarklyMergedSettings.getInstance(element.project)
 
-        var flag: FeatureFlag? = getFlags.flags.items.find { it.key == element.text.removeSurrounding("\"") }
+        var flag: FeatureFlag? =
+            getFlags.flags?.items?.find { element.text.contains(it.key) }
         var alias: String?
         if (flag == null) {
             alias = getAliases.aliases[element.text.removeSurrounding("\"")]
@@ -69,7 +79,11 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
             } else ""
             val rules = if (env.rules.isNotEmpty()) {
                 "<b>Rules</b> ${env.rules.size}<br />"
-            } else " •"
+            } else if (env.targets.isNotEmpty()) {
+                " •"
+            } else {
+                ""
+            }
             var targets = ""
             if (env.targets.isNotEmpty()) {
                 targets += "<b>Targets</b><br /> "
@@ -95,16 +109,24 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
             if (env.version === -1) {
                 result.append("<b>FLAG TARGETING INFORMATION IS NOT AVAILABLE. Below Values are placeholders</b><br />")
             }
-            result.append("<img src=\"${LDIcons.FLAG}\"> <b>LaunchDarkly Feature Flag \u2022 ${flag.name ?: flag.key}</b><br />")
+            result.append("<b>LaunchDarkly Feature Flag \u2022 ${flag.name ?: flag.key}</b><br />")
             result.append("<a href=\"${settings.baseUri}${flag.environments[settings.environment]!!.site.href}\">Open In LaunchDarkly</a><br />")
-            val enabledIcon = if (env.version === -1) {
-                "<img src=\"${LDIcons.TOGGLE_DISCONNECTED}\" alt=\"Disconnected\">"
+//            val enabledIcon = if (env.version === -1) {
+//                "<img src=\"${LDIcons.TOGGLE_DISCONNECTED}\" alt=\"Disconnected\">"
+//            } else if (env.on) {
+//                "<img src=\"${LDIcons.TOGGLE_ON}\" alt=\"On\">"
+//            } else {
+//                "<img src=\"${LDIcons.TOGGLE_OFF}\" alt=\"Off\">"
+//            }
+            val state = if (env.version === -1) {
+                "Disconnect"
             } else if (env.on) {
-                "<img src=\"${LDIcons.TOGGLE_ON}\" alt=\"On\">"
+                "On"
             } else {
-                "<img src=\"${LDIcons.TOGGLE_OFF}\" alt=\"Off\">"
+                "Off"
             }
-            result.append("$enabledIcon ${flag.description}<br />")
+            result.append("Enabled: $state<br />")
+            result.append("${flag.description}<br />")
             result.append(buildEnvString)
             result.append("<br /><b>Variations ${if (env.fallthrough?.rollout != null) " ◆ Rollout Configured" else ""}</b><br />")
             flag.variations.mapIndexed { i, it ->

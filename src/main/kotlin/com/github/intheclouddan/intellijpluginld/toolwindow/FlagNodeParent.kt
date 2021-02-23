@@ -16,7 +16,7 @@ class FlagNodeParent(FFlag: FeatureFlag, private var flags: FeatureFlags, myProj
     private val getFlags = myProject.service<FlagStore>()
     var flag: FeatureFlag = FFlag
     var env = getFlags.flagConfigs[flag.key]
-            ?: FlagConfiguration(flag.key, null, null, listOf(), listOf(), arrayOf(), false, -1)
+        ?: FlagConfiguration(flag.key, null, null, listOf(), listOf(), arrayOf(), false, -1)
     val key: String = flag.key
 
 
@@ -50,7 +50,12 @@ class FlagNodeParent(FFlag: FeatureFlag, private var flags: FeatureFlags, myProj
             children.add(FlagNodeFallthrough(flag, env))
         }
         if (env.offVariation != null) {
-            children.add(FlagNodeBase("Off Variation: ${flag.variations[env.offVariation as Int].name ?: flag.variations[env.offVariation as Int].value}", LDIcons.OFF_VARIATION))
+            children.add(
+                FlagNodeBase(
+                    "Off Variation: ${flag.variations[env.offVariation as Int].name ?: flag.variations[env.offVariation as Int].value}",
+                    LDIcons.OFF_VARIATION
+                )
+            )
         }
         if (flag.tags.size > 0) {
             children.add(FlagNodeTags(flag.tags))
@@ -60,10 +65,11 @@ class FlagNodeParent(FFlag: FeatureFlag, private var flags: FeatureFlags, myProj
     override fun update(data: PresentationData) {
         super.update(data)
         env = getFlags.flagConfigs[flag.key]
-                ?: FlagConfiguration(flag.key, null, null, listOf(), listOf(), arrayOf(), false, -1)
+            ?: FlagConfiguration(flag.key, null, null, listOf(), listOf(), arrayOf(), false, -1)
         flag = getFlags.flags.items.find { it.key == flag.key }!!
         // Flag version should only be -1 if we manually created a FlagConfiguration so set icon to warning.
-        val enabledIcon = if (env.version === -1) LDIcons.TOGGLE_DISCONNECTED else if (env.on) LDIcons.TOGGLE_ON else LDIcons.TOGGLE_OFF
+        val enabledIcon =
+            if (env.version === -1) LDIcons.TOGGLE_DISCONNECTED else if (env.on) LDIcons.TOGGLE_ON else LDIcons.TOGGLE_OFF
         val label = flag.name ?: flag.key
         data.presentableText = label
         data.setIcon(enabledIcon)

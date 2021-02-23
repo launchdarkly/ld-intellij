@@ -14,6 +14,8 @@ import com.intellij.ui.SimpleListCellRenderer
 import com.intellij.ui.layout.PropertyBinding
 import com.intellij.ui.layout.panel
 import com.intellij.ui.layout.withTextBinding
+import com.launchdarkly.api.ApiException
+import com.launchdarkly.api.model.Environment
 import javax.swing.DefaultComboBoxModel
 import javax.swing.JPanel
 import javax.swing.JPasswordField
@@ -108,8 +110,8 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
     private val messageBusService = project.service<DefaultMessageBusService>()
     private val mergedSettings = project.service<LaunchDarklyMergedSettings>()
     private val settings = LaunchDarklyConfig.getInstance(project).ldState
-    private val origApiKey = settings.authorization
-    private val origBaseUri = settings.baseUri
+    private var origApiKey = settings.authorization
+    private var origBaseUri = settings.baseUri
     private var modified = false
     private var panel = JPanel()
     private var apiUpdate = false
@@ -193,29 +195,60 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
     }
 
     override fun isModified(): Boolean {
-        if ((settings.authorization != origApiKey || settings.baseUri != origBaseUri && !apiUpdate)) {
-            try {
+        try {
+            if (settings.authorization != origApiKey) {
                 if (settings.credName != project.name) settings.credName = project.name
                 settings.credName = project.name
-                val uri = if (settings.baseUri != "") settings.baseUri else mergedSettings.baseUri
-                projectContainer = getProjects(settings.authorization, uri)
-                with(projectBox) {
-                    removeAllElements()
-                    if (selectedItem == null || selectedItem.toString() == "Check API Key") {
-                        selectedItem = projectContainer.map { it.key }.firstOrNull()
-                    }
-                    projectContainer.map { addElement(it.key) }
-                }
-                apiUpdate = true
-            } catch (err: Error) {
-                println(err)
             }
+            var uri: String
+            uri = if (settings.baseUri != origBaseUri) {
+                if (settings.baseUri != "") settings.baseUri else mergedSettings.baseUri
+            } else {
+                mergedSettings.baseUri
+            }
+            try {
+                if (projectContainer.size <= 1 && (projectContainer[0].key == "Check API and baseURL" || projectContainer[0].key == "Check API Key")) {
+                    projectContainer = getProjects(settings.authorization, uri)
+                } else if (settings.baseUri != origBaseUri) {
+                    projectContainer = getProjects(settings.authorization, uri)
+                }
+            } catch (err: ApiException) {
+                val tempProj = com.launchdarkly.api.model.Project()
+                tempProj.key = "Check API and baseURL"
+                val tempEnv = Environment()
+                tempEnv.key("Check API and baseURL")
+                tempProj.environments = listOf<Environment>(tempEnv)
+                projectContainer = mutableListOf<com.launchdarkly.api.model.Project>(tempProj)
+            }
+            with(projectBox) {
+                if (settings.authorization != origApiKey || settings.baseUri != origBaseUri) {
+                    removeAllElements()
+                    // After updating set everything to the same so it does not keep deleting elements.
+                    origBaseUri = settings.baseUri
+                    origApiKey = settings.authorization
+                }
+                if (selectedItem !== null && (selectedItem.toString() == "Check API Key" || selectedItem.toString() == "Check API and baseURL")) {
+                    println("WTF")
+                    selectedItem = projectContainer.map { it.key }.firstOrNull()
+                }
+                projectContainer.map { addElement(it.key) }
+            }
+            apiUpdate = true
+        } catch (err: Error) {
+            println(err)
         }
 
-        if (::projectContainer.isInitialized && lastSelectedProject != projectBox.selectedItem.toString()) {
+        if (::projectContainer.isInitialized && lastSelectedProject != projectBox?.selectedItem?.toString()) {
             lastSelectedProject = projectBox.selectedItem.toString()
             try {
-                environmentContainer = projectContainer.find { it.key == projectBox.selectedItem.toString() }!!
+                val tempProj = com.launchdarkly.api.model.Project()
+                tempProj.key = "Check API and baseURL"
+                val tempEnv = Environment()
+                tempEnv.key("Check API and baseURL")
+                tempProj.environments = listOf<Environment>(tempEnv)
+                var projCont = projectContainer.find { it.key == projectBox?.selectedItem?.toString() } ?: tempProj
+
+                environmentContainer = projCont
                 val envMap = environmentContainer.environments.map { it.key }.sorted()
                 if (::environmentBox.isInitialized) {
                     environmentBox.selectedItem = settings::environment
