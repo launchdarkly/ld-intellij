@@ -12,7 +12,7 @@ import com.github.intheclouddan.intellijpluginld.notifications.ConfigNotifier
 import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSettings
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.invokeLater
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
@@ -96,7 +96,7 @@ class FlagStore(private var project: Project) {
      */
     private fun flagListener(client: LDClient, store: DataStore) {
         val listenForChanges = FlagChangeListener { event ->
-            ApplicationManager.getApplication().executeOnPooledThread {
+            invokeLater {
                 val flag: FeatureFlag? = flags.items.find { it.key == event.key }
                 if (flag == null) {
                     val getFlags = LaunchDarklyApiClient.flagInstance(project)
@@ -136,7 +136,7 @@ class FlagStore(private var project: Project) {
         val ldProject =
             LaunchDarklyApiClient.projectInstance(project, settings.authorization)
                 .getProject(settings.project)
-        val myStreamBaseURI = settings.baseUri.replace("app", "stream")
+        val myStreamBaseURI = System.getenv("LD_STREAMER_CONFIG") ?: settings.baseUri.replace("app", "stream")
         val (store, client) = createClientAndGetStore(
             ldProject.environments.find { it.key == settings.environment }!!.apiKey,
             myStreamBaseURI
@@ -165,7 +165,7 @@ class FlagStore(private var project: Project) {
         val refreshRate: Long = settings.refreshRate.toLong()
         project.service<FlagAliases>()
         if (settings.project != "" && settings.authorization != "") {
-            ApplicationManager.getApplication().executeOnPooledThread {
+            invokeLater {
                 try {
                     setupStore()
 

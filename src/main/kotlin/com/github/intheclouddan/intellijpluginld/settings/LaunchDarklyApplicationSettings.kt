@@ -88,8 +88,8 @@ open class LaunchDarklyApplicationConfig : PersistentStateComponent<LaunchDarkly
 class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "LaunchDarkly Application Plugin") {
     private val apiField = JPasswordField()
     private val settings = LaunchDarklyApplicationConfig.getInstance().ldState
-    private val origApiKey = settings.authorization
-    private val origBaseUri = settings.baseUri
+    private var origApiKey = settings.authorization
+    private var origBaseUri = settings.baseUri
     private var modified = false
     private var panel = JPanel()
     private var apiUpdate = false
@@ -173,7 +173,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     }
 
     override fun isModified(): Boolean {
-        if ((settings.authorization != origApiKey || settings.baseUri != origBaseUri) && apiUpdate) {
+        if ((settings.authorization != origApiKey || settings.baseUri != origBaseUri) || apiUpdate) {
             try {
                 projectContainer = getProjects(settings.authorization, settings.baseUri)
                 with(projectBox) {
@@ -183,7 +183,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     }
                     projectContainer.map { addElement(it.key) }
                 }
-                apiUpdate = true
+                apiUpdate = false
             } catch (err: Error) {
                 println(err)
                 with(projectBox) {
@@ -239,6 +239,11 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             settings.environment = environmentBox.selectedItem.toString()
         }
 
+        if (settings.authorization != origApiKey || settings.baseUri != origBaseUri) {
+            apiUpdate = true
+            origApiKey = settings.authorization
+            origBaseUri = settings.baseUri
+        }
         if ((projectBox.selectedItem != CHECK_API) && modified) {
             val appMsgService = ApplicationManager.getApplication().messageBus
             val topic = service<AppDefaultMessageBusService>().configurationEnabledTopic

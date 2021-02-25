@@ -9,6 +9,8 @@
     <depends optional="true" config-file="withJavaModule.xml">com.intellij.modules.java</depends>
     <!--    <depends>com.intellij.modules.java</depends>-->
     <extensions defaultExtensionNs="com.intellij">
+        <notificationGroup id="LaunchDarkly Configuration" displayType="BALLOON"/>
+
         <applicationConfigurable
                 instance="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyApplicationConfigurable"
                 id="launchdarkly.app.settings" displayName="LaunchDarkly Plugin"/>

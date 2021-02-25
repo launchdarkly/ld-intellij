@@ -207,18 +207,21 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                 mergedSettings.baseUri
             }
             try {
-                if (projectContainer.size <= 1 && (projectContainer[0].key == "Check API and baseURL" || projectContainer[0].key == "Check API Key")) {
+                if (::projectContainer.isInitialized && projectContainer?.size <= 2 && (projectContainer[0].key == "Check API and baseURL" || projectContainer[0].key == "Check API Key")) {
                     projectContainer = getProjects(settings.authorization, uri)
                 } else if (settings.baseUri != origBaseUri) {
                     projectContainer = getProjects(settings.authorization, uri)
+                } else {
+                    if (!::projectContainer.isInitialized) {
+                        val tempProj = tmpProj()
+                        projectContainer = mutableListOf<com.launchdarkly.api.model.Project>(tempProj)
+                    }
                 }
             } catch (err: ApiException) {
-                val tempProj = com.launchdarkly.api.model.Project()
-                tempProj.key = "Check API and baseURL"
-                val tempEnv = Environment()
-                tempEnv.key("Check API and baseURL")
-                tempProj.environments = listOf<Environment>(tempEnv)
-                projectContainer = mutableListOf<com.launchdarkly.api.model.Project>(tempProj)
+                if (!::projectContainer.isInitialized) {
+                    val tempProj = tmpProj()
+                    projectContainer = mutableListOf<com.launchdarkly.api.model.Project>(tempProj)
+                }
             }
             with(projectBox) {
                 if (settings.authorization != origApiKey || settings.baseUri != origBaseUri) {
@@ -228,8 +231,10 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                     origApiKey = settings.authorization
                 }
                 if (selectedItem !== null && (selectedItem.toString() == "Check API Key" || selectedItem.toString() == "Check API and baseURL")) {
-                    println("WTF")
                     selectedItem = projectContainer.map { it.key }.firstOrNull()
+                }
+                if (projectContainer.size <= 2 && projectContainer[0].key == "Check API and baseURL") {
+                    removeAllElements()
                 }
                 projectContainer.map { addElement(it.key) }
             }
@@ -241,11 +246,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
         if (::projectContainer.isInitialized && lastSelectedProject != projectBox?.selectedItem?.toString()) {
             lastSelectedProject = projectBox.selectedItem.toString()
             try {
-                val tempProj = com.launchdarkly.api.model.Project()
-                tempProj.key = "Check API and baseURL"
-                val tempEnv = Environment()
-                tempEnv.key("Check API and baseURL")
-                tempProj.environments = listOf<Environment>(tempEnv)
+                val tempProj = tmpProj()
                 var projCont = projectContainer.find { it.key == projectBox?.selectedItem?.toString() } ?: tempProj
 
                 environmentContainer = projCont
@@ -293,7 +294,8 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
         }
 
         settings.credName = project.name
-        if ((projectBox.selectedItem != "Check API Key") && modified) {
+        if ((projectBox.selectedItem != "Check API Key" && projectBox.selectedItem != "Check API and baseURL") && modified) {
+            println(projectBox.selectedItem)
             val publisher = project.messageBus.syncPublisher(messageBusService.configurationEnabledTopic)
             publisher.notify(true)
             println("notifying")
@@ -304,6 +306,15 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
     fun getProjects(apiKey: String?, baseUri: String?): MutableList<com.launchdarkly.api.model.Project> {
         val projectApi = LaunchDarklyApiClient.projectInstance(project, apiKey, baseUri)
         return projectApi.projects.items.sortedBy { it.key } as MutableList<com.launchdarkly.api.model.Project>
+    }
+
+    fun tmpProj(): com.launchdarkly.api.model.Project {
+        val tempProj = com.launchdarkly.api.model.Project()
+        tempProj.key = "Check API and baseURL"
+        val tempEnv = Environment()
+        tempEnv.key("Check API and baseURL")
+        tempProj.environments = listOf<Environment>(tempEnv)
+        return tempProj
     }
 
 }

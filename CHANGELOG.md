@@ -2,6 +2,18 @@
 
 # intellij-plugin-ld Changelog
 
+## [0.3.1]
+
+### Fixed
+
+- Using only Project Overrides Configuration would throw an error
+- Use InvokeLater for any threads affecting the UI
+- Check for coderefs.yaml to exist before scheduling to run
+
+### Added
+
+- Support for 2021 EAP
+
 ## [0.3.0]
 
 ### Fixed

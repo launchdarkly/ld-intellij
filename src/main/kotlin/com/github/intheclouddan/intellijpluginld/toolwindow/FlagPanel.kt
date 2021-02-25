@@ -12,7 +12,6 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.ActionToolbar
 import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
@@ -24,6 +23,7 @@ import com.intellij.ui.tree.AsyncTreeModel
 import com.intellij.ui.tree.StructureTreeModel
 import com.intellij.ui.treeStructure.SimpleTreeStructure
 import com.intellij.ui.treeStructure.Tree
+import com.intellij.util.ui.UIUtil.invokeLaterIfNeeded
 import com.intellij.util.ui.tree.TreeUtil
 import java.awt.CardLayout
 import javax.swing.JPanel
@@ -119,6 +119,9 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         var getFlags = myProject.service<FlagStore>()
         try {
             val defaultTree = tree.model as AsyncTreeModel
+            if (defaultTree.root === null) {
+                return
+            }
             val root = defaultTree.root as DefaultMutableTreeNode
             val e = root.depthFirstEnumeration()
             var found = false
@@ -184,7 +187,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                     }
 
                     if (!found) {
-                        ApplicationManager.getApplication().executeOnPooledThread {
+                        invokeLaterIfNeeded() {
                             updateNodeInfo()
                         }
                     }
@@ -216,12 +219,12 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                             }
                             when {
                                 flag != "" -> {
-                                    ApplicationManager.getApplication().executeOnPooledThread {
+                                    invokeLaterIfNeeded() {
                                         updateNode(flag)
                                     }
                                 }
                                 rebuild -> {
-                                    ApplicationManager.getApplication().executeOnPooledThread {
+                                    invokeLaterIfNeeded {
                                         updateNodes()
                                     }
                                 }

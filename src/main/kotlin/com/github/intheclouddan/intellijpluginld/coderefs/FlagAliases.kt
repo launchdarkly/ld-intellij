@@ -10,7 +10,10 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
+import com.intellij.psi.search.FilenameIndex
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.concurrency.AppExecutorUtil
+import com.intellij.util.indexing.FileBasedIndex
 import java.io.File
 import java.nio.charset.Charset
 import java.util.concurrent.TimeUnit
@@ -95,7 +98,9 @@ class FlagAliases(private var project: Project) {
     }
 
     init {
-        if (settings.codeReferences) {
+        val codeRefsConfig = FileBasedIndex.getInstance()
+            .getContainingFiles(FilenameIndex.NAME, "coderefs.yaml", GlobalSearchScope.allScope(project));
+        if (settings.codeReferences && codeRefsConfig?.isNotEmpty()) {
             AppExecutorUtil.getAppScheduledExecutorService().scheduleWithFixedDelay(
                 Runnable {
                     val runnerCheck = checkCodeRefs()
