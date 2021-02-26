@@ -4,19 +4,18 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSettings
 import com.intellij.execution.ExecutionException
 import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.process.KillableProcessHandler
 import com.intellij.execution.process.OSProcessHandler
-import com.intellij.execution.process.ProcessHandler
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
-import com.intellij.psi.search.FilenameIndex
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.util.concurrency.AppExecutorUtil
-import com.intellij.util.indexing.FileBasedIndex
 import java.io.File
 import java.nio.charset.Charset
 import java.util.concurrent.TimeUnit
+
 
 @Service
 class FlagAliases(private var project: Project) {
@@ -25,7 +24,6 @@ class FlagAliases(private var project: Project) {
     val settings = LaunchDarklyMergedSettings.getInstance(project)
 
     fun readAliases(file: File) {
-        //val rows: List<Map<String, String>> =
         csvReader().open(file) {
             readAllWithHeaderAsSequence().forEach { row: Map<String, String> ->
                 if (row["aliases"] !== "") {
@@ -62,7 +60,9 @@ class FlagAliases(private var project: Project) {
             generalCommandLine.withEnvironment("LD_ACCESS_TOKEN", settings.authorization)
 
             try {
-                val processHandler: ProcessHandler = OSProcessHandler(generalCommandLine)
+                val process: Process = generalCommandLine.createProcess()
+                val processHandler: OSProcessHandler =
+                    KillableProcessHandler(process, generalCommandLine.commandLineString)
                 processHandler.startNotify()
                 var completed = processHandler.waitFor()
                 while (completed) {
@@ -71,6 +71,7 @@ class FlagAliases(private var project: Project) {
                     readAliases(aliasPath)
                     break
                 }
+                Runtime.getRuntime().addShutdownHook(Thread(process::destroy));
             } catch (exception: ExecutionException) {
                 println(exception)
             }
@@ -98,20 +99,23 @@ class FlagAliases(private var project: Project) {
     }
 
     init {
-        val codeRefsConfig = FileBasedIndex.getInstance()
-            .getContainingFiles(FilenameIndex.NAME, "coderefs.yaml", GlobalSearchScope.allScope(project));
-        if (settings.codeReferences && codeRefsConfig?.isNotEmpty()) {
-            AppExecutorUtil.getAppScheduledExecutorService().scheduleWithFixedDelay(
-                Runnable {
-                    val runnerCheck = checkCodeRefs()
-                    if (runnerCheck) {
-                        ApplicationManager.getApplication().executeOnPooledThread {
-                            runCodeRefs(project)
+
+        val codeRefsFile = File(project.basePath + "/.launchdarkly/coderefs.yaml")
+        val codeRefsConfig = LocalFileSystem.getInstance().findFileByIoFile(codeRefsFile)
+        if (codeRefsConfig != null) {
+            if (settings.codeReferences && codeRefsConfig.exists()) {
+                AppExecutorUtil.getAppScheduledExecutorService().scheduleWithFixedDelay(
+                    Runnable {
+                        val runnerCheck = checkCodeRefs()
+                        if (runnerCheck) {
+                            ApplicationManager.getApplication().executeOnPooledThread {
+                                runCodeRefs(project)
+                            }
                         }
-                    }
-                },
-                0, settings.codeReferencesRefreshRate.toLong(), TimeUnit.MINUTES
-            )
+                    },
+                    0, settings.codeReferencesRefreshRate.toLong(), TimeUnit.MINUTES
+                )
+            }
         }
     }
 }

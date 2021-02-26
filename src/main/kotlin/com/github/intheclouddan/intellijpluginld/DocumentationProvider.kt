@@ -54,9 +54,10 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
     }
 
     override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
-        if (element == null) {
-            return null
-        }
+        if (element == null || element == StandardPatterns.not(
+                PlatformPatterns.psiElement().notEmpty()
+            )
+        ) return null
         val getFlags = element.project.service<FlagStore>()
         if (getFlags.flags.items == null) return null
         val getAliases = element.project.service<FlagAliases>()

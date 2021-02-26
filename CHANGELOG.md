@@ -2,6 +2,13 @@
 
 # intellij-plugin-ld Changelog
 
+## [0.3.2]
+
+### Fixed
+
+- Revert Notifications Class until 2021.2
+- Fix check for coderefs config file
+
 ## [0.3.1]
 
 ### Fixed
@@ -127,6 +134,7 @@
 - Open in Browser from any specific flag
 
 ## [Unreleased]
+
 ### Added
 
 ### Changed
@@ -138,7 +146,9 @@
 ### Fixed
 
 ### Security
+
 ## [0.3.1] - 2021-02-25
+
 ### Added
 
 ### Changed
@@ -150,6 +160,7 @@
 ### Fixed
 
 ### Security
+
 ## [0.3.0] - 2021-02-23
 
 ### Added
