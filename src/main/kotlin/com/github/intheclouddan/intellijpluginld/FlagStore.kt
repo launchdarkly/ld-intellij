@@ -12,7 +12,7 @@ import com.github.intheclouddan.intellijpluginld.notifications.ConfigNotifier
 import com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSettings
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.intellij.openapi.application.invokeLater
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
@@ -96,7 +96,7 @@ class FlagStore(private var project: Project) {
      */
     private fun flagListener(client: LDClient, store: DataStore) {
         val listenForChanges = FlagChangeListener { event ->
-            invokeLater {
+            ApplicationManager.getApplication().executeOnPooledThread {
                 val flag: FeatureFlag? = flags.items.find { it.key == event.key }
                 if (flag == null) {
                     val getFlags = LaunchDarklyApiClient.flagInstance(project)
@@ -165,7 +165,7 @@ class FlagStore(private var project: Project) {
         val refreshRate: Long = settings.refreshRate.toLong()
         project.service<FlagAliases>()
         if (settings.project != "" && settings.authorization != "") {
-            invokeLater {
+            ApplicationManager.getApplication().executeOnPooledThread {
                 try {
                     setupStore()
 
@@ -187,7 +187,9 @@ class FlagStore(private var project: Project) {
                 override fun notify(isConfigured: Boolean) {
                     if (isConfigured && !settings.projectOverrides()) {
                         try {
-                            setupStore()
+                            ApplicationManager.getApplication().executeOnPooledThread {
+                                setupStore()
+                            }
                         } catch (err: ApiException) {
                             val notify = ConfigNotifier()
                             notify.notify(project, err.toString())
@@ -200,7 +202,9 @@ class FlagStore(private var project: Project) {
             object : ConfigurationNotifier {
                 override fun notify(isConfigured: Boolean) {
                     if (isConfigured) {
-                        setupStore()
+                        ApplicationManager.getApplication().executeOnPooledThread {
+                            setupStore()
+                        }
                     }
                 }
             })

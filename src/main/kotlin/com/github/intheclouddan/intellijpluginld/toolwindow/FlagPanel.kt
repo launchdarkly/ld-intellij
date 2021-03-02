@@ -229,7 +229,9 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                                     }
                                 }
                                 else -> {
-                                    start()
+                                    invokeLaterIfNeeded {
+                                        start()
+                                    }
                                 }
                             }
                         } else {
@@ -246,7 +248,9 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                             tree = start()
                             actions(tree)
                         }
-                        updateNodeInfo()
+                        invokeLaterIfNeeded {
+                            updateNodeInfo()
+                        }
                     }
                 })
         } catch (err: Error) {

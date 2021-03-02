@@ -9,7 +9,8 @@ import com.intellij.ui.treeStructure.SimpleNode
 import com.launchdarkly.api.model.*
 import java.util.*
 
-class RootNode(private val flags: FeatureFlags, private val settings: LDSettings, private val intProject: Project) : SimpleNode() {
+class RootNode(private val flags: FeatureFlags, private val settings: LDSettings, private val intProject: Project) :
+    SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
 
     override fun getChildren(): Array<SimpleNode> {
@@ -18,6 +19,8 @@ class RootNode(private val flags: FeatureFlags, private val settings: LDSettings
             for (flag in flags.items) {
                 myChildren.add(FlagNodeParent(flag, flags, intProject))
             }
+        } else if ((settings.project != "" && settings.environment != "") && flags.items == null) {
+            myChildren.add(FlagNodeBase("Loading Flags..."))
         } else if (flags.items == null) {
             myChildren.add(FlagNodeBase("LaunchDarkly Plugin is not configured."))
         }
@@ -157,7 +160,12 @@ class FlagNodePrerequisites(private var prereqs: List<Prerequisite>, private var
             myChildren.add(FlagNodeBase("Flag Key: ${it.key}", LDIcons.FLAG))
             val flagKey = it.key
             var flagVariation = flags.items.find { findFlag -> findFlag.key == flagKey }
-            myChildren.add(FlagNodeBase("Variation: ${flagVariation!!.variations[it.variation].name ?: flagVariation.variations[it.variation].value}", LDIcons.VARIATION))
+            myChildren.add(
+                FlagNodeBase(
+                    "Variation: ${flagVariation!!.variations[it.variation].name ?: flagVariation.variations[it.variation].value}",
+                    LDIcons.VARIATION
+                )
+            )
         }
         return myChildren.toTypedArray()
     }
@@ -169,12 +177,18 @@ class FlagNodePrerequisites(private var prereqs: List<Prerequisite>, private var
     }
 }
 
-class FlagNodeTargets(private var flag: FeatureFlag, private var targets: List<com.launchdarkly.api.model.Target>) : SimpleNode() {
+class FlagNodeTargets(private var flag: FeatureFlag, private var targets: List<com.launchdarkly.api.model.Target>) :
+    SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
 
     override fun getChildren(): Array<SimpleNode> {
         targets.map {
-            myChildren.add(FlagNodeBase("${flag.variations[it.variation].name ?: flag.variations[it.variation].value}: ${it.values.size}", LDIcons.VARIATION))
+            myChildren.add(
+                FlagNodeBase(
+                    "${flag.variations[it.variation].name ?: flag.variations[it.variation].value}: ${it.values.size}",
+                    LDIcons.VARIATION
+                )
+            )
         }
         return myChildren.toTypedArray()
     }

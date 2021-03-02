@@ -2,6 +2,12 @@
 
 # intellij-plugin-ld Changelog
 
+## [0.3.3]
+
+### Fixed
+
+- Verify feature store setup is always on background thread.
+
 ## [0.3.2]
 
 ### Fixed
