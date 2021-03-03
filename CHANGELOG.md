@@ -158,6 +158,18 @@
 
 ### Security
 ## [0.3.4] - 2021-03-03
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+## [0.3.4] - 2021-03-03
 
 ### Added
 
