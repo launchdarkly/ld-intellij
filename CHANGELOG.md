@@ -2,6 +2,12 @@
 
 # intellij-plugin-ld Changelog
 
+## [0.3.4]
+
+### Changed
+
+- Only update the flag representation on notify for the changed flag.
+
 ## [0.3.3]
 
 ### Fixed
@@ -140,6 +146,7 @@
 - Open in Browser from any specific flag
 
 ## [Unreleased]
+
 ### Added
 
 ### Changed
@@ -151,7 +158,9 @@
 ### Fixed
 
 ### Security
+
 ## [0.3.3] - 2021-03-02
+
 ### Added
 
 ### Changed
@@ -163,7 +172,9 @@
 ### Fixed
 
 ### Security
+
 ## [0.3.3] - 2021-03-02
+
 ### Added
 
 ### Changed
@@ -175,7 +186,9 @@
 ### Fixed
 
 ### Security
+
 ## [0.3.2] - 2021-02-28
+
 ### Added
 
 ### Changed
@@ -187,6 +200,7 @@
 ### Fixed
 
 ### Security
+
 ## [0.3.2] - 2021-02-26
 
 ### Added

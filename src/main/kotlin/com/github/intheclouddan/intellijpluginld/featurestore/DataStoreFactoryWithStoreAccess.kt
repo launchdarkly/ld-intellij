@@ -39,12 +39,12 @@ class DataStoreFactoryWithStoreAccess internal constructor(underlyingFactory: Da
 fun createClientAndGetStore(token: String, myStreamBaseURI: String): Pair<DataStore?, LDClient> {
     val storeFactory = DataStoreFactoryWithStoreAccess(Components.inMemoryDataStore())
     val config: LDConfig = LDConfig.Builder()
-            .dataSource(
-                    Components.streamingDataSource().baseURI(URI(myStreamBaseURI))
-            )
-            .events(Components.noEvents())
-            .dataStore(storeFactory)
-            .build()
+        .dataSource(
+            Components.streamingDataSource().baseURI(URI(myStreamBaseURI))
+        )
+        .events(Components.noEvents())
+        .dataStore(storeFactory)
+        .build()
     val client = LDClient(token, config)
     // Creating the client causes the SDK to call createDataStore on the factory
     val dataStore: DataStore? = storeFactory.getStoreInstance()
@@ -56,10 +56,10 @@ fun createClientAndGetStore(token: String, myStreamBaseURI: String): Pair<DataSt
 fun createClientAndGetStoreOffline(): Pair<DataStore?, LDClient> {
     val storeFactory = DataStoreFactoryWithStoreAccess(Components.inMemoryDataStore())
     val config: LDConfig = LDConfig.Builder()
-            .offline(true)
-            .events(Components.noEvents())
-            .dataStore(storeFactory)
-            .build()
+        .offline(true)
+        .events(Components.noEvents())
+        .dataStore(storeFactory)
+        .build()
     val client = LDClient("sdk-12345", config)
     // Creating the client causes the SDK to call createDataStore on the factory
     val dataStore: DataStore? = storeFactory.getStoreInstance()
@@ -76,4 +76,9 @@ fun getFlagsAsJSONStrings(store: DataStore): List<String>? {
         ret.add(json)
     }
     return ret
+}
+
+fun getFlagAsJSONString(store: DataStore, flagKey: String): String {
+    val item: ItemDescriptor = store.get(DataModel.FEATURES, flagKey)
+    return DataModel.FEATURES.serialize(item)
 }

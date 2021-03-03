@@ -1,10 +1,7 @@
 package com.github.intheclouddan.intellijpluginld
 
 import com.github.intheclouddan.intellijpluginld.coderefs.FlagAliases
-import com.github.intheclouddan.intellijpluginld.featurestore.FlagConfiguration
-import com.github.intheclouddan.intellijpluginld.featurestore.createClientAndGetStore
-import com.github.intheclouddan.intellijpluginld.featurestore.createClientAndGetStoreOffline
-import com.github.intheclouddan.intellijpluginld.featurestore.getFlagsAsJSONStrings
+import com.github.intheclouddan.intellijpluginld.featurestore.*
 import com.github.intheclouddan.intellijpluginld.messaging.AppDefaultMessageBusService
 import com.github.intheclouddan.intellijpluginld.messaging.ConfigurationNotifier
 import com.github.intheclouddan.intellijpluginld.messaging.DefaultMessageBusService
@@ -37,7 +34,7 @@ import java.util.concurrent.TimeUnit
 @Service
 class FlagStore(private var project: Project) {
     var flags: FeatureFlags = FeatureFlags()
-    var flagConfigs = emptyMap<String, FlagConfiguration>()
+    var flagConfigs = mutableMapOf<String, FlagConfiguration>()
     lateinit var flagStore: DataStore
     var flagClient: LDClient = LDClient("sdk-12345", LDConfig.Builder().offline(true).build())
     val messageBusService = project.service<DefaultMessageBusService>()
@@ -108,7 +105,9 @@ class FlagStore(private var project: Project) {
                     flags.items.remove(newFlag)
                 }
                 val publisher = project.messageBus.syncPublisher(messageBusService.flagsUpdatedTopic)
-                flagTargeting(store)
+                val flagString = getFlagAsJSONString(store, event.key)
+                val flagJson = Gson().fromJson(flagString, FlagConfiguration::class.java)
+                flagConfigs[event.key] = flagJson
                 publisher.notify(true, event.key as String)
             }
         }
@@ -119,11 +118,10 @@ class FlagStore(private var project: Project) {
      * Convert the internal SDK representation to JSON to be used in plugin.
      */
     fun flagTargeting(store: DataStore) {
-        val g = Gson()
         val flagTargetingJson: String = getFlagsAsJSONStrings(store)!!.joinToString(prefix = "[", postfix = "]")
         val listflagTargetingJson = object : TypeToken<List<FlagConfiguration>>() {}.type
-        val flagList = g.fromJson<List<FlagConfiguration>>(flagTargetingJson, listflagTargetingJson)
-        flagConfigs = flagList.associateBy { it.key }
+        val flagList = Gson().fromJson<List<FlagConfiguration>>(flagTargetingJson, listflagTargetingJson)
+        flagConfigs = flagList.associateBy { it.key } as MutableMap<String, FlagConfiguration>
     }
 
     fun offlineStore() {
@@ -148,14 +146,18 @@ class FlagStore(private var project: Project) {
             Duration.ofMillis(1000)
         )
         if (clientInit) {
-            flagTargeting(store)
-            flagListener(client, store)
-            flags = flagsNotify(reinit = true, rebuild = true)
+            ApplicationManager.getApplication().executeOnPooledThread {
+                flagTargeting(store)
+                flagListener(client, store)
+                flags = flagsNotify(reinit = true, rebuild = true)
+            }
         } else {
             // We still want to init, FlagTree will be built without SDK data.
-            flagTargeting(store)
-            flagListener(client, store)
-            flags = flagsNotify(reinit = true, rebuild = true)
+            ApplicationManager.getApplication().executeOnPooledThread {
+                flagTargeting(store)
+                flagListener(client, store)
+                flags = flagsNotify(reinit = true, rebuild = true)
+            }
 
         }
     }
