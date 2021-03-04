@@ -1,6 +1,6 @@
 package com.launchdarkly.intellij.toolwindow
 
-import com.github.intheclouddan.intellijpluginld.LDIcons
+import com.launchdarkly.intellij.LDIcons
 import junit.framework.TestCase
 import org.junit.jupiter.api.Test
 
