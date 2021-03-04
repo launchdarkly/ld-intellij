@@ -1,6 +1,6 @@
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
         <completion.contributor language="JAVA"
-                                implementationClass="com.github.intheclouddan.intellijpluginld.codeInsight.JavaCompletionContributor"/>
+                                implementationClass="com.launchdarkly.intellij.codeInsight.JavaCompletionContributor"/>
     </extensions>
 </idea-plugin>
