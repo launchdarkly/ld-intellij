@@ -1,5 +1,5 @@
 <idea-plugin url="https://github.com/intheclouddan/intellij-plugin-ld">
-    <id>com.github.intheclouddan.intellijpluginld</id>
+    <id>com.launchdarkly.intellij</id>
     <name>LaunchDarkly</name>
     <vendor>LaunchDarkly</vendor>
 
@@ -12,69 +12,69 @@
         <!-- <notificationGroup id="LaunchDarkly Configuration" displayType="BALLOON"/> -->
 
         <applicationConfigurable
-                instance="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyApplicationConfigurable"
+                instance="com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfigurable"
                 id="launchdarkly.app.settings" displayName="LaunchDarkly Plugin"/>
-        <projectConfigurable instance="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfigurable"
+        <projectConfigurable instance="com.launchdarkly.intellij.settings.LaunchDarklyConfigurable"
                              displayName="Project Overrides" id="launchdarkly.settings"
                              parentId="launchdarkly.app.settings"/>
-        <!--        <backgroundPostStartupActivity implementation="com.github.intheclouddan.intellijpluginld.coderefs.FlagAliases"/>-->
-        <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.coderefs.FlagAliases"/>
+        <!--        <backgroundPostStartupActivity implementation="com.launchdarkly.intellij.coderefs.FlagAliases"/>-->
+        <projectService serviceImplementation="com.launchdarkly.intellij.coderefs.FlagAliases"/>
         <applicationService
-                serviceImplementation="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyApplicationConfig"/>
+                serviceImplementation="com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig"/>
 
         <projectService
-                serviceImplementation="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyMergedSettings"/>
+                serviceImplementation="com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings"/>
 
-        <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.FlagStore"/>
-        <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.settings.LaunchDarklyConfig"/>
-        <projectService serviceInterface="com.github.intheclouddan.intellijpluginld.messaging.MessageBusService"
-                        serviceImplementation="com.github.intheclouddan.intellijpluginld.messaging.DefaultMessageBusService"
+        <projectService serviceImplementation="com.launchdarkly.intellij.FlagStore"/>
+        <projectService serviceImplementation="com.launchdarkly.intellij.settings.LaunchDarklyConfig"/>
+        <projectService serviceInterface="com.launchdarkly.intellij.messaging.MessageBusService"
+                        serviceImplementation="com.launchdarkly.intellij.messaging.DefaultMessageBusService"
         />
-        <applicationService serviceInterface="com.github.intheclouddan.intellijpluginld.messaging.MessageBusService"
-                            serviceImplementation="com.github.intheclouddan.intellijpluginld.messaging.AppDefaultMessageBusService"
+        <applicationService serviceInterface="com.launchdarkly.intellij.messaging.MessageBusService"
+                            serviceImplementation="com.launchdarkly.intellij.messaging.AppDefaultMessageBusService"
         />
 
-        <projectService serviceImplementation="com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindow"/>
+        <projectService serviceImplementation="com.launchdarkly.intellij.toolwindow.FlagToolWindow"/>
         <toolWindow id="LaunchDarkly Flags" icon="/icons/flag.svg" anchor="right"
-                    factoryClass="com.github.intheclouddan.intellijpluginld.toolwindow.FlagToolWindowFactory"/>
+                    factoryClass="com.launchdarkly.intellij.toolwindow.FlagToolWindowFactory"/>
         <documentationProvider order="first"
-                               implementation="com.github.intheclouddan.intellijpluginld.LDDocumentationProvider"/>
+                               implementation="com.launchdarkly.intellij.LDDocumentationProvider"/>
         <!--        <configurationType-->
-        <!--                implementation="com.github.intheclouddan.intellijpluginld.coderefs.CodeRefsRunConfigurationType"/>-->
+        <!--                implementation="com.launchdarkly.intellij.coderefs.CodeRefsRunConfigurationType"/>-->
 
     </extensions>
 
     <actions>
         <!-- CustomDefaultActionGroup demonstrates declaring an action group based on a ActionGroup class supplied by this plugin.
          This group is to be inserted atop the Editor Popup Menu. It declares one action in the group. -->
-        <!--        <group id="com.github.intheclouddan.intellijpluginld.action.CustomDefaultActionGroup"-->
-        <!--               class="com.github.intheclouddan.intellijpluginld.action.CustomDefaultActionGroup" popup="true"-->
+        <!--        <group id="com.launchdarkly.intellij.action.CustomDefaultActionGroup"-->
+        <!--               class="com.launchdarkly.intellij.action.CustomDefaultActionGroup" popup="true"-->
         <!--               text="Popup Grouped Actions" description="Custom defaultActionGroup demo">-->
         <!--            <add-to-group group-id="EditorPopupMenu" anchor="first"/>-->
-        <action id="com.github.intheclouddan.intellijpluginld.action.RefreshAction"
-                class="com.github.intheclouddan.intellijpluginld.action.RefreshAction"
+        <action id="com.launchdarkly.intellij.action.RefreshAction"
+                class="com.launchdarkly.intellij.action.RefreshAction"
                 text="Refresh Flags" description="Refresh Flags" icon="AllIcons.Actions.Refresh">
         </action>
-        <action id="com.github.intheclouddan.intellijpluginld.action.CopyKeyAction"
-                class="com.github.intheclouddan.intellijpluginld.action.CopyKeyAction"
+        <action id="com.launchdarkly.intellij.action.CopyKeyAction"
+                class="com.launchdarkly.intellij.action.CopyKeyAction"
                 text="Copy Flag Key" description="Copy Flag Key to Clipboard" icon="AllIcons.Actions.Copy">
         </action>
         <!--        </group>-->
-        <action id="com.github.intheclouddan.intellijpluginld.action.ToggleFlagAction"
-                class="com.github.intheclouddan.intellijpluginld.action.ToggleFlagAction"
+        <action id="com.launchdarkly.intellij.action.ToggleFlagAction"
+                class="com.launchdarkly.intellij.action.ToggleFlagAction"
                 text="Toggle Flag" description="Toggle Flag" icon="AllIcons.Actions.Copy">
         </action>
-        <action id="com.github.intheclouddan.intellijpluginld.action.OpenInBrowserAction"
-                class="com.github.intheclouddan.intellijpluginld.action.OpenInBrowserAction"
+        <action id="com.launchdarkly.intellij.action.OpenInBrowserAction"
+                class="com.launchdarkly.intellij.action.OpenInBrowserAction"
                 text="Open in Browser" description="Open in Browser" icon="AllIcons.Actions.OpenNewTab">
         </action>
-        <action id="com.github.intheclouddan.intellijpluginld.action.ChangeFallthroughAction"
-                class="com.github.intheclouddan.intellijpluginld.action.ChangeFallthroughAction"
+        <action id="com.launchdarkly.intellij.action.ChangeFallthroughAction"
+                class="com.launchdarkly.intellij.action.ChangeFallthroughAction"
                 text="Change Fallthrough Variation" description="Change Fallthrough Variation"
                 icon="AllIcons.Actions.OpenNewTab">
         </action>
-        <action id="com.github.intheclouddan.intellijpluginld.action.ChangeOffVariationAction"
-                class="com.github.intheclouddan.intellijpluginld.action.ChangeOffVariationAction"
+        <action id="com.launchdarkly.intellij.action.ChangeOffVariationAction"
+                class="com.launchdarkly.intellij.action.ChangeOffVariationAction"
                 text="Change Off Variation" description="Change Off Variation"
                 icon="AllIcons.Actions.OpenNewTab">
         </action>
