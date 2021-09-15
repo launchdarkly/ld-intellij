@@ -2,6 +2,12 @@
 
 # intellij-plugin-ld Changelog
 
+## [0.3.5]
+
+### Changed
+
+- Update icon for marketplace.
+
 ## [0.3.4]
 
 ### Changed
