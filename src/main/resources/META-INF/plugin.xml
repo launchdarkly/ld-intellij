@@ -1,5 +1,5 @@
 <idea-plugin url="https://github.com/launchdarkly/ld-intellij">
-    <id>com.launchdarkly.intellij</id>
+    <id>com.github.intheclouddan.intellijpluginld</id>
     <name>LaunchDarkly</name>
     <vendor>LaunchDarkly</vendor>
 
