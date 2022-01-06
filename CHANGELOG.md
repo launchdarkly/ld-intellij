@@ -163,6 +163,18 @@
 ### Fixed
 
 ### Security
+## [0.3.5] - 2022-01-06
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
 ## [0.3.4] - 2021-03-03
 ### Added
 
