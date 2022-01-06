@@ -48,9 +48,8 @@ dependencies {
     implementation("com.googlecode.json-simple", "json-simple", "1.1.1")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.14.0")
     runtimeOnly("org.jetbrains.kotlin:kotlin-reflect:1.4.20-M2")
-    implementation("org.apache.logging.log4j", "log4j-slf4j-impl", "2.13.3")
+    implementation("org.apache.logging.log4j", "log4j-slf4j-impl", "2.17.1")
     testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
-    //compileOnly(kotlin("stdlib-jdk8"))
 }
 
 tasks.withType<Test> {
@@ -87,17 +86,17 @@ detekt {
 tasks {
     // Set the compatibility versions to 1.8
     withType<JavaCompile> {
-        sourceCompatibility = "1.8"
-        targetCompatibility = "1.8"
+        sourceCompatibility = "11"
+        targetCompatibility = "11"
     }
     listOf("compileKotlin", "compileTestKotlin").forEach {
         getByName<KotlinCompile>(it) {
-            kotlinOptions.jvmTarget = "1.8"
+            kotlinOptions.jvmTarget = "11"
         }
     }
 
     withType<Detekt> {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 
     changelog {
