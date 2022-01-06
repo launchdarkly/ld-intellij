@@ -32,34 +32,20 @@ class FlagNodeParent(FFlag: FeatureFlag, private var flags: FeatureFlags, myProj
 
     private fun buildChildren() {
         children.add(FlagNodeBase("Key: ${flag.key}", LDIcons.FLAG_KEY))
-        if (flag.description != "") {
-            children.add(FlagNodeBase("Description: ${flag.description}", LDIcons.DESCRIPTION))
-        }
+        if (flag.description != "") children.add(FlagNodeBase("Description: ${flag.description}", LDIcons.DESCRIPTION))
         children.add(FlagNodeVariations(flag))
 
-        if (env.prerequisites.isNotEmpty()) {
-            children.add(FlagNodePrerequisites(env.prerequisites, flags))
-        }
-        if (env.targets.isNotEmpty()) {
-            children.add(FlagNodeTargets(flag, env.targets))
-        }
-        if (env.rules.isNotEmpty()) {
-            children.add(FlagNodeBase("Rules: ${env.rules.size}", LDIcons.RULES))
-        }
-        if (env.fallthrough != null) {
-            children.add(FlagNodeFallthrough(flag, env))
-        }
-        if (env.offVariation != null) {
-            children.add(
+        if (env.prerequisites.isNotEmpty()) children.add(FlagNodePrerequisites(env.prerequisites, flags))
+        if (env.targets.isNotEmpty()) children.add(FlagNodeTargets(flag, env.targets))
+        if (env.rules.isNotEmpty()) children.add(FlagNodeBase("Rules: ${env.rules.size}", LDIcons.RULES))
+        if (env.fallthrough != null) children.add(FlagNodeFallthrough(flag, env))
+        if (env.offVariation != null) children.add(
                 FlagNodeBase(
                     "Off Variation: ${flag.variations[env.offVariation as Int].name ?: flag.variations[env.offVariation as Int].value}",
                     LDIcons.OFF_VARIATION
                 )
             )
-        }
-        if (flag.tags.size > 0) {
-            children.add(FlagNodeTags(flag.tags))
-        }
+        if (flag.tags.size > 0) children.add(FlagNodeTags(flag.tags))
     }
 
     override fun update(data: PresentationData) {
