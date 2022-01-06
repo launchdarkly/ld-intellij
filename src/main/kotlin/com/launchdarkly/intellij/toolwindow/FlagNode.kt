@@ -14,16 +14,17 @@ class RootNode(private val flags: FeatureFlags, private val settings: LDSettings
     private var myChildren: MutableList<SimpleNode> = ArrayList()
 
     override fun getChildren(): Array<SimpleNode> {
-        if (myChildren.isEmpty() && flags.items != null) {
-            myChildren.add(FlagNodeBase("${settings.project} / ${settings.environment}", LDIcons.FLAG))
-            for (flag in flags.items) {
-                myChildren.add(FlagNodeParent(flag, flags, intProject))
+        when {
+            myChildren.isEmpty() && flags.items != null -> {
+                myChildren.add(FlagNodeBase("${settings.project} / ${settings.environment}", LDIcons.FLAG))
+                for (flag in flags.items) {
+                    myChildren.add(FlagNodeParent(flag, flags, intProject))
+                }
             }
-        } else if ((settings.project != "" && settings.environment != "") && flags.items == null) {
-            myChildren.add(FlagNodeBase("Loading Flags..."))
-        } else if (flags.items == null) {
-            myChildren.add(FlagNodeBase("LaunchDarkly Plugin is not configured."))
+            (settings.project != "" && settings.environment != "") && flags.items == null -> myChildren.add(FlagNodeBase("Loading Flags..."))
+            flags.items == null -> myChildren.add(FlagNodeBase("LaunchDarkly Plugin is not configured."))
         }
+
         return myChildren.toTypedArray()
     }
 
@@ -94,10 +95,9 @@ class FlagNodeFallthrough(var flag: FeatureFlag, private val flagConfig: FlagCon
     private var myChildren: MutableList<SimpleNode> = ArrayList()
 
     override fun getChildren(): Array<SimpleNode> {
-        if (flagConfig.fallthrough?.variation != null) {
-            return NO_CHILDREN
-        } else if (flagConfig.fallthrough!!.rollout != null) {
-            myChildren.add(FlagNodeRollout(flagConfig.fallthrough!!.rollout, flag.variations))
+        when {
+            flagConfig.fallthrough?.variation != null -> return NO_CHILDREN
+            flagConfig.fallthrough!!.rollout != null -> myChildren.add(FlagNodeRollout(flagConfig.fallthrough!!.rollout, flag.variations))
         }
         return myChildren.toTypedArray()
     }
