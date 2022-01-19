@@ -99,7 +99,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
 
         actionGroup.addAction(refreshAction)
 
-        PopupHandler.installPopupMenu(
+        PopupHandler.installPopupHandler(
             tree,
             actionPopup.apply {
                 add(refreshAction)
@@ -109,8 +109,9 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                 add(changeFallthroughAction)
                 add(changeOffVariationAction)
             },
-            ActionPlaces.POPUP)
-
+            ActionPlaces.POPUP,
+            ActionManager.getInstance()
+        )
     }
 
     fun updateNode(event: String) {
