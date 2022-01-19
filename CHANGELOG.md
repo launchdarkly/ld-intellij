@@ -28,6 +28,8 @@
 
 ### Security
 
+## [0.3.7]
+
 ## [0.3.4]
 ### Changed
 - Only update the flag representation on notify for the changed flag.
@@ -205,16 +207,3 @@
 - Initial Toolwindow and Treeview to view all of your LaunchDarkly Feature Flags
 - Ability to Toggle flags from the Treeview
 - Open in Browser from any specific flag
-
-## [Unreleased]
-### Added
-
-### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
