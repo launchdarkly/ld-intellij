@@ -31,7 +31,7 @@ class FlagToolWindow(project: Project) : DumbAware, Disposable {
 
     companion object {
         fun getInstance(project: Project): FlagToolWindow =
-            ServiceManager.getService(project, FlagToolWindow::class.java)
+            project.getService(FlagToolWindow::class.java)
     }
 
     override fun dispose() {}

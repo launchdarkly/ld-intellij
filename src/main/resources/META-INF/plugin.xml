@@ -2,6 +2,7 @@
     <id>com.github.intheclouddan.intellijpluginld</id>
     <name>LaunchDarkly</name>
     <vendor>LaunchDarkly</vendor>
+    <description>See details about feature flags defined in your code, toggle them on or off, search for usage, see all possible flag variations and more.</description>
 
     <!-- Product and plugin compatibility requirements -->
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
@@ -41,7 +42,7 @@
                                implementation="com.launchdarkly.intellij.LDDocumentationProvider"/>
         <!--        <configurationType-->
         <!--                implementation="com.launchdarkly.intellij.coderefs.CodeRefsRunConfigurationType"/>-->
-
+        <notificationGroup id="Launchdarkly Configuration" displayType="STICKY_BALLOON" isLogByDefault="true"/>
     </extensions>
 
     <actions>

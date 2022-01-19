@@ -9,7 +9,7 @@ class LaunchDarklyMergedSettings(private val myProject: Project) : LDSettings {
 
     companion object {
         fun getInstance(project: Project): LaunchDarklyMergedSettings {
-            return ServiceManager.getService(project, LaunchDarklyMergedSettings(project)::class.java)
+            return project.getService(LaunchDarklyMergedSettings(project)::class.java)
         }
     }
 

@@ -30,7 +30,7 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
 
     companion object {
         fun getInstance(project: Project): LaunchDarklyConfig {
-            return ServiceManager.getService(project, LaunchDarklyConfig(project)::class.java)
+            return project.getService(LaunchDarklyConfig(project)::class.java)
         }
     }
 

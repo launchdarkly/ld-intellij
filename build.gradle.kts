@@ -1,43 +1,32 @@
 import io.gitlab.arturbosch.detekt.Detekt
-import org.jetbrains.changelog.closure
-import org.jetbrains.changelog.date
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+fun properties(key: String) = project.findProperty(key).toString()
 
 plugins {
     // Java support
     id("java")
     // Kotlin support
-    id("org.jetbrains.kotlin.jvm") version "1.4.30"
+    id("org.jetbrains.kotlin.jvm") version "1.6.0"
     // gradle-intellij-plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "0.7.2"
+    id("org.jetbrains.intellij") version "1.2.1"
     // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
-    id("org.jetbrains.changelog") version "1.1.2"
+    id("org.jetbrains.changelog") version "1.3.1"
     // detekt linter - read more: https://detekt.github.io/detekt/kotlindsl.html
     id("io.gitlab.arturbosch.detekt") version "1.10.0-RC1"
     // ktlint
     id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
 }
 
-// Import variables from gradle.properties file
-val pluginGroup: String by project
-val pluginName: String by project
-val pluginVersion: String by project
-val pluginSinceBuild: String by project
-val pluginUntilBuild: String by project
-
-val platformType: String by project
-val platformVersion: String by project
-val platformDownloadSources: String by project
-
-group = pluginGroup
-version = pluginVersion
+group = properties("pluginGroup")
+version = properties("pluginVersion")
 
 // Configure project's dependencies
 repositories {
-    mavenCentral()
-    jcenter()
-    maven("https://www.jetbrains.com/intellij-repository/snapshots")
+    maven("https://cache-redirector.jetbrains.com/intellij-dependencies")
+    maven("https://cache-redirector.jetbrains.com/repo1.maven.org/maven2")
+    maven("https://plugins.gradle.org/m2")
 }
 
 dependencies {
@@ -59,16 +48,14 @@ tasks.withType<Test> {
 // Configure gradle-intellij-plugin plugin.
 // Read more: https://github.com/JetBrains/gradle-intellij-plugin
 intellij {
-    pluginName = pluginName
-    version = platformVersion
-    type = platformType
+    pluginName.set(properties("pluginName"))
+    version.set(properties("platformVersion"))
+    type.set(properties("platformType"))
     //alternativeIdePath = "/Applications/GoLand.app"
-    downloadSources = platformDownloadSources.toBoolean()
-    updateSinceUntilBuild = true
-//  Plugin Dependencies:
-//  https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_dependencies.html
-//
-    setPlugins("java") //201.6668.1.98
+    downloadSources.set(true)
+    updateSinceUntilBuild.set(true)
+    plugins.set(properties("platformPlugins").split(',').map(String::trim).filter(String::isNotEmpty))
+
 }
 
 // Configure detekt plugin.
@@ -84,53 +71,54 @@ detekt {
 }
 
 tasks {
-    // Set the compatibility versions to 1.8
-    withType<JavaCompile> {
-        sourceCompatibility = "11"
-        targetCompatibility = "11"
-    }
-    listOf("compileKotlin", "compileTestKotlin").forEach {
-        getByName<KotlinCompile>(it) {
-            kotlinOptions.jvmTarget = "11"
+    // Set the compatibility versions to 11
+    properties("javaVersion").let {
+        withType<JavaCompile> {
+            sourceCompatibility = it
+            targetCompatibility = it
+        }
+        withType<KotlinCompile> {
+            kotlinOptions.jvmTarget = it
+        }
+
+        withType<Detekt> {
+            jvmTarget = it
         }
     }
 
-    withType<Detekt> {
-        jvmTarget = "11"
-    }
-
     changelog {
-        version = "${project.version}"
-        path = "${project.projectDir}/CHANGELOG.md"
-        header = closure { "[${project.version}] - ${date()}" }
-        itemPrefix = "-"
-        keepUnreleasedSection = true
-        unreleasedTerm = "[Unreleased]"
-        groups = listOf("Added", "Changed", "Deprecated", "Removed", "Fixed", "Security")
+        version.set(properties("pluginVersion"))
     }
 
     patchPluginXml {
-        version(pluginVersion)
-        sinceBuild(pluginSinceBuild)
-        untilBuild(pluginUntilBuild)
+        version.set(properties("pluginVersion"))
+        sinceBuild.set(properties("pluginSinceBuild"))
+        untilBuild.set(properties("pluginUntilBuild"))
         // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
-        pluginDescription(closure {
-            File("./README.md").readText().lines().run {
-                subList(indexOf("<!-- Plugin description -->") + 1, indexOf("<!-- Plugin description end -->"))
-            }.joinToString("\n").run { markdownToHTML(this) }
-        })
+        pluginDescription.set(
+            projectDir.resolve("README.md").readText().lines().run {
+                val start = "<!-- Plugin description -->"
+                val end = "<!-- Plugin description end -->"
 
-        // Get the latest available change notes from the changelog file
-        changeNotes(closure {
-            changelog.getLatest().toHTML()
+                if (!containsAll(listOf(start, end))) {
+                    throw GradleException("Plugin description section not found in README.md:\n$start ... $end")
+                }
+                subList(indexOf(start) + 1, indexOf(end))
+            }.joinToString("\n").run { markdownToHTML(this) }
+        )
+
+        changeNotes.set(provider {
+            changelog.run {
+                getOrNull(properties("pluginVersion")) ?: getLatest()
+            }.toHTML()
         })
     }
 
     publishPlugin {
         dependsOn("patchChangelog")
-        token(System.getenv("PUBLISH_TOKEN"))
+        token.set(System.getenv("PUBLISH_TOKEN"))
         @Suppress("NonNullable")
-        channels((System.getenv("GIT_RELEASE") ?: "").split('-').getOrElse(1) { "default" }.split('.').first())
+        channels.set(listOf((System.getenv("GIT_RELEASE") ?: "").split('-').getOrElse(1) { "default" }.split('.').first()))
     }
 
 }

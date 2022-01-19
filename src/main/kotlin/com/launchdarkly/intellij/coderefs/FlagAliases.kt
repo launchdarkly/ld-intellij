@@ -44,7 +44,7 @@ class FlagAliases(private var project: Project) {
             if (!aliasesPath.exists()) {
                 return
             }
-            cmds.add(PathManager.getPluginsPath() + "/intellij-plugin-ld/bin/coderefs/2.1.0/ld-find-code-refs")
+            cmds.add(PathManager.getPluginsPath() + "/intellij-plugin-ld/bin/coderefs/2.4.0/ld-find-code-refs")
             cmds.add("--dir=${project.basePath}")
             cmds.add("--dryRun")
             cmds.add("--outDir=$tmpDir")

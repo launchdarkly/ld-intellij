@@ -11,6 +11,7 @@ import com.intellij.openapi.util.ThrowableComputable
 import com.intellij.util.download.DownloadableFileDescription
 import com.intellij.util.download.DownloadableFileService
 import com.intellij.util.io.Decompressor
+import com.intellij.util.system.CpuArch
 import java.io.File
 import java.io.IOException
 import java.net.URL
@@ -19,7 +20,7 @@ import java.nio.file.Paths
 
 
 class CodeRefs {
-    val codeRefsVerion = "2.1.0"
+    val codeRefsVerion = "2.4.0"
     val codeRefsPath = PathManager.getPluginsPath() + "/intellij-plugin-ld/bin/coderefs/"
     val codeRefsFullPath = "$codeRefsPath$codeRefsVerion/ld-find-code-refs"
 
@@ -123,7 +124,7 @@ class CodeRefs {
                 SystemInfo.isMac -> URL("https://github.com/launchdarkly/ld-find-code-refs/releases/download/${codeRefsVerion}/ld-find-code-refs_${codeRefsVerion}_darwin_amd64.tar.gz")
                 SystemInfo.isLinux -> URL("https://github.com/launchdarkly/ld-find-code-refs/releases/download/${codeRefsVerion}/ld-find-code-refs_${codeRefsVerion}_linux_amd64.tar.gz")
                 SystemInfo.isWindows -> {
-                    if (SystemInfo.is64Bit) {
+                    if (CpuArch.isIntel64()) {
                         URL("https://github.com/launchdarkly/ld-find-code-refs/releases/download/${codeRefsVerion}/ld-find-code-refs_${codeRefsVerion}_windows_amd64.tar.gz")
                     } else {
                         URL("https://github.com/launchdarkly/ld-find-code-refs/releases/download/${codeRefsVerion}/ld-find-code-refs_${codeRefsVerion}_windows_386.tar.gz")
