@@ -9,9 +9,7 @@ import com.intellij.openapi.components.*
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.SimpleListCellRenderer
-import com.intellij.ui.layout.PropertyBinding
-import com.intellij.ui.layout.panel
-import com.intellij.ui.layout.withTextBinding
+import com.intellij.ui.dsl.builder.*
 import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.messaging.AppDefaultMessageBusService
 import javax.swing.DefaultComboBoxModel
@@ -114,17 +112,23 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     }
 
     override fun createPanel(): DialogPanel {
+        val renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
+            label.text = value
+        }
+
         panel = panel {
-            commentRow("Add your LaunchDarkly API Key and click Apply. Project and Environment selections will populate based on key permissions.")
-            row("API Key:") {
-                apiField().withTextBinding(
-                    PropertyBinding(
-                        { settings.authorization },
-                        { settings.authorization = it })
-                )
+            row {
+                comment("Add your LaunchDarkly API Key and click Apply. Project and Environment selections will populate based on key permissions.")
             }
-            hideableRow("Base URL:") { textField(settings::baseUri) }
-            row("Refresh Rate(in Minutes):") { intTextField(settings::refreshRate) }
+            row("API Key:") {
+                cell(apiField).bindText(settings::authorization)
+            }
+            collapsibleGroup("Base URL:") {
+                row {
+                    textField().bindText(settings::baseUri)
+                }
+            }
+            row("Refresh Rate(in Minutes):") { intTextField().bindIntText(settings::refreshRate) }
 
             try {
                 projectBox = if (::projectContainer.isInitialized) {
@@ -133,12 +137,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     DefaultComboBoxModel(arrayOf(defaultMessage))
                 }
                 row("Project") {
-                    comboBox(
-                        projectBox,
-                        settings::project,
-                        renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
-                            label.text = value
-                        })
+                    comboBox(projectBox, renderer).bindItem(settings::project)
 
                 }
 
@@ -148,27 +147,23 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     DefaultComboBoxModel(arrayOf("Please select a Project"))
                 }
                 row("Environments:") {
-                    comboBox(
-                        environmentBox,
-                        settings::environment,
-                        renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
-                            label.text = value
-                        })
+                    comboBox(environmentBox, renderer).bindItem(settings::environment)
                 }
                 environmentBox.selectedItem = settings.environment
 
-                blockRow {
+                collapsibleGroup("Code References") {
                     row {
-                        checkBox("Enable Code References", settings::codeReferences)
+                        checkBox("Enable Code References").bindSelected(settings::codeReferences)
                     }
                     row("Code References Refresh Rate") {
-                        intTextField(settings::codeReferencesRefreshRate)
+                        intTextField().bindIntText(settings::codeReferencesRefreshRate)
                     }
                 }
             } catch (err: Exception) {
                 println(err)
             }
         }
+
         return panel as DialogPanel
     }
 

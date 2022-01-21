@@ -7,6 +7,7 @@ import com.intellij.openapi.components.service
 import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
 import com.launchdarkly.intellij.toolwindow.FlagToolWindow
+import com.launchdarkly.intellij.notifications.GeneralNotifier
 import javax.swing.Icon
 import javax.swing.tree.DefaultMutableTreeNode
 
@@ -48,13 +49,19 @@ class OpenInBrowserAction : AnAction {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project
         val settings = LaunchDarklyMergedSettings.getInstance(project!!)
-        val selectedNode =
-            project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
-        val nodeInfo: FlagNodeParent = selectedNode.userObject as FlagNodeParent
-        if (nodeInfo != null) {
-            val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features/${nodeInfo.flag.key}"
-            BrowserLauncher.instance.open(url)
+        if (project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent !== null) {
+            val selectedNode =
+                project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
+            val nodeInfo: FlagNodeParent = selectedNode.userObject as FlagNodeParent
+            if (nodeInfo != null) {
+                val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features/${nodeInfo.flag.key}"
+                BrowserLauncher.instance.open(url)
+            }
+        } else {
+            val notifier = GeneralNotifier()
+            notifier.notify(project, "Error opening in browser, please try again.")
         }
+
     }
 
     /**

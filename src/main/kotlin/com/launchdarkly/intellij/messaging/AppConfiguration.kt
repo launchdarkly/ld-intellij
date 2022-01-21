@@ -9,10 +9,6 @@ interface AppConfigurationNotifier {
     fun notify(isConfigured: Boolean)
 }
 
-//interface AppMessageBusService {
-//    val configurationEnabledTopic: Topic<ConfigurationNotifier>
-//}
-
 @Service
 class AppDefaultMessageBusService : MessageBusService {
     override val messageBus: MessageBus = ApplicationManager.getApplication().messageBus

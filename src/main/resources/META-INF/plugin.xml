@@ -8,50 +8,44 @@
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
     <depends optional="true" config-file="withJavaModule.xml">com.intellij.modules.java</depends>
-    <!--    <depends>com.intellij.modules.java</depends>-->
     <extensions defaultExtensionNs="com.intellij">
-        <!-- <notificationGroup id="LaunchDarkly Configuration" displayType="BALLOON"/> -->
-
         <applicationConfigurable
                 instance="com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfigurable"
                 id="launchdarkly.app.settings" displayName="LaunchDarkly Plugin"/>
         <projectConfigurable instance="com.launchdarkly.intellij.settings.LaunchDarklyConfigurable"
                              displayName="Project Overrides" id="launchdarkly.settings"
                              parentId="launchdarkly.app.settings"/>
-        <!--        <backgroundPostStartupActivity implementation="com.launchdarkly.intellij.coderefs.FlagAliases"/>-->
-        <projectService serviceImplementation="com.launchdarkly.intellij.coderefs.FlagAliases"/>
+
         <applicationService
                 serviceImplementation="com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig"/>
+        <applicationService serviceInterface="com.launchdarkly.intellij.messaging.MessageBusService"
+                            serviceImplementation="com.launchdarkly.intellij.messaging.AppDefaultMessageBusService"
+        />
 
+        <projectService serviceImplementation="com.launchdarkly.intellij.coderefs.FlagAliases"/>
         <projectService
                 serviceImplementation="com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings"/>
-
         <projectService serviceImplementation="com.launchdarkly.intellij.FlagStore"/>
         <projectService serviceImplementation="com.launchdarkly.intellij.settings.LaunchDarklyConfig"/>
         <projectService serviceInterface="com.launchdarkly.intellij.messaging.MessageBusService"
                         serviceImplementation="com.launchdarkly.intellij.messaging.DefaultMessageBusService"
         />
-        <applicationService serviceInterface="com.launchdarkly.intellij.messaging.MessageBusService"
-                            serviceImplementation="com.launchdarkly.intellij.messaging.AppDefaultMessageBusService"
-        />
-
         <projectService serviceImplementation="com.launchdarkly.intellij.toolwindow.FlagToolWindow"/>
+
         <toolWindow id="LaunchDarkly Flags" icon="/icons/flag.svg" anchor="right"
                     factoryClass="com.launchdarkly.intellij.toolwindow.FlagToolWindowFactory"/>
+
         <documentationProvider order="first"
                                implementation="com.launchdarkly.intellij.LDDocumentationProvider"/>
         <!--        <configurationType-->
         <!--                implementation="com.launchdarkly.intellij.coderefs.CodeRefsRunConfigurationType"/>-->
-        <notificationGroup id="Launchdarkly Configuration" displayType="STICKY_BALLOON" isLogByDefault="true"/>
+
+        <notificationGroup id="LaunchDarkly Configuration" displayType="STICKY_BALLOON" isLogByDefault="true"/>
+        <notificationGroup id="LaunchDarkly" displayType="STICKY_BALLOON" isLogByDefault="true"/>
+
     </extensions>
 
     <actions>
-        <!-- CustomDefaultActionGroup demonstrates declaring an action group based on a ActionGroup class supplied by this plugin.
-         This group is to be inserted atop the Editor Popup Menu. It declares one action in the group. -->
-        <!--        <group id="com.launchdarkly.intellij.action.CustomDefaultActionGroup"-->
-        <!--               class="com.launchdarkly.intellij.action.CustomDefaultActionGroup" popup="true"-->
-        <!--               text="Popup Grouped Actions" description="Custom defaultActionGroup demo">-->
-        <!--            <add-to-group group-id="EditorPopupMenu" anchor="first"/>-->
         <action id="com.launchdarkly.intellij.action.RefreshAction"
                 class="com.launchdarkly.intellij.action.RefreshAction"
                 text="Refresh Flags" description="Refresh Flags" icon="AllIcons.Actions.Refresh">

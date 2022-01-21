@@ -9,9 +9,7 @@ import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.SimpleListCellRenderer
-import com.intellij.ui.layout.PropertyBinding
-import com.intellij.ui.layout.panel
-import com.intellij.ui.layout.withTextBinding
+import com.intellij.ui.dsl.builder.*
 import com.launchdarkly.api.ApiException
 import com.launchdarkly.api.model.Environment
 import com.launchdarkly.intellij.LaunchDarklyApiClient
@@ -50,12 +48,6 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
         return true
     }
 
-//    fun creds(key: String) {
-//        var setKey = ConfigState::credName.javaClass as String
-//        setKey = key
-//
-//    }
-
     data class ConfigState(
         override var credName: String = "",
         override var project: String = "",
@@ -66,9 +58,6 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
         override var codeReferencesRefreshRate: Int = 240
     ) : LDSettings {
         private val key: String = "apiKey"
-        //var credStoreName = "launchdarkly-intellij-$credName"
-        //private var credentialAttributes: CredentialAttributes =
-
 
         // Stored in System Credential store
         override var authorization: String
@@ -106,7 +95,7 @@ open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<Launc
 }
 
 class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable(displayName = "LaunchDarkly Plugin") {
-    private val apiField = JPasswordField()
+    //private val apiField = JPasswordField()
     private val messageBusService = project.service<DefaultMessageBusService>()
     private val mergedSettings = project.service<LaunchDarklyMergedSettings>()
     private val settings = LaunchDarklyConfig.getInstance(project).ldState
@@ -138,15 +127,15 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
     }
 
     override fun createPanel(): DialogPanel {
+        val renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
+            label.text = value
+        }
         panel = panel {
-            noteRow("Any settings manually selected here will override the corresponding Application settings.")
-            noteRow("Project and Environment selections will populate based on key permissions.")
-            row("API Key:") {
-                apiField().withTextBinding(
-                    PropertyBinding(
-                        { settings.authorization },
-                        { settings.authorization = it })
-                )
+            row {
+                comment("Any settings manually selected here will override the corresponding Application settings.")
+            }
+            row {
+                comment("Project and Environment selections will populate based on key permissions.")
             }
             try {
                 projectBox = if (::projectContainer.isInitialized) {
@@ -155,15 +144,9 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                     DefaultComboBoxModel(arrayOf(defaultMessage))
                 }
                 row("Project") {
-                    comboBox(
-                        projectBox,
-                        settings::project,
-                        renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
-                            label.text = value
-                        })
-                        .component.addActionListener {
-                            projectUpdatedSelection = true
-                        }
+                    comboBox(projectBox, renderer).bindItem(settings::project).component.addActionListener {
+                        projectUpdatedSelection = true
+                    }
                 }
 
                 environmentBox = if (::environmentContainer.isInitialized) {
@@ -172,13 +155,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                     DefaultComboBoxModel(arrayOf("Please select a Project"))
                 }
                 row("Environments:") {
-                    comboBox(
-                        environmentBox,
-                        settings::environment,
-                        renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
-                            label.text = value
-                        }
-                    )
+                    comboBox(environmentBox, renderer).bindItem(settings::environment)
                         .component.addActionListener {
                             envUpdatedSelection = true
                         }
@@ -187,9 +164,13 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
             } catch (err: Exception) {
                 println(err)
             }
-            noteRow("Leaving Refresh Rate as -1 will inherit value from Application settings.")
-            hideableRow("Refresh Rate(in Minutes):") { intTextField(settings::refreshRate) }
-            hideableRow("Base URL:") { textField(settings::baseUri) }
+            collapsibleGroup("Advanced") {
+                row {
+                    comment("Leaving Refresh Rate as -1 will inherit value from Application settings.")
+                }
+                row("Refresh Rate(in Minutes):") { intTextField().bindIntText(settings::refreshRate) }
+                row("Base URL:") { textField().bindText(settings::baseUri) }
+            }
         }
         return panel as DialogPanel
     }
