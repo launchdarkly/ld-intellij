@@ -1,5 +1,11 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
+## [Unreleased]
+### Changed
+- Project override no longer supports a separate API key
+
+### Fixed
+- NPE error when switching environments and trying to open in browser
 
 ## [0.3.4]
 ### Changed
