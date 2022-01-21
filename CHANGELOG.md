@@ -1,53 +1,12 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
-# intellij-plugin-ld Changelog
-
-## [Unreleased]
-### Added
-
-### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
-
-## [0.3.7]
-### Added
-
-### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
-
-## [0.3.7]
 
 ## [0.3.4]
-### Changed
-- Only update the flag representation on notify for the changed flag.
-
-## [0.3.4] - 2021-03-03
-### Changed
-
 ### Changed
 
 ## [0.3.3]
 ### Fixed
 - Verify feature store setup is always on background thread.
-
-## [0.3.3] - 2021-03-02
-
-### Fixed
-
-### Fixed
 
 ## [0.3.2]
 ### Fixed
