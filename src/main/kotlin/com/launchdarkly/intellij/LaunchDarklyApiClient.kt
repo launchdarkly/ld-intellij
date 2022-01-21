@@ -12,7 +12,7 @@ import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
 
 
-class LaunchDarklyApiClient(project: Project) {
+class LaunchDarklyApiClient() {
 
     companion object {
         @JvmStatic
@@ -22,7 +22,7 @@ class LaunchDarklyApiClient(project: Project) {
             val ldApiKey = apiKey ?: settings.authorization
             val client: ApiClient = Configuration.getDefaultApiClient()
             val pluginVersion =
-                PluginManagerCore.getPlugin(PluginId.getId("com.github.intheclouddan.intellijpluginld"))!!.version
+                PluginManagerCore.getPlugin(PluginId.getId("com.github.intheclouddan.intellijpluginld"))?.version ?: "noversion"
             client.setUserAgent("launchdarkly-intellij/$pluginVersion")
             client.basePath = "${ldBaseUri}/api/v2"
             val token = client.getAuthentication("Token") as ApiKeyAuth
@@ -39,7 +39,7 @@ class LaunchDarklyApiClient(project: Project) {
             val ldApiKey = apiKey ?: settings.authorization
             val client: ApiClient = Configuration.getDefaultApiClient()
             val pluginVersion =
-                PluginManagerCore.getPlugin(PluginId.getId("com.github.intheclouddan.intellijpluginld"))!!.version
+                PluginManagerCore.getPlugin(PluginId.getId("com.github.intheclouddan.intellijpluginld"))?.version ?: "noversion"
             client.setUserAgent("launchdarkly-intellij/$pluginVersion")
             client.basePath = "${ldBaseUri}/api/v2"
             val token = client.getAuthentication("Token") as ApiKeyAuth

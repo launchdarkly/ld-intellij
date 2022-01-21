@@ -124,7 +124,7 @@ class CodeRefs {
                 SystemInfo.isMac -> URL("https://github.com/launchdarkly/ld-find-code-refs/releases/download/${codeRefsVerion}/ld-find-code-refs_${codeRefsVerion}_darwin_amd64.tar.gz")
                 SystemInfo.isLinux -> URL("https://github.com/launchdarkly/ld-find-code-refs/releases/download/${codeRefsVerion}/ld-find-code-refs_${codeRefsVerion}_linux_amd64.tar.gz")
                 SystemInfo.isWindows -> {
-                    if (CpuArch.isIntel64()) {
+                    if (SystemInfo.is64Bit) {
                         URL("https://github.com/launchdarkly/ld-find-code-refs/releases/download/${codeRefsVerion}/ld-find-code-refs_${codeRefsVerion}_windows_amd64.tar.gz")
                     } else {
                         URL("https://github.com/launchdarkly/ld-find-code-refs/releases/download/${codeRefsVerion}/ld-find-code-refs_${codeRefsVerion}_windows_386.tar.gz")
