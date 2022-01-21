@@ -118,7 +118,7 @@ tasks {
         dependsOn("patchChangelog")
         token.set(System.getenv("PUBLISH_TOKEN"))
         @Suppress("NonNullable")
-        channels.set(listOf((System.getenv("GIT_RELEASE") ?: "").split('-').getOrElse(1) { "default" }.split('.').first()))
+        channels.set(listOf((System.getenv("GIT_RELEASE") ?: "").split('#').getOrElse(1) { "default" }))
     }
 
 }
