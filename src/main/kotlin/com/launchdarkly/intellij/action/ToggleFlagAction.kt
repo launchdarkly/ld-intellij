@@ -8,6 +8,7 @@ import com.launchdarkly.api.ApiException
 import com.launchdarkly.api.model.PatchComment
 import com.launchdarkly.api.model.PatchOperation
 import com.launchdarkly.intellij.LaunchDarklyApiClient
+import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
 import com.launchdarkly.intellij.toolwindow.FlagToolWindow
@@ -69,6 +70,9 @@ class ToggleFlagAction : AnAction {
                 try {
                     ldFlag.patchFeatureFlag(settings.project, flagKey, patchComment)
                 } catch (e: ApiException) {
+                    val notifier = GeneralNotifier()
+
+                    notifier.notify(project, "Error toggling flag: $flagKey - ${e.message}")
                     System.err.println("Exception when calling FeatureFlagsApi#patchFeatureFlag")
                     e.printStackTrace()
                 }
