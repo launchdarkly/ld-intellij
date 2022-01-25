@@ -96,9 +96,13 @@ class FlagStore(private var project: Project) {
             ApplicationManager.getApplication().executeOnPooledThread {
                 val flag: FeatureFlag? = flags.items.find { it.key == event.key }
                 if (flag == null) {
-                    val getFlags = LaunchDarklyApiClient.flagInstance(project)
-                    val newFlag = getFlags.getFeatureFlag(settings.project, event.key, envList)
-                    flags.items.add(newFlag)
+                    try {
+                        val getFlags = LaunchDarklyApiClient.flagInstance(project)
+                        val newFlag = getFlags.getFeatureFlag(settings.project, event.key, envList)
+                        flags.items.add(newFlag)
+                    } catch (err: ApiException) {
+                        println("Error: $err - Unable to retrieve flag: ${event.key}")
+                    }
                 }
                 if (store.get(DataModel.FEATURES, event.key) == null) {
                     val newFlag = flags.items.find { it.key == event.key }
