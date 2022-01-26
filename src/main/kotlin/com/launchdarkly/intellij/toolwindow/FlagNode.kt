@@ -16,7 +16,7 @@ class RootNode(private val flags: FeatureFlags, private val settings: LDSettings
     override fun getChildren(): Array<SimpleNode> {
         when {
             myChildren.isEmpty() && flags.items != null -> {
-                myChildren.add(FlagNodeBase("${settings.project} / ${settings.environment}", LDIcons.FLAG))
+                myChildren.add(FlagNodeBase("${settings.project} / ${settings.environment}", LDIcons.LOGO))
                 for (flag in flags.items) {
                     myChildren.add(FlagNodeParent(flag, flags, intProject))
                 }
@@ -157,7 +157,7 @@ class FlagNodePrerequisites(private var prereqs: List<Prerequisite>, private var
 
     override fun getChildren(): Array<SimpleNode> {
         prereqs.map {
-            myChildren.add(FlagNodeBase("Flag Key: ${it.key}", LDIcons.FLAG))
+            myChildren.add(FlagNodeBase("Flag Key: ${it.key}", LDIcons.LOGO))
             val flagKey = it.key
             var flagVariation = flags.items.find { findFlag -> findFlag.key == flagKey }
             myChildren.add(

@@ -98,7 +98,7 @@ class JavaCompletionContributor : CompletionContributor() {
                         if (flag.kind == "boolean") {
                             var builder: LookupElementBuilder = LookupElementBuilder.create(flag.key)
                                 .withTypeText(flag.description)
-                                .withIcon(LDIcons.FLAG)
+                                .withIcon(LDIcons.LOGO)
                             resultSet.addElement(builder)
                         }
                     }
@@ -119,7 +119,7 @@ class JavaCompletionContributor : CompletionContributor() {
                         if (flag.kind == "multivariate" && flag.variations[0].value is String) {
                             var builder: LookupElementBuilder = LookupElementBuilder.create(flag.key)
                                 .withTypeText(flag.description)
-                                .withIcon(LDIcons.FLAG)
+                                .withIcon(LDIcons.LOGO)
                             resultSet.addElement(builder)
                         }
                     }
@@ -140,7 +140,7 @@ class JavaCompletionContributor : CompletionContributor() {
                         if (flag.kind == "multivariate" && flag.variations[0].value is JSONObject) {
                             var builder: LookupElementBuilder = LookupElementBuilder.create(flag.key)
                                 .withTypeText(flag.description)
-                                .withIcon(LDIcons.FLAG)
+                                .withIcon(LDIcons.LOGO)
                             resultSet.addElement(builder)
                         }
                     }

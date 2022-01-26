@@ -11,7 +11,7 @@ class LDIcons {
         val DESCRIPTION = IconLoader.getIcon("/icons/description.svg", javaClass)
 
         @JvmField
-        val FLAG = IconLoader.getIcon("/icons/flag.svg", javaClass)
+        val LOGO = IconLoader.getIcon("/icons/logo.svg", javaClass)
 
         @JvmField
         val FLAG_KEY = IconLoader.getIcon("/icons/flagKey.svg", javaClass)

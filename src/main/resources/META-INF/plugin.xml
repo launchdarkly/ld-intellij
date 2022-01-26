@@ -32,7 +32,7 @@
         />
         <projectService serviceImplementation="com.launchdarkly.intellij.toolwindow.FlagToolWindow"/>
 
-        <toolWindow id="LaunchDarkly Flags" icon="/icons/flag.svg" anchor="right"
+        <toolWindow id="LaunchDarkly" icon="/icons/logo.svg" anchor="right"
                     factoryClass="com.launchdarkly.intellij.toolwindow.FlagToolWindowFactory"/>
 
         <documentationProvider order="first"
