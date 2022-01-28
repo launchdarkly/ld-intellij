@@ -51,7 +51,7 @@ intellij {
     pluginName.set(properties("pluginName"))
     version.set(properties("platformVersion"))
     type.set(properties("platformType"))
-    //alternativeIdePath = "/Applications/GoLand.app"
+    //localPath.set("/Applications/IntelliJ IDEA.app")
     downloadSources.set(true)
     updateSinceUntilBuild.set(true)
     plugins.set(properties("platformPlugins").split(',').map(String::trim).filter(String::isNotEmpty))
