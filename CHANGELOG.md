@@ -1,15 +1,26 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
 ## [Unreleased]
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [0.3.8]
 ### Changed
 - Update build compatibility
 
 ### Fixed
-- Wrap get flags API call in try/catch 
+- Wrap get flags API call in try/catch
 
 ## [0.3.3]
-### Changed
-
 ### Fixed
 - Verify feature store setup is always on background thread.
 
