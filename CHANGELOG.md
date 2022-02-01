@@ -3,6 +3,8 @@
 ## [Unreleased]
 ### Changed
 - Project override no longer supports a separate API key
+-  Update build compatibility
+-  Wrap get flags API call in try/catch
 
 ### Fixed
 - NPE error when switching environments and trying to open in browser

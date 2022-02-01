@@ -9,4 +9,8 @@ class FlagTreeStructure(private val myProject: Project, private val myRootElemen
     override fun getRootElement(): SimpleNode {
         return myRootElement
     }
+
+    override fun isToBuildChildrenInBackground(element: Any): Boolean {
+        return true
+    }
 }
