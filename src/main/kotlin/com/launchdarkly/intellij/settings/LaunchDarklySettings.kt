@@ -143,7 +143,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                     DefaultComboBoxModel(arrayOf(defaultMessage))
                 }
                 row("Project") {
-                    val projectComboBox = comboBox(projectBox, renderer).bindItem(settings::project).component.addActionListener {
+                    comboBox(projectBox, renderer).bindItem(settings::project).component.addActionListener {
                         projectUpdatedSelection = true
                     }
                     button("Clear") {
