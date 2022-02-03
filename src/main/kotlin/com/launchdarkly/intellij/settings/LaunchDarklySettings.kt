@@ -16,7 +16,6 @@ import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.messaging.DefaultMessageBusService
 import javax.swing.DefaultComboBoxModel
 import javax.swing.JPanel
-import javax.swing.JPasswordField
 
 /*
  * Maintain state of what LaunchDarkly Project to connect to.
@@ -107,8 +106,8 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
     private var projectUpdatedSelection = false
     private var envUpdatedSelection = false
     private var lastSelectedProject = ""
-    lateinit var projectContainer: MutableList<com.launchdarkly.api.model.Project>
-    lateinit var environmentContainer: com.launchdarkly.api.model.Project
+    private lateinit var projectContainer: MutableList<com.launchdarkly.api.model.Project>
+    private lateinit var environmentContainer: com.launchdarkly.api.model.Project
 
     private lateinit var defaultMessage: String
     private lateinit var projectBox: DefaultComboBoxModel<String>
@@ -181,8 +180,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                 if (settings.credName != project.name) settings.credName = project.name
                 settings.credName = project.name
             }
-            var uri: String
-            uri = if (settings.baseUri != origBaseUri) {
+            val uri = if (settings.baseUri != origBaseUri) {
                 if (settings.baseUri != "") settings.baseUri else mergedSettings.baseUri
             } else {
                 mergedSettings.baseUri
@@ -228,7 +226,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
             lastSelectedProject = projectBox.selectedItem.toString()
             try {
                 val tempProj = tmpProj()
-                var projCont = projectContainer.find { it.key == projectBox?.selectedItem?.toString() } ?: tempProj
+                val projCont = projectContainer.find { it.key == projectBox?.selectedItem?.toString() } ?: tempProj
 
                 environmentContainer = projCont
                 val envMap = environmentContainer.environments.map { it.key }.sorted()
@@ -284,12 +282,12 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
 
     }
 
-    fun getProjects(apiKey: String?, baseUri: String?): MutableList<com.launchdarkly.api.model.Project> {
+    private fun getProjects(apiKey: String?, baseUri: String?): MutableList<com.launchdarkly.api.model.Project> {
         val projectApi = LaunchDarklyApiClient.projectInstance(project, apiKey, baseUri)
         return projectApi.projects.items.sortedBy { it.key } as MutableList<com.launchdarkly.api.model.Project>
     }
 
-    fun tmpProj(): com.launchdarkly.api.model.Project {
+    private fun tmpProj(): com.launchdarkly.api.model.Project {
         val tempProj = com.launchdarkly.api.model.Project()
         tempProj.key = "Check API and baseURL"
         val tempEnv = Environment()
