@@ -12,6 +12,7 @@ import com.intellij.ui.SimpleListCellRenderer
 import com.intellij.ui.dsl.builder.*
 import com.launchdarkly.api.ApiException
 import com.launchdarkly.api.model.Environment
+import com.launchdarkly.api.model.Project as LDProject
 import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.messaging.DefaultMessageBusService
 import javax.swing.DefaultComboBoxModel
@@ -105,8 +106,8 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
     private var projectUpdatedSelection = false
     private var envUpdatedSelection = false
     private var lastSelectedProject = ""
-    private lateinit var projectContainer: MutableList<com.launchdarkly.api.model.Project>
-    private lateinit var environmentContainer: com.launchdarkly.api.model.Project
+    private lateinit var projectContainer: MutableList<LDProject>
+    private lateinit var environmentContainer: LDProject
 
     private lateinit var defaultMessage: String
     private lateinit var projectBox: DefaultComboBoxModel<String>
@@ -117,7 +118,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
             projectContainer = getProjects(null, null)
             if (projectContainer.size > 0) {
                 environmentContainer = projectContainer.find { it.key == settings.project }
-                    ?: projectContainer.firstOrNull() as com.launchdarkly.api.model.Project
+                    ?: projectContainer.firstOrNull() as LDProject
             }
         } catch (err: Exception) {
             defaultMessage = "Check API Key"
@@ -284,15 +285,15 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
 
     }
 
-    private fun getProjects(apiKey: String?, baseUri: String?): MutableList<com.launchdarkly.api.model.Project> {
+    private fun getProjects(apiKey: String?, baseUri: String?): MutableList<LDProject> {
         val projectApi = LaunchDarklyApiClient.projectInstance(project, apiKey, baseUri)
         val projectList = projectApi.projects.items.sortedBy { it.key }
         val noProjList = listOf(noProj())
-        return (noProjList + projectList) as MutableList<com.launchdarkly.api.model.Project>
+        return (noProjList + projectList) as MutableList<LDProject>
     }
 
-    private fun tmpProj(): com.launchdarkly.api.model.Project {
-        val tempProj = com.launchdarkly.api.model.Project()
+    private fun tmpProj(): LDProject {
+        val tempProj = LDProject()
         tempProj.key = "Check API and baseURL"
         val tempEnv = Environment()
         tempEnv.key("Check API and baseURL")
@@ -300,8 +301,8 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
         return tempProj
     }
 
-    private fun noProj(): com.launchdarkly.api.model.Project {
-        val tempProj = com.launchdarkly.api.model.Project()
+    private fun noProj(): LDProject {
+        val tempProj = LDProject()
         tempProj.key = ""
         val tempEnv = Environment()
         tempEnv.key("")
