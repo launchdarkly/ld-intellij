@@ -196,13 +196,13 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                 } else {
                     if (!::projectContainer.isInitialized) {
                         val tempProj = tmpProj()
-                        projectContainer = mutableListOf<com.launchdarkly.api.model.Project>(tempProj)
+                        projectContainer = mutableListOf(tempProj)
                     }
                 }
             } catch (err: ApiException) {
                 if (!::projectContainer.isInitialized) {
                     val tempProj = tmpProj()
-                    projectContainer = mutableListOf<com.launchdarkly.api.model.Project>(tempProj)
+                    projectContainer = mutableListOf(tempProj)
                 }
             }
             with(projectBox) {
@@ -297,7 +297,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
         tempProj.key = "Check API and baseURL"
         val tempEnv = Environment()
         tempEnv.key("Check API and baseURL")
-        tempProj.environments = listOf<Environment>(tempEnv)
+        tempProj.environments = listOf(tempEnv)
         return tempProj
     }
 
