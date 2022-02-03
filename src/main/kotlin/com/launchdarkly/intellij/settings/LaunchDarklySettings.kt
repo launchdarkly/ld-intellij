@@ -21,8 +21,7 @@ import javax.swing.JPanel
  * Maintain state of what LaunchDarkly Project to connect to.
  */
 @State(name = "LaunchDarklyConfig", storages = [Storage("launchdarkly.xml")])
-open class LaunchDarklyConfig(project: Project) : PersistentStateComponent<LaunchDarklyConfig.ConfigState> {
-    val project: Project = project
+open class LaunchDarklyConfig(val project: Project) : PersistentStateComponent<LaunchDarklyConfig.ConfigState> {
     var ldState: ConfigState = ConfigState()
 
     companion object {
