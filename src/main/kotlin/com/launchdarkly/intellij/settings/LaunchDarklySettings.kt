@@ -148,6 +148,7 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                     }
                     button("Clear") {
                         projectBox.setSelectedItem(projectBox.getElementAt(0))
+                        modified = true
                     }
                 }
 
