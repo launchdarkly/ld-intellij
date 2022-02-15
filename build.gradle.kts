@@ -122,4 +122,8 @@ tasks {
         channels.set(listOf((System.getenv("GIT_RELEASE") ?: "").split('#').getOrElse(1) { "default" }))
     }
 
+    test {
+        useJUnitPlatform()
+    }
+
 }
