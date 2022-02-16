@@ -30,6 +30,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.junit.jupiter:junit-jupiter:5.8.1")
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.10.0-RC1")
     implementation("com.launchdarkly:api-client:3.10.0")
     implementation("com.launchdarkly:launchdarkly-java-server-sdk:5.+")
@@ -119,6 +120,10 @@ tasks {
         token.set(System.getenv("PUBLISH_TOKEN"))
         @Suppress("NonNullable")
         channels.set(listOf((System.getenv("GIT_RELEASE") ?: "").split('#').getOrElse(1) { "default" }))
+    }
+
+    test {
+        useJUnitPlatform()
     }
 
 }
