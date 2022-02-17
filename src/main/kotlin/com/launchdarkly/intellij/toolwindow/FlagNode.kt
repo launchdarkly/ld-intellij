@@ -179,9 +179,9 @@ class FlagNodePrerequisites(private var prereqs: List<Prerequisite>, private var
 
 class FlagNodeTargets(private var flag: FeatureFlag, private var targets: List<com.launchdarkly.api.model.Target>) :
     SimpleNode() {
-    private var myChildren: MutableList<SimpleNode> = ArrayList()
+    private var myChildren: MutableList<FlagNodeBase> = ArrayList()
 
-    override fun getChildren(): Array<SimpleNode> {
+    override fun getChildren(): Array<FlagNodeBase> {
         targets.map {
             myChildren.add(
                 FlagNodeBase(
