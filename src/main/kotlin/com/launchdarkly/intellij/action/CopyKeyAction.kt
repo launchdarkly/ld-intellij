@@ -3,7 +3,10 @@ package com.launchdarkly.intellij.action
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
+import com.launchdarkly.intellij.toolwindow.FlagNodeBase
+import com.launchdarkly.intellij.toolwindow.FlagNodeParent
 import com.launchdarkly.intellij.toolwindow.FlagToolWindow
+import com.launchdarkly.intellij.toolwindow.InfoNode
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.StringSelection
@@ -73,10 +76,11 @@ class CopyKeyAction : AnAction {
         if (project != null) {
             if (project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent != null) {
                 val selectedNode =
-                    project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent.toString()
+                    project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
+                val isFlagParentNode = selectedNode.userObject as? FlagNodeParent
+
                 e.presentation.isEnabledAndVisible =
-                    e.presentation.isEnabled && (selectedNode.startsWith("Key:") || project.service<FlagToolWindow>()
-                        .getPanel().tree.selectionPath.path.size == FLAG_NAME_PATH)
+                    e.presentation.isEnabled && (selectedNode.toString().startsWith("Key:") || isFlagParentNode != null)
             }
         } else {
             e.presentation.isEnabledAndVisible = false
