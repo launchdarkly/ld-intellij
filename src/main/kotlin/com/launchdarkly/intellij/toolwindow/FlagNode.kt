@@ -16,7 +16,7 @@ class RootNode(private val flags: FeatureFlags, private val settings: LDSettings
     override fun getChildren(): Array<SimpleNode> {
         when {
             myChildren.isEmpty() && flags.items != null -> {
-                myChildren.add(FlagNodeBase("${settings.project} / ${settings.environment}", LDIcons.LOGO))
+                myChildren.add(InfoNode("${settings.project} / ${settings.environment}", ))
                 for (flag in flags.items) {
                     myChildren.add(FlagNodeParent(flag, flags, intProject))
                 }
