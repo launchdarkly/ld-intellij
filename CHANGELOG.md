@@ -1,6 +1,13 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
 ## [Unreleased]
+### Fixed
+- Top info node showing project/environment info errored when opening in browser.
+
+### Changed
+- Right-click context item `Toggle Flag` is now more limited on which nodes it is attached to.
+
+## [0.3.8]
 ### Changed
 - Project override no longer supports a separate API key
 -  Update build compatibility
