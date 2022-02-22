@@ -11,6 +11,7 @@ import com.launchdarkly.api.ApiException
 import com.launchdarkly.api.model.FeatureFlag
 import com.launchdarkly.api.model.FeatureFlags
 import com.launchdarkly.intellij.coderefs.FlagAliases
+import com.launchdarkly.intellij.featurestore.*
 import com.launchdarkly.intellij.messaging.AppDefaultMessageBusService
 import com.launchdarkly.intellij.messaging.ConfigurationNotifier
 import com.launchdarkly.intellij.messaging.DefaultMessageBusService
