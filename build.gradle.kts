@@ -135,7 +135,6 @@ tasks {
         indentSize = 4
         reporters = arrayOf("checkstyle", "plain")
         experimentalRules = false
-        disabledRules = arrayOf("no-wildcard-imports")
     }
 
 }
