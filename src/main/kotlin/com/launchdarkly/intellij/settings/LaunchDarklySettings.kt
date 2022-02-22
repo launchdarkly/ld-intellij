@@ -24,7 +24,6 @@ import javax.swing.DefaultComboBoxModel
 import javax.swing.JPanel
 import com.launchdarkly.api.model.Project as LDProject
 
-
 /*
  * Maintain state of what LaunchDarkly Project to connect to.
  */
