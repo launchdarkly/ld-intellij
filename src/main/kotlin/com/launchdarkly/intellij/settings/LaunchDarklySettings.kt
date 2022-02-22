@@ -1,5 +1,7 @@
 package com.launchdarkly.intellij.settings
 
+/* ktlint-disable import-ordering */
+import com.launchdarkly.api.model.Project as LDProject
 import com.intellij.credentialStore.CredentialAttributes
 import com.intellij.credentialStore.Credentials
 import com.intellij.credentialStore.generateServiceName
@@ -22,7 +24,6 @@ import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.messaging.DefaultMessageBusService
 import javax.swing.DefaultComboBoxModel
 import javax.swing.JPanel
-import com.launchdarkly.api.model.Project as LDProject
 
 /*
  * Maintain state of what LaunchDarkly Project to connect to.
