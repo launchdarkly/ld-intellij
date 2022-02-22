@@ -1,5 +1,6 @@
 package com.launchdarkly.intellij
 
+/* ktlint-disable import-ordering */
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.intellij.openapi.application.ApplicationManager
