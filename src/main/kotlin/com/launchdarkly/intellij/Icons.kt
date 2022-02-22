@@ -42,6 +42,5 @@ class LDIcons {
 
         @JvmField
         val VARIATION = IconLoader.getIcon("/icons/variation.svg", javaClass)
-
     }
 }

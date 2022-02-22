@@ -15,7 +15,6 @@ interface MessageBusService {
     val configurationEnabledTopic: Topic<ConfigurationNotifier>
 
     val flagsUpdatedTopic: Topic<FlagNotifier>
-
 }
 
 @Service

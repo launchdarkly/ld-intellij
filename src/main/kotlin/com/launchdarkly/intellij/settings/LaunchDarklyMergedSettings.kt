@@ -1,6 +1,5 @@
 package com.launchdarkly.intellij.settings
 
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 
 class LaunchDarklyMergedSettings(private val myProject: Project) : LDSettings {
@@ -68,12 +67,12 @@ class LaunchDarklyMergedSettings(private val myProject: Project) : LDSettings {
      *   Check if project is using application defaults.
      */
     fun projectOverrides(): Boolean {
-        if (projSettings.ldState.credName.isNotEmpty()
-            || projSettings.ldState.authorization.isNotEmpty()
-            || projSettings.ldState.refreshRate != -1
-            || projSettings.ldState.environment.isNotEmpty()
-            || projSettings.ldState.project.isNotEmpty()
-            || projSettings.ldState.baseUri.isNotEmpty()
+        if (projSettings.ldState.credName.isNotEmpty() ||
+            projSettings.ldState.authorization.isNotEmpty() ||
+            projSettings.ldState.refreshRate != -1 ||
+            projSettings.ldState.environment.isNotEmpty() ||
+            projSettings.ldState.project.isNotEmpty() ||
+            projSettings.ldState.baseUri.isNotEmpty()
         ) {
             return true
         }

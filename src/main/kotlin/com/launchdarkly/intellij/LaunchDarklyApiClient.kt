@@ -11,7 +11,6 @@ import com.launchdarkly.api.auth.ApiKeyAuth
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
 
-
 class LaunchDarklyApiClient() {
 
     companion object {
@@ -24,7 +23,7 @@ class LaunchDarklyApiClient() {
             val pluginVersion =
                 PluginManagerCore.getPlugin(PluginId.getId("com.github.intheclouddan.intellijpluginld"))?.version ?: "noversion"
             client.setUserAgent("launchdarkly-intellij/$pluginVersion")
-            client.basePath = "${ldBaseUri}/api/v2"
+            client.basePath = "$ldBaseUri/api/v2"
             val token = client.getAuthentication("Token") as ApiKeyAuth
             token.apiKey = ldApiKey
 
@@ -41,11 +40,10 @@ class LaunchDarklyApiClient() {
             val pluginVersion =
                 PluginManagerCore.getPlugin(PluginId.getId("com.github.intheclouddan.intellijpluginld"))?.version ?: "noversion"
             client.setUserAgent("launchdarkly-intellij/$pluginVersion")
-            client.basePath = "${ldBaseUri}/api/v2"
+            client.basePath = "$ldBaseUri/api/v2"
             val token = client.getAuthentication("Token") as ApiKeyAuth
             token.apiKey = ldApiKey
             return ProjectsApi()
         }
     }
-
 }

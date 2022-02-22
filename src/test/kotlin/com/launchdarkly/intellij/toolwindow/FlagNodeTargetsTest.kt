@@ -3,9 +3,8 @@ package com.launchdarkly.intellij.toolwindow
 import com.launchdarkly.api.model.FeatureFlag
 import com.launchdarkly.api.model.Target
 import com.launchdarkly.api.model.Variation
-import org.junit.jupiter.api.Test
-
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 
 internal class FlagNodeTargetsTest {
 
@@ -29,9 +28,11 @@ internal class FlagNodeTargetsTest {
         val flag = FeatureFlag().apply {
             key = "test"
             name = "test"
-            variations = listOf(Variation().apply {
-                value = false
-            })
+            variations = listOf(
+                Variation().apply {
+                    value = false
+                }
+            )
         }
         val target = Target().apply {
             variation = 0
@@ -53,7 +54,7 @@ internal class FlagNodeTargetsTest {
         assertEquals(targets.size, testTargets.childCount)
     }
 
-    private fun createFlag(flagKey: String ="test"): FeatureFlag {
+    private fun createFlag(flagKey: String = "test"): FeatureFlag {
         val flag = FeatureFlag().apply {
             key = flagKey
             name = flagKey
@@ -71,7 +72,6 @@ internal class FlagNodeTargetsTest {
         flag.variations = listOf(variation1, variation2)
         return flag
     }
-
 
     private fun createTargets(): List<Target> {
         val target1 = Target().apply {

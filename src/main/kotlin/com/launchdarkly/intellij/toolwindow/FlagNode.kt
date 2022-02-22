@@ -16,7 +16,7 @@ class RootNode(private val flags: FeatureFlags, private val settings: LDSettings
     override fun getChildren(): Array<SimpleNode> {
         when {
             myChildren.isEmpty() && flags.items != null -> {
-                myChildren.add(InfoNode("${settings.project} / ${settings.environment}", ))
+                myChildren.add(InfoNode("${settings.project} / ${settings.environment}",))
                 for (flag in flags.items) {
                     myChildren.add(FlagNodeParent(flag, flags, intProject))
                 }
@@ -32,7 +32,6 @@ class RootNode(private val flags: FeatureFlags, private val settings: LDSettings
         super.update(data)
         data.presentableText = "root"
     }
-
 }
 
 class FlagNodeVariations(private var flag: FeatureFlag) : SimpleNode() {
@@ -75,7 +74,6 @@ class FlagNodeVariation(private val variation: Variation) : SimpleNode() {
 class FlagNodeTags(tags: List<String>) : SimpleNode() {
     var tags: List<String> = tags
     private var myChildren: MutableList<SimpleNode> = ArrayList()
-
 
     override fun getChildren(): Array<SimpleNode> {
         for (tag in tags) {
@@ -124,7 +122,6 @@ class FlagNodeRollout(private var rollout: Rollout, private var variations: List
         for (variation in rollout.variations) {
             myChildren.add(FlagNodeBase("Variation: ${variations[variation.variation].name ?: variations[variation.variation].value}"))
             myChildren.add(FlagNodeBase("Weight: ${variation.weight / 1000.0}%"))
-
         }
         return myChildren.toTypedArray()
     }

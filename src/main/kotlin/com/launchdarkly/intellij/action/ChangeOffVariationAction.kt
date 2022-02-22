@@ -101,7 +101,6 @@ class ChangeOffVariationAction : AnAction {
             }
             .createPopup()
             .showUnderneathOf(currentComponent)
-
     }
 
     /**

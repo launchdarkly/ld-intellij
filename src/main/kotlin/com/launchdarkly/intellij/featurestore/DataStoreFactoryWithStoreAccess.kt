@@ -13,7 +13,6 @@ import com.launchdarkly.sdk.server.interfaces.DataStoreTypes.KeyedItems
 import com.launchdarkly.sdk.server.interfaces.DataStoreUpdates
 import java.util.*
 
-
 // This class allows us to access the LDClient's DataStore directly after the client has been created.
 // It assumes that you do not create more than one client instance per instance of this class.
 class DataStoreFactoryWithStoreAccess internal constructor(underlyingFactory: DataStoreFactory) : DataStoreFactory {

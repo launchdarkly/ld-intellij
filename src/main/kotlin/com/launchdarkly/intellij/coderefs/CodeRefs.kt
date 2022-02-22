@@ -18,7 +18,6 @@ import java.net.URL
 import java.nio.file.Path
 import java.nio.file.Paths
 
-
 class CodeRefs {
     val codeRefsVerion = "2.4.0"
     val codeRefsPath = PathManager.getPluginsPath() + "/intellij-plugin-ld/bin/coderefs/"
@@ -26,9 +25,12 @@ class CodeRefs {
 
     fun downloadCodeRefs(project: Project? = null): DownloadResult {
         val result = ProgressManager.getInstance()
-            .runProcessWithProgressSynchronously(ThrowableComputable<DownloadResult, Nothing> {
-                downloadCodeRefsSynchronously()
-            }, "Download LaunchDarkly CodeRefs", true, project)
+            .runProcessWithProgressSynchronously(
+                ThrowableComputable<DownloadResult, Nothing> {
+                    downloadCodeRefsSynchronously()
+                },
+                "Download LaunchDarkly CodeRefs", true, project
+            )
 
         when (result) {
             is DownloadResult.Ok -> {
@@ -121,13 +123,13 @@ class CodeRefs {
     private val codeRefsUrl: URL
         get() {
             return when {
-                SystemInfo.isMac -> URL("https://github.com/launchdarkly/ld-find-code-refs/releases/download/${codeRefsVerion}/ld-find-code-refs_${codeRefsVerion}_darwin_amd64.tar.gz")
-                SystemInfo.isLinux -> URL("https://github.com/launchdarkly/ld-find-code-refs/releases/download/${codeRefsVerion}/ld-find-code-refs_${codeRefsVerion}_linux_amd64.tar.gz")
+                SystemInfo.isMac -> URL("https://github.com/launchdarkly/ld-find-code-refs/releases/download/$codeRefsVerion/ld-find-code-refs_${codeRefsVerion}_darwin_amd64.tar.gz")
+                SystemInfo.isLinux -> URL("https://github.com/launchdarkly/ld-find-code-refs/releases/download/$codeRefsVerion/ld-find-code-refs_${codeRefsVerion}_linux_amd64.tar.gz")
                 SystemInfo.isWindows -> {
                     if (CpuArch.isIntel64()) {
-                        URL("https://github.com/launchdarkly/ld-find-code-refs/releases/download/${codeRefsVerion}/ld-find-code-refs_${codeRefsVerion}_windows_amd64.tar.gz")
+                        URL("https://github.com/launchdarkly/ld-find-code-refs/releases/download/$codeRefsVerion/ld-find-code-refs_${codeRefsVerion}_windows_amd64.tar.gz")
                     } else {
-                        URL("https://github.com/launchdarkly/ld-find-code-refs/releases/download/${codeRefsVerion}/ld-find-code-refs_${codeRefsVerion}_windows_386.tar.gz")
+                        URL("https://github.com/launchdarkly/ld-find-code-refs/releases/download/$codeRefsVerion/ld-find-code-refs_${codeRefsVerion}_windows_386.tar.gz")
                     }
                 }
                 else -> return URL("")
@@ -138,5 +140,4 @@ class CodeRefs {
         class Ok(val crDir: File) : DownloadResult()
         object Failed : DownloadResult()
     }
-
 }

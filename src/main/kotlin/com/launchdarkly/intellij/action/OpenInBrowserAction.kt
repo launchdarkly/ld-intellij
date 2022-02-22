@@ -4,11 +4,10 @@ import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
+import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
 import com.launchdarkly.intellij.toolwindow.FlagToolWindow
-import com.launchdarkly.intellij.notifications.GeneralNotifier
-import com.launchdarkly.intellij.toolwindow.FlagNodeBase
 import javax.swing.Icon
 import javax.swing.tree.DefaultMutableTreeNode
 
@@ -55,18 +54,17 @@ class OpenInBrowserAction : AnAction {
                 project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
             // If cast fails, it means the root node with project/env info was selected, so we'll open that.
             val nodeInfo: FlagNodeParent? = selectedNode.userObject as? FlagNodeParent
-                if (nodeInfo != null) {
-                    val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features/${nodeInfo.flag.key}"
-                    BrowserLauncher.instance.open(url)
-                } else {
-                    val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features"
-                    BrowserLauncher.instance.open(url)
-                }
+            if (nodeInfo != null) {
+                val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features/${nodeInfo.flag.key}"
+                BrowserLauncher.instance.open(url)
+            } else {
+                val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features"
+                BrowserLauncher.instance.open(url)
+            }
         } else {
             val notifier = GeneralNotifier()
             notifier.notify(project, "Error opening in browser, please try again.")
         }
-
     }
 
     /**

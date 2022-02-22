@@ -1,7 +1,6 @@
 package com.launchdarkly.intellij.toolwindow
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
@@ -35,5 +34,4 @@ class FlagToolWindow(project: Project) : DumbAware, Disposable {
     }
 
     override fun dispose() {}
-
 }

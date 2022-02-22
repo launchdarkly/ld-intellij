@@ -12,11 +12,11 @@ import com.intellij.ui.SimpleListCellRenderer
 import com.intellij.ui.dsl.builder.*
 import com.launchdarkly.api.ApiException
 import com.launchdarkly.api.model.Environment
-import com.launchdarkly.api.model.Project as LDProject
 import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.messaging.DefaultMessageBusService
 import javax.swing.DefaultComboBoxModel
 import javax.swing.JPanel
+import com.launchdarkly.api.model.Project as LDProject
 
 /*
  * Maintain state of what LaunchDarkly Project to connect to.
@@ -79,7 +79,8 @@ open class LaunchDarklyConfig(val project: Project) : PersistentStateComponent<L
                             "launchdarkly-intellij-$credName",
                             key
                         )
-                    ), credentials
+                    ),
+                    credentials
                 )
             }
 
@@ -89,12 +90,11 @@ open class LaunchDarklyConfig(val project: Project) : PersistentStateComponent<L
             }
             return true
         }
-
     }
 }
 
 class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable(displayName = "LaunchDarkly Plugin") {
-    //private val apiField = JPasswordField()
+    // private val apiField = JPasswordField()
     private val messageBusService = project.service<DefaultMessageBusService>()
     private val mergedSettings = project.service<LaunchDarklyMergedSettings>()
     private val settings = LaunchDarklyConfig.getInstance(project).ldState
@@ -163,7 +163,6 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                             envUpdatedSelection = true
                         }
                 }
-
             } catch (err: Exception) {
                 println(err)
             }
@@ -283,7 +282,6 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
             publisher.notify(true)
             println("notifying")
         }
-
     }
 
     private fun getProjects(apiKey: String?, baseUri: String?): MutableList<LDProject> {
@@ -310,5 +308,4 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
         tempProj.environments = listOf(tempEnv)
         return tempProj
     }
-
 }

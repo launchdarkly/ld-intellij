@@ -101,7 +101,6 @@ class ChangeFallthroughAction : AnAction {
             }
             .createPopup()
             .showUnderneathOf(currentComponent)
-
     }
 
     /**

@@ -16,7 +16,7 @@ plugins {
     // detekt linter - read more: https://detekt.github.io/detekt/kotlindsl.html
     id("io.gitlab.arturbosch.detekt") version "1.10.0-RC1"
     // ktlint
-    id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
+    id("org.jmailen.kotlinter") version "3.9.0"
 }
 
 group = properties("pluginGroup")
@@ -44,6 +44,10 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.check {
+    dependsOn("installKotlinterPrePushHook")
 }
 
 // Configure gradle-intellij-plugin plugin.
@@ -124,6 +128,14 @@ tasks {
 
     test {
         useJUnitPlatform()
+    }
+
+    kotlinter {
+        ignoreFailures = false
+        indentSize = 4
+        reporters = arrayOf("checkstyle", "plain")
+        experimentalRules = false
+        disabledRules = arrayOf("no-wildcard-imports")
     }
 
 }
