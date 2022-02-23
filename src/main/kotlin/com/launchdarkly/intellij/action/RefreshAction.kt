@@ -6,7 +6,6 @@ import com.intellij.openapi.components.service
 import com.launchdarkly.intellij.FlagStore
 import javax.swing.Icon
 
-
 /**
  * Action class to demonstrate how to interact with the IntelliJ Platform.
  * The only action this class performs is to provide the user with a popup dialog as feedback.

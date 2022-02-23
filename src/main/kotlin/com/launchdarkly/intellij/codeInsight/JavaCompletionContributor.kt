@@ -84,7 +84,8 @@ class JavaCompletionContributor : CompletionContributor() {
     }
 
     init {
-        extend(CompletionType.BASIC,
+        extend(
+            CompletionType.BASIC,
             psiElement().andOr(FLAG_KEY_BOOL, FLAG_KEY_BOOL_DETAILS),
             object : CompletionProvider<CompletionParameters>() {
                 override fun addCompletions(
@@ -105,7 +106,8 @@ class JavaCompletionContributor : CompletionContributor() {
                 }
             }
         )
-        extend(CompletionType.BASIC,
+        extend(
+            CompletionType.BASIC,
             psiElement().andOr(FLAG_KEY_STRING, FLAG_KEY_STRING_DETAILS),
             object : CompletionProvider<CompletionParameters>() {
                 override fun addCompletions(
@@ -126,7 +128,8 @@ class JavaCompletionContributor : CompletionContributor() {
                 }
             }
         )
-        extend(CompletionType.BASIC,
+        extend(
+            CompletionType.BASIC,
             psiElement().andOr(FLAG_KEY_JSON, FLAG_KEY_JSON_DETAILS),
             object : CompletionProvider<CompletionParameters>() {
                 override fun addCompletions(
@@ -147,6 +150,5 @@ class JavaCompletionContributor : CompletionContributor() {
                 }
             }
         )
-
     }
 }

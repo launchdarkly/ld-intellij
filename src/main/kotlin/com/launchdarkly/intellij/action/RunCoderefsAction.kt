@@ -50,11 +50,11 @@ class RunCoderefsAction : AnAction {
         val projectPath = project.basePath
         val tmpDir = FileUtilRt.createTempDirectory("ld-", null)
         val commands = arrayListOf("")
-        val aliasFile = "${tmpDir}/coderefs_temp_file_scan.csv"
+        val aliasFile = "$tmpDir/coderefs_temp_file_scan.csv"
         commands.add("ld-find-code-refs")
-        commands.add("--dir=${projectPath}")
+        commands.add("--dir=$projectPath")
         commands.add("--dryRun")
-        commands.add("--outDir=${tmpDir}")
+        commands.add("--outDir=$tmpDir")
         commands.add("--repoName=CHANGEME")
         commands.add("--projectKey=${project.name}")
         commands.add("--baseUri=CHANGEME")
@@ -65,9 +65,8 @@ class RunCoderefsAction : AnAction {
         val procEnv = mapOf("LD_ACCESS_TOKEN" to "test", "GOMAXPROCS" to "1")
         generalCommandLine.withEnvironment(procEnv)
         generalCommandLine.setCharset(Charset.forName("UTF-8"))
-        //generalCommandLine.setWorkDirectory()
+        // generalCommandLine.setWorkDirectory()
         val snykResultJsonStr = ScriptRunnerUtil.getProcessOutput(generalCommandLine)
-
     }
 
     /**

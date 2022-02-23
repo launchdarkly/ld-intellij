@@ -77,7 +77,6 @@ class ToggleFlagAction : AnAction {
                     e.printStackTrace()
                 }
             }
-
         }
     }
 

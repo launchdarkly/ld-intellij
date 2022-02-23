@@ -19,7 +19,6 @@ class FlagNodeParent(FFlag: FeatureFlag, private var flags: FeatureFlags, myProj
         ?: FlagConfiguration(flag.key, null, null, listOf(), listOf(), arrayOf(), false, -1)
     val key: String = flag.key
 
-
     override fun getChildren(): Array<SimpleNode> {
         if (children.isEmpty()) {
             buildChildren()
@@ -40,11 +39,11 @@ class FlagNodeParent(FFlag: FeatureFlag, private var flags: FeatureFlags, myProj
         if (env.rules.isNotEmpty()) children.add(FlagNodeBase("Rules: ${env.rules.size}", LDIcons.RULES))
         if (env.fallthrough != null) children.add(FlagNodeFallthrough(flag, env))
         if (env.offVariation != null) children.add(
-                FlagNodeBase(
-                    "Off Variation: ${flag.variations[env.offVariation as Int].name ?: flag.variations[env.offVariation as Int].value}",
-                    LDIcons.OFF_VARIATION
-                )
+            FlagNodeBase(
+                "Off Variation: ${flag.variations[env.offVariation as Int].name ?: flag.variations[env.offVariation as Int].value}",
+                LDIcons.OFF_VARIATION
             )
+        )
         if (flag.tags.size > 0) children.add(FlagNodeTags(flag.tags))
     }
 

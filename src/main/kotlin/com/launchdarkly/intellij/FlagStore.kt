@@ -1,5 +1,6 @@
 package com.launchdarkly.intellij
 
+/* ktlint-disable import-ordering */
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.intellij.openapi.application.ApplicationManager
@@ -11,6 +12,7 @@ import com.launchdarkly.api.ApiException
 import com.launchdarkly.api.model.FeatureFlag
 import com.launchdarkly.api.model.FeatureFlags
 import com.launchdarkly.intellij.coderefs.FlagAliases
+/* ktlint-disable no-unused-imports */
 import com.launchdarkly.intellij.featurestore.*
 import com.launchdarkly.intellij.messaging.AppDefaultMessageBusService
 import com.launchdarkly.intellij.messaging.ConfigurationNotifier
@@ -26,7 +28,6 @@ import com.launchdarkly.sdk.server.interfaces.FlagChangeListener
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
-
 /**
  * Instance to provide other classes access to LaunchDarkly Flag Metadata.
  * Handles refreshing of the flags and notifying attached listeners of changes.
@@ -41,7 +42,6 @@ class FlagStore(private var project: Project) {
     val appBusService = service<AppDefaultMessageBusService>()
     private val settings = LaunchDarklyMergedSettings.getInstance(project)
     private var envList = listOf(settings.environment)
-
 
     /**
      * This method is gets the latest flags via REST API.
@@ -89,7 +89,6 @@ class FlagStore(private var project: Project) {
      * @param project the Intellij project open
      * @param client  {link #com.launchdarkly.sdk.server.LDClient}
      * @param store  {link #com.launchdarkly.sdk.server.interfaces.DataStore}
-
      */
     private fun flagListener(client: LDClient, store: DataStore) {
         val listenForChanges = FlagChangeListener { event ->
@@ -164,7 +163,6 @@ class FlagStore(private var project: Project) {
             ApplicationManager.getApplication().executeOnPooledThread {
                 try {
                     setupStore()
-
                 } catch (err: ApiException) {
                     val notify = ConfigNotifier()
                     notify.notify(project, "Project: ${settings.project} Error: $err")
@@ -178,7 +176,8 @@ class FlagStore(private var project: Project) {
         EdtExecutorService.getScheduledExecutorInstance()
             .scheduleWithFixedDelay({ flags = flagsNotify(rebuild = true) }, refreshRate, refreshRate, TimeUnit.MINUTES)
 
-        project.messageBus.connect().subscribe(appBusService.configurationEnabledTopic,
+        project.messageBus.connect().subscribe(
+            appBusService.configurationEnabledTopic,
             object : ConfigurationNotifier {
                 override fun notify(isConfigured: Boolean) {
                     if (isConfigured && !settings.projectOverrides()) {
@@ -192,9 +191,11 @@ class FlagStore(private var project: Project) {
                         }
                     }
                 }
-            })
+            }
+        )
 
-        project.messageBus.connect().subscribe(messageBusService.configurationEnabledTopic,
+        project.messageBus.connect().subscribe(
+            messageBusService.configurationEnabledTopic,
             object : ConfigurationNotifier {
                 override fun notify(isConfigured: Boolean) {
                     if (isConfigured) {
@@ -203,7 +204,7 @@ class FlagStore(private var project: Project) {
                         }
                     }
                 }
-            })
+            }
+        )
     }
-
 }

@@ -16,7 +16,6 @@ import java.io.File
 import java.nio.charset.Charset
 import java.util.concurrent.TimeUnit
 
-
 @Service
 class FlagAliases(private var project: Project) {
     var aliases = mutableMapOf<String, String>()
@@ -27,7 +26,7 @@ class FlagAliases(private var project: Project) {
         csvReader().open(file) {
             readAllWithHeaderAsSequence().forEach { row: Map<String, String> ->
                 if (row["aliases"] !== "") {
-                    //aliases.set(row["aliases"], row["flagKey"])
+                    // aliases.set(row["aliases"], row["flagKey"])
                     aliases[row["aliases"]!!] = row["flagKey"]!!
                 }
             }
@@ -71,15 +70,13 @@ class FlagAliases(private var project: Project) {
                     readAliases(aliasPath)
                     break
                 }
-                Runtime.getRuntime().addShutdownHook(Thread(process::destroy));
+                Runtime.getRuntime().addShutdownHook(Thread(process::destroy))
             } catch (exception: ExecutionException) {
                 println(exception)
             }
-
         } catch (err: Exception) {
             println(err)
         }
-
     }
 
     fun checkCodeRefs(): Boolean {

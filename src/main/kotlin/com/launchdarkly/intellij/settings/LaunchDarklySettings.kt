@@ -1,18 +1,25 @@
 package com.launchdarkly.intellij.settings
 
+/* ktlint-disable import-ordering */
+import com.launchdarkly.api.model.Project as LDProject
 import com.intellij.credentialStore.CredentialAttributes
 import com.intellij.credentialStore.Credentials
 import com.intellij.credentialStore.generateServiceName
 import com.intellij.ide.passwordSafe.PasswordSafe
-import com.intellij.openapi.components.*
+import com.intellij.openapi.components.PersistentStateComponent
+import com.intellij.openapi.components.State
+import com.intellij.openapi.components.Storage
+import com.intellij.openapi.components.service
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.SimpleListCellRenderer
-import com.intellij.ui.dsl.builder.*
+import com.intellij.ui.dsl.builder.bindIntText
+import com.intellij.ui.dsl.builder.bindItem
+import com.intellij.ui.dsl.builder.bindText
+import com.intellij.ui.dsl.builder.panel
 import com.launchdarkly.api.ApiException
 import com.launchdarkly.api.model.Environment
-import com.launchdarkly.api.model.Project as LDProject
 import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.messaging.DefaultMessageBusService
 import javax.swing.DefaultComboBoxModel
@@ -79,7 +86,8 @@ open class LaunchDarklyConfig(val project: Project) : PersistentStateComponent<L
                             "launchdarkly-intellij-$credName",
                             key
                         )
-                    ), credentials
+                    ),
+                    credentials
                 )
             }
 
@@ -89,12 +97,11 @@ open class LaunchDarklyConfig(val project: Project) : PersistentStateComponent<L
             }
             return true
         }
-
     }
 }
 
 class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable(displayName = "LaunchDarkly Plugin") {
-    //private val apiField = JPasswordField()
+    // private val apiField = JPasswordField()
     private val messageBusService = project.service<DefaultMessageBusService>()
     private val mergedSettings = project.service<LaunchDarklyMergedSettings>()
     private val settings = LaunchDarklyConfig.getInstance(project).ldState
@@ -163,7 +170,6 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
                             envUpdatedSelection = true
                         }
                 }
-
             } catch (err: Exception) {
                 println(err)
             }
@@ -283,7 +289,6 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
             publisher.notify(true)
             println("notifying")
         }
-
     }
 
     private fun getProjects(apiKey: String?, baseUri: String?): MutableList<LDProject> {
@@ -310,5 +315,4 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
         tempProj.environments = listOf(tempEnv)
         return tempProj
     }
-
 }

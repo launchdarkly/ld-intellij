@@ -31,7 +31,6 @@ import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.TreePath
 import javax.swing.tree.TreeSelectionModel
 
-
 private const val SPLITTER_PROPERTY = "BuildAttribution.Splitter.Proportion"
 
 /*
@@ -110,7 +109,8 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                 add(changeFallthroughAction)
                 add(changeOffVariationAction)
             },
-            ActionPlaces.POPUP)
+            ActionPlaces.POPUP
+        )
     }
 
     fun updateNode(event: String) {
@@ -141,7 +141,6 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                         }
                         break
                     }
-
                 } else {
                     continue
                 }
@@ -207,7 +206,8 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
             start = true
         }
         try {
-            myProject.messageBus.connect().subscribe(messageBusService.flagsUpdatedTopic,
+            myProject.messageBus.connect().subscribe(
+                messageBusService.flagsUpdatedTopic,
                 object : FlagNotifier {
                     override fun notify(isConfigured: Boolean, flag: String, rebuild: Boolean) {
                         if (isConfigured) {
@@ -250,7 +250,8 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                             updateNodeInfo()
                         }
                     }
-                })
+                }
+            )
         } catch (err: Error) {
             println(err)
             println("something went wrong")

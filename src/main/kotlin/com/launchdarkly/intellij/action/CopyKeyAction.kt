@@ -3,16 +3,13 @@ package com.launchdarkly.intellij.action
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
-import com.launchdarkly.intellij.toolwindow.FlagNodeBase
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
 import com.launchdarkly.intellij.toolwindow.FlagToolWindow
-import com.launchdarkly.intellij.toolwindow.InfoNode
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.StringSelection
 import javax.swing.Icon
 import javax.swing.tree.DefaultMutableTreeNode
-
 
 const val FLAG_NAME_DEPTH = 1
 const val FLAG_NAME_PATH = 2
@@ -76,7 +73,8 @@ class CopyKeyAction : AnAction {
         if (project != null) {
             if (project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent != null) {
                 val selectedNode =
-                    project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
+                    project.service<FlagToolWindow>()
+                        .getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
                 val isFlagParentNode = selectedNode.userObject as? FlagNodeParent
 
                 e.presentation.isEnabledAndVisible =

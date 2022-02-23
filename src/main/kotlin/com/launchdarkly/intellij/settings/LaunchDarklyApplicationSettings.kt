@@ -65,7 +65,6 @@ open class LaunchDarklyApplicationConfig : PersistentStateComponent<LaunchDarkly
                 )
             )
 
-
         // Stored in System Credential store
         override var authorization: String
             get() = PasswordSafe.instance.getPassword(credentialAttributes) ?: ""
@@ -138,7 +137,6 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                 }
                 row("Project") {
                     comboBox(projectBox, renderer).bindItem(settings::project)
-
                 }
 
                 environmentBox = if (::environmentContainer.isInitialized) {
@@ -185,7 +183,6 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     removeAllElements()
                     addElement(err.toString())
                 }
-
             }
         }
 
@@ -247,12 +244,10 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             publisher.notify(true)
             println("notifying app")
         }
-
     }
 
     fun getProjects(apiKey: String?, baseUri: String?): MutableList<com.launchdarkly.api.model.Project> {
         val projectApi = LaunchDarklyApiClient.projectInstance(null, apiKey, baseUri)
         return projectApi.projects.items.sortedBy { it.key } as MutableList<com.launchdarkly.api.model.Project>
     }
-
 }
