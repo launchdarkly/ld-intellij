@@ -274,6 +274,8 @@ class LaunchDarklyConfigurable(private val project: Project) : BoundConfigurable
     override fun apply() {
         super.apply()
 
+        settings.baseUri = settings.baseUri.replace(Regex("/+$"), "")
+
         if (settings.project != projectBox.selectedItem.toString() && projectBox.selectedItem.toString() != defaultMessage) {
             settings.project = projectBox.selectedItem.toString()
         }
