@@ -14,10 +14,11 @@
 
 name: Build
 on:
+  pull_request: [ opened, synchronize, reopened ]
   push:
     branches: [ 2022 ] #TODO: Switch branch when strategy is finalized
-  # Trigger the workflow on any pull request
-  pull_request: [ opened, synchronize, reopened ]
+    # Trigger the workflow on any pull request
+
 
 
     jobs:
