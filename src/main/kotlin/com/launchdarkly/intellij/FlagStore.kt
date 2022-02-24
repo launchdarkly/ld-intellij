@@ -18,6 +18,7 @@ import com.launchdarkly.intellij.messaging.AppDefaultMessageBusService
 import com.launchdarkly.intellij.messaging.ConfigurationNotifier
 import com.launchdarkly.intellij.messaging.DefaultMessageBusService
 import com.launchdarkly.intellij.notifications.ConfigNotifier
+import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
 import com.launchdarkly.sdk.server.DataModel
 import com.launchdarkly.sdk.server.LDClient
@@ -56,6 +57,11 @@ class FlagStore(private var project: Project) {
             envList = listOf(settings.environment)
             return getFlags.getFeatureFlags(ldProject, envList, true, null, null, null, null, null, null)
         } catch (err: Exception) {
+            val notifier = GeneralNotifier()
+            notifier.notify(
+                project,
+                "Error retrieve flags: ${err.message}"
+            )
             println(err)
         }
         return FeatureFlags()
@@ -100,6 +106,11 @@ class FlagStore(private var project: Project) {
                         val newFlag = getFlags.getFeatureFlag(settings.project, event.key, envList)
                         flags.items.add(newFlag)
                     } catch (err: ApiException) {
+                        val notifier = GeneralNotifier()
+                        notifier.notify(
+                            project,
+                            "Error updating flag ${event.key}: ${err.message}"
+                        )
                         println("Error: $err - Unable to retrieve flag: ${event.key}")
                     }
                 }

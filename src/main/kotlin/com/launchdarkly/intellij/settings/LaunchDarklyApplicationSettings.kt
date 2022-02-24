@@ -117,7 +117,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
         panel = panel {
             row {
-                comment("Add your LaunchDarkly API Key and click Apply. Project and Environment selections will populate based on key permissions.")
+                comment("Add your LaunchDarkly API Key and click Get Projects. Project and Environment selections will populate based on key permissions.")
             }
             row("API Key:") {
                 cell(apiField).bindText(settings::authorization)

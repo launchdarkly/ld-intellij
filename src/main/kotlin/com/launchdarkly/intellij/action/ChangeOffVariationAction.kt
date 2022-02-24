@@ -10,6 +10,7 @@ import com.launchdarkly.api.model.PatchComment
 import com.launchdarkly.api.model.PatchOperation
 import com.launchdarkly.api.model.Variation
 import com.launchdarkly.intellij.LaunchDarklyApiClient
+import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
 import com.launchdarkly.intellij.toolwindow.FlagToolWindow
@@ -20,17 +21,12 @@ import javax.swing.JList
 import javax.swing.tree.DefaultMutableTreeNode
 
 /**
- * Action class to demonstrate how to interact with the IntelliJ Platform.
- * The only action this class performs is to provide the user with a popup dialog as feedback.
- * Typically this class is instantiated by the IntelliJ Platform framework based on declarations
- * in the plugin.xml file. But when added at runtime this class is instantiated by an action group.
+ * ChangeOffVariationAction allows users to update the Off targeting
+ * for the selected flag in the configured environment.
  */
 class ChangeOffVariationAction : AnAction {
     /**
-     * This default constructor is used by the IntelliJ Platform framework to
-     * instantiate this class based on plugin.xml declarations. Only needed in PopupDialogAction
-     * class because a second constructor is overridden.
-     * @see AnAction.AnAction
+     *  breaks if this is not called, even though IntelliJ says it's never used.
      */
     constructor() : super()
 
@@ -94,6 +90,11 @@ class ChangeOffVariationAction : AnAction {
                     try {
                         ldFlag.patchFeatureFlag(settings.project, parentNode.key, patchComment)
                     } catch (e: ApiException) {
+                        val notifier = GeneralNotifier()
+                        notifier.notify(
+                            project,
+                            "Error changing off variation for flag: ${parentNode.key} - ${e.message}"
+                        )
                         System.err.println("Exception when calling FeatureFlagsApi#patchFeatureFlag")
                         e.printStackTrace()
                     }
@@ -110,14 +111,12 @@ class ChangeOffVariationAction : AnAction {
      */
     override fun update(e: AnActionEvent) {
         super.update(e)
-        val project = e.project
-        if (project != null) {
-            if (project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent != null) {
-                val selectedNode =
-                    project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent.toString()
-                e.presentation.isEnabledAndVisible =
-                    e.presentation.isEnabled && (selectedNode.startsWith("Off Variation:"))
-            }
+        val project = e.project ?: return
+        if (project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent != null) {
+            val selectedNode =
+                project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent.toString()
+            e.presentation.isEnabledAndVisible =
+                e.presentation.isEnabled && (selectedNode.startsWith("Off Variation:"))
         }
     }
 }

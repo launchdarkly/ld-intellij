@@ -10,6 +10,7 @@ import com.launchdarkly.api.model.PatchComment
 import com.launchdarkly.api.model.PatchOperation
 import com.launchdarkly.api.model.Variation
 import com.launchdarkly.intellij.LaunchDarklyApiClient
+import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
 import com.launchdarkly.intellij.toolwindow.FlagToolWindow
@@ -20,17 +21,12 @@ import javax.swing.JList
 import javax.swing.tree.DefaultMutableTreeNode
 
 /**
- * Action class to demonstrate how to interact with the IntelliJ Platform.
- * The only action this class performs is to provide the user with a popup dialog as feedback.
- * Typically this class is instantiated by the IntelliJ Platform framework based on declarations
- * in the plugin.xml file. But when added at runtime this class is instantiated by an action group.
+ * ChangeFallthroughAction allows users to update the Fallthrough targeting
+ * for the selected flag in the configured environment.
  */
 class ChangeFallthroughAction : AnAction {
     /**
-     * This default constructor is used by the IntelliJ Platform framework to
-     * instantiate this class based on plugin.xml declarations. Only needed in PopupDialogAction
-     * class because a second constructor is overridden.
-     * @see AnAction.AnAction
+     *  breaks if this is not called, even though IntelliJ says it's never used.
      */
     constructor() : super()
 
@@ -49,13 +45,10 @@ class ChangeFallthroughAction : AnAction {
     constructor(text: String?, description: String?, icon: Icon?) : super(text, description, icon)
 
     /**
-     * Gives the user feedback when the dynamic action menu is chosen.
-     * Pops a simple message dialog. See the psi_demo plugin for an
-     * example of how to use AnActionEvent to access data.
-     * @param event Event received when the associated menu item is chosen.
+     * Parse the node this action is associated with and update the Fallthrough variation via API call.
      */
     override fun actionPerformed(event: AnActionEvent) {
-        val project = event.project!!
+        val project = event.project ?: return
         val currentComponent = event?.inputEvent?.component ?: return
         val selectedNode =
             project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
@@ -83,17 +76,24 @@ class ChangeFallthroughAction : AnAction {
             .setItemChosenCallback {
                 ApplicationManager.getApplication().executeOnPooledThread {
                     val settings = LaunchDarklyMergedSettings.getInstance(project)
-                    val patchComment = PatchComment()
-                    val patch = PatchOperation()
                     val currentIdx = parentNode.flag.variations.indexOf(it)
-                    patch.op = "replace"
-                    patch.path = "/environments/" + settings.environment + "/fallthrough/variation"
-                    patch.value = currentIdx
-                    patchComment.patch = listOf(patch)
+                    val flagPatch = PatchOperation().apply {
+                        op = "replace"
+                        path = "/environments/" + settings.environment + "/fallthrough/variation"
+                        value = currentIdx
+                    }
+                    val patchComment = PatchComment().apply {
+                        patch = listOf(flagPatch)
+                    }
                     val ldFlag = LaunchDarklyApiClient.flagInstance(project)
                     try {
                         ldFlag.patchFeatureFlag(settings.project, parentNode.key, patchComment)
                     } catch (e: ApiException) {
+                        val notifier = GeneralNotifier()
+                        notifier.notify(
+                            project,
+                            "Error changing fallthrough variation for flag: ${parentNode.key} - ${e.message}"
+                        )
                         System.err.println("Exception when calling FeatureFlagsApi#patchFeatureFlag")
                         e.printStackTrace()
                     }
@@ -110,14 +110,12 @@ class ChangeFallthroughAction : AnAction {
      */
     override fun update(e: AnActionEvent) {
         super.update(e)
-        val project = e.project
-        if (project != null) {
-            if (project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent != null) {
-                val selectedNode =
-                    project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent.toString()
-                e.presentation.isEnabledAndVisible =
-                    e.presentation.isEnabled && (selectedNode.startsWith("Fallthrough"))
-            }
+        val project = e.project ?: return
+        if (project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent != null) {
+            val selectedNode =
+                project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent.toString()
+            e.presentation.isEnabledAndVisible =
+                e.presentation.isEnabled && (selectedNode.startsWith("Fallthrough"))
         }
     }
 }
