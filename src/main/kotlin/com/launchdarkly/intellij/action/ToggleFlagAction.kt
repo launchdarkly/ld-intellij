@@ -58,12 +58,14 @@ class ToggleFlagAction : AnAction {
         // Relies on implicit behavior of key being first child.
         val flagKey = selectedNode.firstChild.toString().substringAfter(" ")
         val settings = LaunchDarklyMergedSettings.getInstance(project)
-        val patchComment = PatchComment()
-        val patch = PatchOperation()
-        patch.op = "replace"
-        patch.path = "/environments/" + settings.environment + "/on"
-        patch.value = !nodeInfo.env.on
-        patchComment.patch = listOf(patch)
+        val flagPatch = PatchOperation().apply {
+            op = "replace"
+            path = "/environments/" + settings.environment + "/on"
+            value = !nodeInfo.env.on
+        }
+        val patchComment = PatchComment().apply {
+            patch = listOf(flagPatch)
+        }
         val ldFlag = LaunchDarklyApiClient.flagInstance(project)
         ApplicationManager.getApplication().executeOnPooledThread {
             try {
