@@ -98,7 +98,6 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     private var lastSelectedProject = ""
     private lateinit var projectContainer: MutableList<com.launchdarkly.api.model.Project>
     private lateinit var environmentContainer: com.launchdarkly.api.model.Project
-
     private lateinit var defaultMessage: String
     private lateinit var projectBox: DefaultComboBoxModel<String>
     private lateinit var environmentBox: DefaultComboBoxModel<String>
@@ -122,15 +121,12 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         panel.apply()
         isModified()
         btn.text = "Get Projects"
-
-
     }
 
     override fun createPanel(): DialogPanel {
         val renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
             label.text = value
         }
-
 
         panel = panel {
             row {
