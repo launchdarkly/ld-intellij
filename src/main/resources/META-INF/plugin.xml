@@ -2,7 +2,9 @@
     <id>com.github.intheclouddan.intellijpluginld</id>
     <name>LaunchDarkly</name>
     <vendor>LaunchDarkly</vendor>
-    <description>See details about feature flags defined in your code, toggle them on or off, search for usage, see all possible flag variations and more.</description>
+    <description>See details about feature flags defined in your code, toggle them on or off, search for usage, see all
+        possible flag variations and more.
+    </description>
 
     <!-- Product and plugin compatibility requirements -->
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
@@ -54,10 +56,9 @@
                 class="com.launchdarkly.intellij.action.CopyKeyAction"
                 text="Copy Flag Key" description="Copy Flag Key to Clipboard" icon="AllIcons.Actions.Copy">
         </action>
-        <!--        </group>-->
         <action id="com.launchdarkly.intellij.action.ToggleFlagAction"
                 class="com.launchdarkly.intellij.action.ToggleFlagAction"
-                text="Toggle Flag" description="Toggle Flag" icon="AllIcons.Actions.Copy">
+                text="Toggle Flag" description="Toggle Flag" icon="com.launchdarkly.intellij.LDIcons.TOGGLE_OFF">
         </action>
         <action id="com.launchdarkly.intellij.action.OpenInBrowserAction"
                 class="com.launchdarkly.intellij.action.OpenInBrowserAction"
@@ -66,13 +67,12 @@
         <action id="com.launchdarkly.intellij.action.ChangeFallthroughAction"
                 class="com.launchdarkly.intellij.action.ChangeFallthroughAction"
                 text="Change Fallthrough Variation" description="Change Fallthrough Variation"
-                icon="AllIcons.Actions.OpenNewTab">
+                icon="AllIcons.Actions.Edit">
         </action>
         <action id="com.launchdarkly.intellij.action.ChangeOffVariationAction"
                 class="com.launchdarkly.intellij.action.ChangeOffVariationAction"
                 text="Change Off Variation" description="Change Off Variation"
-                icon="AllIcons.Actions.OpenNewTab">
+                icon="AllIcons.Actions.Edit">
         </action>
     </actions>
-
 </idea-plugin>
