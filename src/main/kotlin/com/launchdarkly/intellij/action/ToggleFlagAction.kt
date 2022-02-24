@@ -51,31 +51,31 @@ class ToggleFlagAction : AnAction {
      * @param event Event received when the associated menu item is chosen.
      */
     override fun actionPerformed(event: AnActionEvent) {
-        val project = event.project
-        if (project != null) {
-            val selectedNode =
-                project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
-            val nodeInfo: FlagNodeParent = selectedNode.userObject as FlagNodeParent
-            // Relies on implicit behavior of key being first child.
-            val flagKey = selectedNode.firstChild.toString().substringAfter(" ")
-            val settings = LaunchDarklyMergedSettings.getInstance(project)
-            val patchComment = PatchComment()
-            val patch = PatchOperation()
-            patch.op = "replace"
-            patch.path = "/environments/" + settings.environment + "/on"
-            patch.value = !nodeInfo.env.on
-            patchComment.patch = listOf(patch)
-            val ldFlag = LaunchDarklyApiClient.flagInstance(project)
-            ApplicationManager.getApplication().executeOnPooledThread {
-                try {
-                    ldFlag.patchFeatureFlag(settings.project, flagKey, patchComment)
-                } catch (e: ApiException) {
-                    val notifier = GeneralNotifier()
+        val project = event.project ?: return
+        val selectedNode =
+            project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
+        val nodeInfo: FlagNodeParent = selectedNode.userObject as FlagNodeParent
+        // Relies on implicit behavior of key being first child.
+        val flagKey = selectedNode.firstChild.toString().substringAfter(" ")
+        val settings = LaunchDarklyMergedSettings.getInstance(project)
+        val flagPatch = PatchOperation().apply {
+            op = "replace"
+            path = "/environments/" + settings.environment + "/on"
+            value = !nodeInfo.env.on
+        }
+        val patchComment = PatchComment().apply {
+            patch = listOf(flagPatch)
+        }
+        val ldFlag = LaunchDarklyApiClient.flagInstance(project)
+        ApplicationManager.getApplication().executeOnPooledThread {
+            try {
+                ldFlag.patchFeatureFlag(settings.project, flagKey, patchComment)
+            } catch (e: ApiException) {
+                val notifier = GeneralNotifier()
 
-                    notifier.notify(project, "Error toggling flag: $flagKey - ${e.message}")
-                    System.err.println("Exception when calling FeatureFlagsApi#patchFeatureFlag")
-                    e.printStackTrace()
-                }
+                notifier.notify(project, "Error toggling flag: $flagKey - ${e.message}")
+                System.err.println("Exception when calling FeatureFlagsApi#patchFeatureFlag")
+                e.printStackTrace()
             }
         }
     }
@@ -87,16 +87,14 @@ class ToggleFlagAction : AnAction {
      */
     override fun update(e: AnActionEvent) {
         super.update(e)
-        val project = e.project
-        if (project != null) {
-            if (project.service<FlagToolWindow>().getPanel().tree.selectionPath != null) {
-                val selectedNode = project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
-                val isFlagNode = selectedNode.userObject as? FlagNodeParent
+        val project = e.project ?: return
+        if (project.service<FlagToolWindow>().getPanel().tree.selectionPath != null) {
+            val selectedNode = project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
+            val isFlagNode = selectedNode.userObject as? FlagNodeParent
 
-                e.presentation.isEnabledAndVisible = e.presentation.isEnabled && isFlagNode != null
-            } else {
-                e.presentation.isEnabledAndVisible = false
-            }
+            e.presentation.isEnabledAndVisible = e.presentation.isEnabled && isFlagNode != null
+        } else {
+            e.presentation.isEnabledAndVisible = false
         }
     }
 }

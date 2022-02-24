@@ -223,6 +223,8 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     override fun apply() {
         super.apply()
 
+        settings.baseUri = settings.baseUri.replace(Regex("/+$"), "")
+
         if (settings.project != projectBox.selectedItem.toString()) {
             settings.project = projectBox.selectedItem.toString()
         }
