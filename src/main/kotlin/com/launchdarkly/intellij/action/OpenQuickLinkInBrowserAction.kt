@@ -1,12 +1,11 @@
 package com.launchdarkly.intellij.action
 
-import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
-import com.intellij.openapi.util.io.FileUtilRt
+import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
 import com.launchdarkly.intellij.toolwindow.FlagToolWindow
-import java.nio.charset.Charset
 import javax.swing.Icon
 
 /**
@@ -15,7 +14,7 @@ import javax.swing.Icon
  * Typically this class is instantiated by the IntelliJ Platform framework based on declarations
  * in the plugin.xml file. But when added at runtime this class is instantiated by an action group.
  */
-class RunCoderefsAction : AnAction {
+class OpenQuickLinkInBrowserAction : AnAction {
     /**
      * This default constructor is used by the IntelliJ Platform framework to
      * instantiate this class based on plugin.xml declarations. Only needed in PopupDialogAction
@@ -25,7 +24,7 @@ class RunCoderefsAction : AnAction {
     constructor() : super()
 
     companion object {
-        const val ID = "com.launchdarkly.intellij.action.RunCoderefsAction"
+        const val ID = "com.launchdarkly.intellij.action.OpenQuickLinkInBrowserAction"
     }
 
     /**
@@ -36,7 +35,7 @@ class RunCoderefsAction : AnAction {
      * @param description  The description of the menu item.
      * @param icon  The icon to be used with the menu item.
      */
-    constructor(text: String?, description: String?, icon: Icon?) : super(text, description, icon)
+    constructor(text: String? = "Open in Browser", description: String?, icon: Icon?) : super(text, description, icon)
 
     /**
      * Gives the user feedback when the dynamic action menu is chosen.
@@ -45,25 +44,10 @@ class RunCoderefsAction : AnAction {
      * @param event Event received when the associated menu item is chosen.
      */
     override fun actionPerformed(event: AnActionEvent) {
-        val project = event.project!!
-        val projectPath = project.basePath
-        val tmpDir = FileUtilRt.createTempDirectory("ld-", null)
-        val commands = arrayListOf("")
-        val aliasFile = "$tmpDir/coderefs_temp_file_scan.csv"
-        commands.add("ld-find-code-refs")
-        commands.add("--dir=$projectPath")
-        commands.add("--dryRun")
-        commands.add("--outDir=$tmpDir")
-        commands.add("--repoName=CHANGEME")
-        commands.add("--projectKey=${project.name}")
-        commands.add("--baseUri=CHANGEME")
-        commands.add("--contextLines=-1")
-        commands.add("--branch=scan")
-        commands.add("--revision=0")
-        val generalCommandLine = GeneralCommandLine(commands)
-        val procEnv = mapOf("LD_ACCESS_TOKEN" to "test", "GOMAXPROCS" to "1")
-        generalCommandLine.withEnvironment(procEnv)
-        generalCommandLine.setCharset(Charset.forName("UTF-8"))
+        val project = event.project
+        val settings = LaunchDarklyMergedSettings.getInstance(project!!)
+        val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features/"
+        BrowserLauncher.instance.open(url)
     }
 
     /**
@@ -73,15 +57,11 @@ class RunCoderefsAction : AnAction {
      */
     override fun update(e: AnActionEvent) {
         super.update(e)
-        val project = e.project
-        if (project != null) {
-            if (project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.lastSelectedPathComponent != null) {
-                val selectedNode =
-                    project.service<FlagToolWindow>().getPanel()
-                        .getFlagPanel().tree.lastSelectedPathComponent.toString()
-                e.presentation.isEnabledAndVisible =
-                    e.presentation.isEnabled && (selectedNode.startsWith("Fallthrough"))
-            }
+        println(e)
+        val project = e.project ?: return
+        if (project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.lastSelectedPathComponent != null) {
+            e.presentation.isEnabledAndVisible = e.presentation.isEnabled && project.service<FlagToolWindow>()
+                .getPanel().getFlagPanel().tree.selectionPath.path.size == FLAG_NAME_PATH
         }
     }
 }

@@ -64,6 +64,12 @@
                 class="com.launchdarkly.intellij.action.OpenInBrowserAction"
                 text="Open in Browser" description="Open in Browser" icon="AllIcons.Actions.OpenNewTab">
         </action>
+        <action id="com.launchdarkly.intellij.action.OpenQuickLinkInBrowserAction"
+                class="com.launchdarkly.intellij.action.OpenQuickLinkInBrowserAction"
+                text="Open Quick Link in Browser" description="Open Quick Link in Browser"
+                icon="AllIcons.Actions.OpenNewTab">
+        </action>
+
         <action id="com.launchdarkly.intellij.action.ChangeFallthroughAction"
                 class="com.launchdarkly.intellij.action.ChangeFallthroughAction"
                 text="Change Fallthrough Variation" description="Change Fallthrough Variation"
