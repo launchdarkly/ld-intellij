@@ -71,11 +71,10 @@ class ToggleFlagAction : AnAction {
             try {
                 ldFlag.patchFeatureFlag(settings.project, flagKey, patchComment)
             } catch (e: ApiException) {
-                val notifier = GeneralNotifier()
-
-                notifier.notify(project, "Error toggling flag: $flagKey - ${e.message}")
                 System.err.println("Exception when calling FeatureFlagsApi#patchFeatureFlag")
                 e.printStackTrace()
+                val notifier = GeneralNotifier()
+                notifier.notify(project, "Error toggling flag: $flagKey - ${e.message}")
             }
         }
     }
@@ -89,7 +88,8 @@ class ToggleFlagAction : AnAction {
         super.update(e)
         val project = e.project ?: return
         if (project.service<FlagToolWindow>().getPanel().tree.selectionPath != null) {
-            val selectedNode = project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
+            val selectedNode =
+                project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
             val isFlagNode = selectedNode.userObject as? FlagNodeParent
 
             e.presentation.isEnabledAndVisible = e.presentation.isEnabled && isFlagNode != null
