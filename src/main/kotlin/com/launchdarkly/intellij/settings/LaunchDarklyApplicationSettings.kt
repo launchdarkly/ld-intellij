@@ -130,7 +130,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
         panel = panel {
             row {
-                comment("Add your LaunchDarkly API Key and click Apply. Project and Environment selections will populate based on key permissions.")
+                comment("Add your LaunchDarkly API Key and click Get Projects. Project and Environment selections will populate based on key permissions.")
             }
             row("API Key:") {
                 cell(apiField).bindText(settings::authorization).columns(COLUMNS_MEDIUM)
@@ -240,6 +240,8 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
     override fun apply() {
         super.apply()
+
+        settings.baseUri = settings.baseUri.replace(Regex("/+$"), "")
 
         if (settings.project != projectBox.selectedItem.toString()) {
             settings.project = projectBox.selectedItem.toString()

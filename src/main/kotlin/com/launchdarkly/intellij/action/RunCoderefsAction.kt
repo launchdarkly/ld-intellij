@@ -1,7 +1,6 @@
 package com.launchdarkly.intellij.action
 
 import com.intellij.execution.configurations.GeneralCommandLine
-import com.intellij.execution.process.ScriptRunnerUtil
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
@@ -65,8 +64,6 @@ class RunCoderefsAction : AnAction {
         val procEnv = mapOf("LD_ACCESS_TOKEN" to "test", "GOMAXPROCS" to "1")
         generalCommandLine.withEnvironment(procEnv)
         generalCommandLine.setCharset(Charset.forName("UTF-8"))
-        // generalCommandLine.setWorkDirectory()
-        val snykResultJsonStr = ScriptRunnerUtil.getProcessOutput(generalCommandLine)
     }
 
     /**

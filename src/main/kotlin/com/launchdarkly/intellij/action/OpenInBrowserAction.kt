@@ -55,7 +55,8 @@ class OpenInBrowserAction : AnAction {
             // If cast fails, it means the root node with project/env info was selected, so we'll open that.
             val nodeInfo: FlagNodeParent? = selectedNode.userObject as? FlagNodeParent
             if (nodeInfo != null) {
-                val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features/${nodeInfo.flag.key}"
+                val url =
+                    "${settings.baseUri}/${settings.project}/${settings.environment}/features/${nodeInfo.flag.key}"
                 BrowserLauncher.instance.open(url)
             } else {
                 val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features"
@@ -74,14 +75,10 @@ class OpenInBrowserAction : AnAction {
      */
     override fun update(e: AnActionEvent) {
         super.update(e)
-        val project = e.project
-        if (project != null) {
-            if (project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent != null) {
-                val selectedNode =
-                    project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent.toString()
-                e.presentation.isEnabledAndVisible = e.presentation.isEnabled && project.service<FlagToolWindow>()
-                    .getPanel().tree.selectionPath.path.size == FLAG_NAME_PATH
-            }
+        val project = e.project ?: return
+        if (project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent != null) {
+            e.presentation.isEnabledAndVisible = e.presentation.isEnabled && project.service<FlagToolWindow>()
+                .getPanel().tree.selectionPath.path.size == FLAG_NAME_PATH
         }
     }
 }
