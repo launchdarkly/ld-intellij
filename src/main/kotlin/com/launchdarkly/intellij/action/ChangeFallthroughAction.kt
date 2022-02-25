@@ -89,13 +89,13 @@ class ChangeFallthroughAction : AnAction {
                     try {
                         ldFlag.patchFeatureFlag(settings.project, parentNode.key, patchComment)
                     } catch (e: ApiException) {
+                        System.err.println("Exception when calling FeatureFlagsApi#patchFeatureFlag")
+                        e.printStackTrace()
                         val notifier = GeneralNotifier()
                         notifier.notify(
                             project,
                             "Error changing fallthrough variation for flag: ${parentNode.key} - ${e.message}"
                         )
-                        System.err.println("Exception when calling FeatureFlagsApi#patchFeatureFlag")
-                        e.printStackTrace()
                     }
                 }
             }

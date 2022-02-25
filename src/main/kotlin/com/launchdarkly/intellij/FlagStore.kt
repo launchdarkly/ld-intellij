@@ -57,12 +57,13 @@ class FlagStore(private var project: Project) {
             envList = listOf(settings.environment)
             return getFlags.getFeatureFlags(ldProject, envList, true, null, null, null, null, null, null)
         } catch (err: Exception) {
+            System.err.println(err)
             val notifier = GeneralNotifier()
             notifier.notify(
                 project,
                 "Error retrieve flags: ${err.message}"
             )
-            println(err)
+
         }
         return FeatureFlags()
     }
@@ -106,12 +107,12 @@ class FlagStore(private var project: Project) {
                         val newFlag = getFlags.getFeatureFlag(settings.project, event.key, envList)
                         flags.items.add(newFlag)
                     } catch (err: ApiException) {
+                        System.err.println("Error: $err - Unable to retrieve flag: ${event.key}")
                         val notifier = GeneralNotifier()
                         notifier.notify(
                             project,
                             "Error updating flag ${event.key}: ${err.message}"
                         )
-                        println("Error: $err - Unable to retrieve flag: ${event.key}")
                     }
                 }
                 if (store.get(DataModel.FEATURES, event.key) == null) {
@@ -175,6 +176,7 @@ class FlagStore(private var project: Project) {
                 try {
                     setupStore()
                 } catch (err: ApiException) {
+                    System.err.println(err)
                     val notify = ConfigNotifier()
                     notify.notify(project, "Project: ${settings.project} Error: $err")
                     offlineStore()
