@@ -63,7 +63,6 @@ class FlagStore(private var project: Project) {
                 project,
                 "Error retrieve flags: ${err.message}"
             )
-
         }
         return FeatureFlags()
     }
