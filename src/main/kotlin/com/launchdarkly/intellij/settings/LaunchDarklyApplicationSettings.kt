@@ -5,14 +5,19 @@ import com.intellij.credentialStore.Credentials
 import com.intellij.credentialStore.generateServiceName
 import com.intellij.ide.passwordSafe.PasswordSafe
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.*
+import com.intellij.openapi.components.PersistentStateComponent
+import com.intellij.openapi.components.State
+import com.intellij.openapi.components.Storage
+import com.intellij.openapi.components.service
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.SimpleListCellRenderer
 import com.intellij.ui.dsl.builder.*
 import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.messaging.AppDefaultMessageBusService
+import java.awt.event.ActionEvent
 import javax.swing.DefaultComboBoxModel
+import javax.swing.JButton
 import javax.swing.JPanel
 import javax.swing.JPasswordField
 
@@ -93,7 +98,6 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     private var lastSelectedProject = ""
     private lateinit var projectContainer: MutableList<com.launchdarkly.api.model.Project>
     private lateinit var environmentContainer: com.launchdarkly.api.model.Project
-
     private lateinit var defaultMessage: String
     private lateinit var projectBox: DefaultComboBoxModel<String>
     private lateinit var environmentBox: DefaultComboBoxModel<String>
@@ -110,6 +114,15 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         }
     }
 
+    private fun updateProjects(panel: DialogPanel, row: ActionEvent) {
+        val btn = row.source as JButton
+        btn.text = "Fetching Projects..."
+        modified = true
+        panel.apply()
+        isModified()
+        btn.text = "Get Projects"
+    }
+
     override fun createPanel(): DialogPanel {
         val renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
             label.text = value
@@ -120,11 +133,12 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                 comment("Add your LaunchDarkly API Key and click Get Projects. Project and Environment selections will populate based on key permissions.")
             }
             row("API Key:") {
-                cell(apiField).bindText(settings::authorization)
-            }
-            collapsibleGroup("Base URL:") {
-                row {
-                    textField().bindText(settings::baseUri)
+                cell(apiField).bindText(settings::authorization).columns(COLUMNS_MEDIUM)
+                button("Get Projects") {
+                    updateProjects(
+                        panel as DialogPanel,
+                        it
+                    )
                 }
             }
             row("Refresh Rate(in Minutes):") { intTextField().bindIntText(settings::refreshRate) }
@@ -148,7 +162,11 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     comboBox(environmentBox, renderer).bindItem(settings::environment)
                 }
                 environmentBox.selectedItem = settings.environment
-
+                collapsibleGroup("Base URL:") {
+                    row {
+                        textField().bindText(settings::baseUri)
+                    }
+                }
                 collapsibleGroup("Code References") {
                     row {
                         checkBox("Enable Code References").bindSelected(settings::codeReferences)

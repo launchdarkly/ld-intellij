@@ -12,6 +12,10 @@
 
 - Right-click context item `Toggle Flag` is now more limited on which nodes it is attached to.
 
+### Added
+
+- Update Preferences to have a `Get Projects` button to fetch projects after adding API Key.
+
 ## [0.3.8]
 
 ### Changed
