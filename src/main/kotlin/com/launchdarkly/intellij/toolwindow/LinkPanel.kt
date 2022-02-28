@@ -68,12 +68,11 @@ class LinkPanel(private val myProject: Project) :
         return tree
     }
 
-    val listener = object : MouseAdapter() {
+    private val listener = object : MouseAdapter() {
         override fun mouseClicked(e: MouseEvent) {
             val tree = e.component as Tree
             val node = tree.lastSelectedPathComponent as DefaultMutableTreeNode
             val userNode = node.userObject as LinkNodeBase
-            println("${userNode.label} click")
             BrowserLauncher.instance.open(userNode.url)
         }
     }
