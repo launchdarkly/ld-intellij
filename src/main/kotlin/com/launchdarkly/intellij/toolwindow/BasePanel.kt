@@ -11,7 +11,7 @@ class BasePanel(project: Project) : JPanel() {
     private val messageBus = project.service<DefaultMessageBusService>()
     private val splitter = OnePixelSplitter(true, 0.5f)
     private val flagPanel = FlagPanel(project, messageBus)
-    private val linkPanel = LinkPanel(project)
+    private val linkPanel = LinkPanel(project, messageBus)
 
     init {
         layout = BorderLayout(0, 0)

@@ -67,8 +67,7 @@ class LaunchDarklyMergedSettings(private val myProject: Project) : LDSettings {
      *   Check if project is using application defaults.
      */
     fun projectOverrides(): Boolean {
-        if (projSettings.ldState.credName.isNotEmpty() ||
-            projSettings.ldState.authorization.isNotEmpty() ||
+        if (projSettings.ldState.authorization.isNotEmpty() ||
             projSettings.ldState.refreshRate != -1 ||
             projSettings.ldState.environment.isNotEmpty() ||
             projSettings.ldState.project.isNotEmpty() ||

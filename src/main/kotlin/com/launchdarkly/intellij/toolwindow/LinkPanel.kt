@@ -15,8 +15,11 @@ import com.intellij.ui.tree.AsyncTreeModel
 import com.intellij.ui.tree.StructureTreeModel
 import com.intellij.ui.treeStructure.SimpleTreeStructure
 import com.intellij.ui.treeStructure.Tree
+import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.tree.TreeUtil
 import com.launchdarkly.intellij.action.OpenQuickLinkInBrowserAction
+import com.launchdarkly.intellij.messaging.FlagNotifier
+import com.launchdarkly.intellij.messaging.MessageBusService
 import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
 import java.awt.CardLayout
 import java.awt.event.MouseAdapter
@@ -30,7 +33,7 @@ private const val SPLITTER_PROPERTY = "BuildAttribution.Splitter.Proportion"
 /*
  * FlagPanel renders the ToolWindow Flag Treeview and associated action buttons.
  */
-class LinkPanel(private val myProject: Project) :
+class LinkPanel(private val myProject: Project, messageBusService: MessageBusService) :
     SimpleToolWindowPanel(false, false), Disposable {
     private val settings = LaunchDarklyMergedSettings.getInstance(myProject)
     private var root = LinkNodeRoot(settings)
@@ -91,6 +94,14 @@ class LinkPanel(private val myProject: Project) :
         )
     }
 
+    fun updateNodeInfo() {
+        root = LinkNodeRoot(settings)
+        treeStructure = createTreeStructure()
+        treeModel = StructureTreeModel(treeStructure, this)
+        var reviewTreeBuilder = AsyncTreeModel(treeModel, this)
+        tree.model = reviewTreeBuilder
+    }
+
     init {
         if (settings.isConfigured()) {
             tree = start()
@@ -100,5 +111,30 @@ class LinkPanel(private val myProject: Project) :
         if (!this::tree.isInitialized) {
             start = true
         }
+
+        try {
+            myProject.messageBus.connect().subscribe(
+                messageBusService.flagsUpdatedTopic,
+                object : FlagNotifier {
+                    override fun notify(isConfigured: Boolean, flag: String, rebuild: Boolean) {
+
+                    }
+
+                    override fun reinit() {
+                        if (start) {
+                            tree = start()
+                            actions(tree)
+                        }
+                        UIUtil.invokeLaterIfNeeded {
+                            updateNodeInfo()
+                        }
+                    }
+                }
+            )
+        } catch (err: Error) {
+            println(err)
+            println("something went wrong")
+        }
+
     }
 }
