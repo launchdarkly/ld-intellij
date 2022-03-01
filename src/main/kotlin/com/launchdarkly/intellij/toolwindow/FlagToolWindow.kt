@@ -7,11 +7,7 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.ui.content.Content
 import com.intellij.ui.content.ContentFactory
 
-private const val SPLITTER_PROPERTY = "BuildAttribution.Splitter.Proportion"
-
 class FlagToolWindow(project: Project) : DumbAware, Disposable {
-    //private val messageBus = project.service<DefaultMessageBusService>()
-    //private val flagPanel: FlagPanel = FlagPanel(project, messageBus)
     private val basePanel: BasePanel = BasePanel(project)
     fun initializePanel(toolWindow: ToolWindow) {
         val contentFactory = ContentFactory.SERVICE.getInstance()

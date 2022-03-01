@@ -20,6 +20,7 @@ import com.intellij.util.ui.tree.TreeUtil
 import com.launchdarkly.intellij.action.OpenQuickLinkInBrowserAction
 import com.launchdarkly.intellij.messaging.FlagNotifier
 import com.launchdarkly.intellij.messaging.MessageBusService
+import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
 import java.awt.CardLayout
 import java.awt.event.MouseAdapter
@@ -74,9 +75,10 @@ class LinkPanel(private val myProject: Project, messageBusService: MessageBusSer
     private val listener = object : MouseAdapter() {
         override fun mouseClicked(e: MouseEvent) {
             val tree = e.component as Tree
-            val node = tree.lastSelectedPathComponent as DefaultMutableTreeNode
+            val node = tree.lastSelectedPathComponent as? DefaultMutableTreeNode ?: return
             val userNode = node.userObject as LinkNodeBase
             BrowserLauncher.instance.open(userNode.url)
+            tree.clearSelection()
         }
     }
 
@@ -132,8 +134,13 @@ class LinkPanel(private val myProject: Project, messageBusService: MessageBusSer
                 }
             )
         } catch (err: Error) {
-            println(err)
-            println("something went wrong")
+            System.err.println("Exception when updating LaunchDarkly LinkPanel Toolwindow")
+            err.printStackTrace()
+            val notifier = GeneralNotifier()
+            notifier.notify(
+                myProject,
+                "Error updating LaunchDarkly Toolwindow ${err}"
+            )
         }
 
     }

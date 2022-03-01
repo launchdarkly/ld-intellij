@@ -9,7 +9,7 @@ import javax.swing.JPanel
 
 class BasePanel(project: Project) : JPanel() {
     private val messageBus = project.service<DefaultMessageBusService>()
-    private val splitter = OnePixelSplitter(true, 0.5f)
+    private val splitter = OnePixelSplitter(true, "LDSplitterProportion", .25f)
     private val flagPanel = FlagPanel(project, messageBus)
     private val linkPanel = LinkPanel(project, messageBus)
 
@@ -17,8 +17,8 @@ class BasePanel(project: Project) : JPanel() {
         layout = BorderLayout(0, 0)
         splitter.apply {
             setResizeEnabled(false)
-            firstComponent = flagPanel
-            secondComponent = linkPanel
+            firstComponent = linkPanel
+            secondComponent = flagPanel
         }
         add(splitter, BorderLayout.CENTER)
     }

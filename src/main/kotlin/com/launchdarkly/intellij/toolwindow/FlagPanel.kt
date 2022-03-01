@@ -24,6 +24,7 @@ import com.launchdarkly.intellij.FlagStore
 import com.launchdarkly.intellij.action.*
 import com.launchdarkly.intellij.messaging.FlagNotifier
 import com.launchdarkly.intellij.messaging.MessageBusService
+import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
 import java.awt.CardLayout
 import javax.swing.JPanel
@@ -70,7 +71,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
     }
 
     fun start(): Tree {
-        var reviewTreeBuilder = AsyncTreeModel(treeModel, this)
+        val reviewTreeBuilder = AsyncTreeModel(treeModel, this)
         tree = initTree(reviewTreeBuilder)
 
         val componentsSplitter = OnePixelSplitter(SPLITTER_PROPERTY, 0.33f)
@@ -205,6 +206,11 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         if (!this::tree.isInitialized) {
             start = true
         }
+
+        /*
+         * This section handles updates from Configuration changes or SDK flag changes
+         * `reinit` is called when the project/settings change and the whole tree needs to be re-rendered
+         */
         try {
             myProject.messageBus.connect().subscribe(
                 messageBusService.flagsUpdatedTopic,
@@ -253,8 +259,13 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                 }
             )
         } catch (err: Error) {
-            println(err)
-            println("something went wrong")
+            System.err.println("Exception when updating LaunchDarkly FlagPanel Toolwindow")
+            err.printStackTrace()
+            val notifier = GeneralNotifier()
+            notifier.notify(
+                myProject,
+                "Error updating LaunchDarkly Toolwindow ${err}"
+            )
         }
     }
 }
