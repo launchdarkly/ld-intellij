@@ -93,7 +93,6 @@ class ToggleFlagAction : AnAction {
                 project.service<FlagToolWindow>().getPanel()
                     .getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
             val isFlagNode = selectedNode.userObject as? FlagNodeParent
-
             e.presentation.isEnabledAndVisible = e.presentation.isEnabled && isFlagNode != null
         } else {
             e.presentation.isEnabledAndVisible = false

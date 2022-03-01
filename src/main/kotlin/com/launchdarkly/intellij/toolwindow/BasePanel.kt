@@ -24,6 +24,6 @@ class BasePanel(project: Project) : JPanel() {
     }
 
     fun getFlagPanel(): FlagPanel {
-        return splitter.firstComponent as FlagPanel
+        return flagPanel
     }
 }
