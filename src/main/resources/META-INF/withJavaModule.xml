@@ -4,7 +4,6 @@
                                implementationClass="com.launchdarkly.intellij.codeInsight.JavaCompletionConfidence"
                                order="before javaSkipAutopopupInStrings"/>
         <completion.contributor language="JAVA"
-                                implementationClass="com.launchdarkly.intellij.codeInsight.JavaCompletionContributor"
-                                order="before default"/>
+                                implementationClass="com.launchdarkly.intellij.codeInsight.JavaCompletionContributor"/>
     </extensions>
 </idea-plugin>
