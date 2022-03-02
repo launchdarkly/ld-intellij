@@ -2,13 +2,9 @@ package com.launchdarkly.intellij.toolwindow
 
 import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.ActionPlaces
-import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.OnePixelSplitter
-import com.intellij.ui.PopupHandler
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.SideBorder
 import com.intellij.ui.tree.AsyncTreeModel
@@ -17,7 +13,6 @@ import com.intellij.ui.treeStructure.SimpleTreeStructure
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.tree.TreeUtil
-import com.launchdarkly.intellij.action.OpenQuickLinkInBrowserAction
 import com.launchdarkly.intellij.messaging.FlagNotifier
 import com.launchdarkly.intellij.messaging.MessageBusService
 import com.launchdarkly.intellij.notifications.GeneralNotifier
@@ -25,6 +20,7 @@ import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
 import java.awt.CardLayout
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import java.awt.event.MouseEvent.BUTTON1
 import javax.swing.JPanel
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.TreeSelectionModel
@@ -74,6 +70,9 @@ class LinkPanel(private val myProject: Project, messageBusService: MessageBusSer
 
     private val listener = object : MouseAdapter() {
         override fun mouseClicked(e: MouseEvent) {
+            if (e.button != BUTTON1) {
+                return
+            }
             val tree = e.component as Tree
             val node = tree.lastSelectedPathComponent as? DefaultMutableTreeNode ?: return
             val userNode = node.userObject as LinkNodeBase
@@ -83,17 +82,7 @@ class LinkPanel(private val myProject: Project, messageBusService: MessageBusSer
     }
 
     fun actions(tree: Tree) {
-        val actionManager: ActionManager = ActionManager.getInstance()
-        val actionPopup = DefaultActionGroup()
-        val openLinkAction = actionManager.getAction(OpenQuickLinkInBrowserAction.ID)
         tree.addMouseListener(listener)
-        PopupHandler.installPopupMenu(
-            tree,
-            actionPopup.apply {
-                add(openLinkAction)
-            },
-            ActionPlaces.TOOLWINDOW_CONTENT
-        )
     }
 
     fun updateNodeInfo() {
