@@ -1,6 +1,10 @@
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
+        <completion.confidence language="JAVA"
+                               implementationClass="com.launchdarkly.intellij.codeInsight.JavaCompletionConfidence"
+                               order="before javaSkipAutopopupInStrings"/>
         <completion.contributor language="JAVA"
-                                implementationClass="com.launchdarkly.intellij.codeInsight.JavaCompletionContributor"/>
+                                implementationClass="com.launchdarkly.intellij.codeInsight.JavaCompletionContributor"
+                                order="before default"/>
     </extensions>
 </idea-plugin>

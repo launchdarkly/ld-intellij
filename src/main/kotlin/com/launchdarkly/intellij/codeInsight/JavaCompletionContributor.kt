@@ -14,6 +14,15 @@ import com.launchdarkly.intellij.FlagStore
 import com.launchdarkly.intellij.LDIcons
 import org.json.simple.JSONObject
 
+val FLAG_KEY_BOOL = psiElement(JavaTokenType.STRING_LITERAL).withParent(
+    psiLiteral().methodCallParameter(
+        0,
+        psiMethod()
+            .withName("boolVariation")
+            .definedInClass("com.launchdarkly.sdk.server.LDClient")
+    )
+)
+
 @Service
 class JavaCompletionContributor : CompletionContributor() {
 
@@ -25,14 +34,14 @@ class JavaCompletionContributor : CompletionContributor() {
 //    }
 
     companion object {
-        val FLAG_KEY_BOOL = psiElement(JavaTokenType.STRING_LITERAL).withParent(
-            psiLiteral().methodCallParameter(
-                0,
-                psiMethod()
-                    .withName("boolVariation")
-                    .definedInClass("com.launchdarkly.sdk.server.LDClient")
-            )
-        )
+        //        val FLAG_KEY_BOOL = psiElement(JavaTokenType.STRING_LITERAL).withParent(
+//            psiLiteral().methodCallParameter(
+//                0,
+//                psiMethod()
+//                    .withName("boolVariation")
+//                    .definedInClass("com.launchdarkly.sdk.server.LDClient")
+//            )
+//        )
         val FLAG_KEY_BOOL_DETAILS = psiElement(JavaTokenType.STRING_LITERAL).withParent(
             psiLiteral().methodCallParameter(
                 0,
