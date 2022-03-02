@@ -15,9 +15,11 @@ class JavaCompletionConfidence : CompletionConfidence() {
         psiFile: PsiFile,
         offset: Int
     ): ThreeState {
+        // Return early if it's not a string literal
         if (contextElement == JavaTokenType.STRING_LITERAL) {
             return ThreeState.UNSURE
         }
+
         when {
             FLAG_KEY_BOOL.accepts(contextElement) -> return ThreeState.NO
             FLAG_KEY_BOOL_DETAIL.accepts(contextElement) -> return ThreeState.NO
@@ -29,13 +31,6 @@ class JavaCompletionConfidence : CompletionConfidence() {
             FLAG_KEY_INT_DETAIL.accepts(contextElement) -> return ThreeState.NO
             FLAG_KEY_DOUBLE.accepts(contextElement) -> return ThreeState.NO
             FLAG_KEY_DOUBLE_DETAIL.accepts(contextElement) -> return ThreeState.NO
-        }
-
-        if (FLAG_KEY_BOOL.accepts(contextElement)) {
-            return ThreeState.NO
-        }
-        if (FLAG_KEY_BOOL.accepts(contextElement)) {
-            return ThreeState.NO
         }
 
         return ThreeState.UNSURE
