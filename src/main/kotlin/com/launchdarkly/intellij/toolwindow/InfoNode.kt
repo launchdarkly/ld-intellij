@@ -6,7 +6,7 @@ import com.launchdarkly.intellij.LDIcons
 
 class InfoNode(var label: String) : SimpleNode() {
     override fun getChildren(): Array<SimpleNode> {
-        return SimpleNode.NO_CHILDREN
+        return NO_CHILDREN
     }
 
     override fun update(data: PresentationData) {
