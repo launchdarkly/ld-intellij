@@ -263,7 +263,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
             val notifier = GeneralNotifier()
             notifier.notify(
                 myProject,
-                "Error updating LaunchDarkly Toolwindow ${err}"
+                "Error updating LaunchDarkly Toolwindow $err"
             )
         }
     }

@@ -15,7 +15,6 @@ class FlagToolWindow(project: Project) : DumbAware, Disposable {
         val content: Content = contentFactory.createContent(null, null, false)
         content.component = basePanel
 
-
         toolWindow.contentManager.addContent(content)
     }
 

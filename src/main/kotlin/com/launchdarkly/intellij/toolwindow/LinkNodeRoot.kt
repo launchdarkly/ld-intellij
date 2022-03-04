@@ -80,5 +80,4 @@ class LinkNodeRoot(private val settings: LDSettings) :
         super.update(data)
         data.presentableText = "root"
     }
-
 }

@@ -108,7 +108,6 @@ class LinkPanel(private val myProject: Project, messageBusService: MessageBusSer
                 messageBusService.flagsUpdatedTopic,
                 object : FlagNotifier {
                     override fun notify(isConfigured: Boolean, flag: String, rebuild: Boolean) {
-
                     }
 
                     override fun reinit() {
@@ -128,9 +127,8 @@ class LinkPanel(private val myProject: Project, messageBusService: MessageBusSer
             val notifier = GeneralNotifier()
             notifier.notify(
                 myProject,
-                "Error updating LaunchDarkly Toolwindow ${err}"
+                "Error updating LaunchDarkly Toolwindow $err"
             )
         }
-
     }
 }
