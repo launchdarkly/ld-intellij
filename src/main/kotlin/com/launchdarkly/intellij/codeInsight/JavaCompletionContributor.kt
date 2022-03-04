@@ -13,7 +13,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
 import com.launchdarkly.intellij.FlagStore
 import com.launchdarkly.intellij.LDIcons
-import org.json.simple.JSONObject
 
 val FLAG_KEY_BOOL = LDPsiCaptureFactory("boolVariation", "com.launchdarkly.sdk.server.LDClient")
 val FLAG_KEY_BOOL_DETAIL = LDPsiCaptureFactory("boolVariationDetail", "com.launchdarkly.sdk.server.LDClient")
@@ -104,7 +103,7 @@ class JavaCompletionContributor : CompletionContributor() {
                     val project = parameters.originalFile.project
                     val getFlags = project.service<FlagStore>()
                     for (flag in getFlags.flags.items) {
-                        if (flag.kind == "multivariate" && flag.variations[0].value is JSONObject) {
+                        if (flag.kind == "multivariate" && (flag.variations[0].value::class.simpleName == "LinkedTreeMap")) {
                             var builder: LookupElementBuilder = LookupElementBuilder.create(flag.key)
                                 .withTypeText(flag.description)
                                 .withIcon(LDIcons.LOGO)
