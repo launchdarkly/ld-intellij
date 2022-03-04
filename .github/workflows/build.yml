@@ -15,10 +15,15 @@
 name: Build
 on:
   push:
+    tags:
     branches:
       - 2022 #TODO: Switch branch when strategy is finalized
   # Trigger the workflow on any pull request
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 jobs:
   # Run Gradle Wrapper Validation Action to verify the wrapper's checksum
