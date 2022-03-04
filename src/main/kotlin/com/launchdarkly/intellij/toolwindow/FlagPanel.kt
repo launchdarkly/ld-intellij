@@ -96,7 +96,6 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         val openBrowserAction = actionManager.getAction(OpenInBrowserAction.ID)
         val changeFallthroughAction = actionManager.getAction(ChangeFallthroughAction.ID)
         val changeOffVariationAction = actionManager.getAction(ChangeOffVariationAction.ID)
-
         actionToolbar.setTargetComponent(this)
         actionGroup.addAction(refreshAction)
 

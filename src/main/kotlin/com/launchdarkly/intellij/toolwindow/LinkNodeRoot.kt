@@ -12,43 +12,43 @@ class LinkNodeRoot(private val settings: LDSettings) :
         if (settings.project != "" && settings.environment != "") {
             myChildren.add(
                 LinkNodeBase(
-                    "Open Flags",
+                    "Flags",
                     "${settings.baseUri}/${settings.project}/${settings.environment}/features"
                 )
             )
             myChildren.add(
                 LinkNodeBase(
-                    "Open Segments",
+                    "Segments",
                     "${settings.baseUri}/${settings.project}/${settings.environment}/segments"
                 )
             )
             myChildren.add(
                 LinkNodeBase(
-                    "Open Users",
+                    "Users",
                     "${settings.baseUri}/${settings.project}/${settings.environment}/users"
                 )
             )
             myChildren.add(
                 LinkNodeBase(
-                    "Open Debugger",
+                    "Debugger",
                     "${settings.baseUri}/${settings.project}/${settings.environment}/debugger"
                 )
             )
             myChildren.add(
                 LinkNodeBase(
-                    "Open Experiments",
+                    "Experiments",
                     "${settings.baseUri}/${settings.project}/${settings.environment}/experiments"
                 )
             )
             myChildren.add(
                 LinkNodeBase(
-                    "Open Audit Log",
+                    "Audit Log",
                     "${settings.baseUri}/${settings.project}/${settings.environment}/audit"
                 )
             )
             myChildren.add(
                 LinkNodeBase(
-                    "Open Flag Comparison",
+                    "Flag Comparison",
                     "${settings.baseUri}/${settings.project}/${settings.environment}/features/compare"
                 )
             )

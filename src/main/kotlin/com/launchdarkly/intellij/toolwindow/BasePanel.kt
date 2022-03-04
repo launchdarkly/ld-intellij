@@ -5,7 +5,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.ui.OnePixelSplitter
 import com.launchdarkly.intellij.messaging.DefaultMessageBusService
 import java.awt.BorderLayout
+import javax.swing.BorderFactory
 import javax.swing.JPanel
+import javax.swing.border.Border
 
 class BasePanel(project: Project) : JPanel() {
     private val messageBus = project.service<DefaultMessageBusService>()
@@ -14,6 +16,11 @@ class BasePanel(project: Project) : JPanel() {
     private val linkPanel = LinkPanel(project, messageBus)
 
     init {
+        val quickLinksTitle: Border = BorderFactory.createTitledBorder("Quick Links")
+        val flagsTitle: Border = BorderFactory.createTitledBorder("Feature Flags")
+
+        linkPanel.border = quickLinksTitle
+        flagPanel.border = flagsTitle
         layout = BorderLayout(0, 0)
         splitter.apply {
             setResizeEnabled(false)

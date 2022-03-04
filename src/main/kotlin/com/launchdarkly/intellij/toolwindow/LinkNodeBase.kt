@@ -1,5 +1,6 @@
 package com.launchdarkly.intellij.toolwindow
 
+import com.intellij.icons.AllIcons
 import com.intellij.ide.projectView.PresentationData
 import com.intellij.ui.treeStructure.SimpleNode
 import javax.swing.Icon
@@ -13,8 +14,6 @@ class LinkNodeBase(var label: String, val url: String, var labelIcon: Icon? = nu
         super.update(data)
         data.presentableText = label
         data.tooltip = label
-        if (labelIcon != null) {
-            data.setIcon(labelIcon)
-        }
+        data.setIcon(AllIcons.Ide.External_link_arrow)
     }
 }
