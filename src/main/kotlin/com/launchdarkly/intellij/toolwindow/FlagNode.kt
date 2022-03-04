@@ -7,7 +7,6 @@ import com.launchdarkly.api.model.*
 import com.launchdarkly.intellij.LDIcons
 import com.launchdarkly.intellij.featurestore.FlagConfiguration
 import com.launchdarkly.intellij.settings.LDSettings
-import java.util.*
 
 class RootNode(private val flags: FeatureFlags, private val settings: LDSettings, private val intProject: Project) :
     SimpleNode() {
@@ -16,12 +15,16 @@ class RootNode(private val flags: FeatureFlags, private val settings: LDSettings
     override fun getChildren(): Array<SimpleNode> {
         when {
             myChildren.isEmpty() && flags.items != null -> {
-                myChildren.add(InfoNode("${settings.project} / ${settings.environment}",))
+                myChildren.add(InfoNode("${settings.project} / ${settings.environment}"))
                 for (flag in flags.items) {
                     myChildren.add(FlagNodeParent(flag, flags, intProject))
                 }
             }
-            (settings.project != "" && settings.environment != "") && flags.items == null -> myChildren.add(FlagNodeBase("Loading Flags..."))
+            (settings.project != "" && settings.environment != "") && flags.items == null -> myChildren.add(
+                FlagNodeBase(
+                    "Loading Flags..."
+                )
+            )
             flags.items == null -> myChildren.add(FlagNodeBase("LaunchDarkly Plugin is not configured."))
         }
 
@@ -52,14 +55,14 @@ class FlagNodeVariations(private var flag: FeatureFlag) : SimpleNode() {
 }
 
 class FlagNodeVariation(private val variation: Variation) : SimpleNode() {
-    private var myChildren: MutableList<SimpleNode> = ArrayList()
+    private var myChildren: MutableList<FlagNodeBase> = ArrayList()
 
-    override fun getChildren(): Array<SimpleNode> {
+    override fun getChildren(): Array<FlagNodeBase> {
         if (variation.name != null) {
             myChildren.add(FlagNodeBase("Value: ${variation.value}", LDIcons.DESCRIPTION))
         }
         if (variation.description != null) {
-            myChildren.add(FlagNodeBase("Description ${variation.description}", LDIcons.DESCRIPTION))
+            myChildren.add(FlagNodeBase("Description: ${variation.description}", LDIcons.DESCRIPTION))
         }
         return myChildren.toTypedArray()
     }
@@ -95,7 +98,12 @@ class FlagNodeFallthrough(var flag: FeatureFlag, private val flagConfig: FlagCon
     override fun getChildren(): Array<SimpleNode> {
         when {
             flagConfig.fallthrough?.variation != null -> return NO_CHILDREN
-            flagConfig.fallthrough!!.rollout != null -> myChildren.add(FlagNodeRollout(flagConfig.fallthrough!!.rollout, flag.variations))
+            flagConfig.fallthrough!!.rollout != null -> myChildren.add(
+                FlagNodeRollout(
+                    flagConfig.fallthrough!!.rollout,
+                    flag.variations
+                )
+            )
         }
         return myChildren.toTypedArray()
     }
