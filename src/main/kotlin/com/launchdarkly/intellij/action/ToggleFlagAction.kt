@@ -9,7 +9,7 @@ import com.launchdarkly.api.model.PatchComment
 import com.launchdarkly.api.model.PatchOperation
 import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.notifications.GeneralNotifier
-import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
+import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
 import com.launchdarkly.intellij.toolwindow.FlagToolWindow
 import javax.swing.Icon
@@ -57,7 +57,7 @@ class ToggleFlagAction : AnAction {
         val nodeInfo: FlagNodeParent = selectedNode.userObject as FlagNodeParent
         // Relies on implicit behavior of key being first child.
         val flagKey = selectedNode.firstChild.toString().substringAfter(" ")
-        val settings = LaunchDarklyMergedSettings.getInstance(project)
+        val settings = LaunchDarklyApplicationConfig.getInstance().ldState
         val flagPatch = PatchOperation().apply {
             op = "replace"
             path = "/environments/" + settings.environment + "/on"

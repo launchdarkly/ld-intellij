@@ -53,7 +53,6 @@ open class LaunchDarklyApplicationConfig : PersistentStateComponent<LaunchDarkly
     }
 
     data class ConfigState(
-        override var credName: String = "",
         override var project: String = "",
         override var environment: String = "",
         override var refreshRate: Int = 120,
