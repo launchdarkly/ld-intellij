@@ -167,14 +167,12 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
                 indent {
                     rowsRange {
-                        row {
+                        row("Project:") {
                             comboBox(projectBox, renderer)
-                                .label("Project:")
                                 .bindItem(settings::project)
                         }
-                        row {
+                        row("Environment:") {
                             comboBox(environmentBox, renderer)
-                                .label("Environment:")
                                 .bindItem(settings::environment)
                         }
                     }
