@@ -144,10 +144,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                         it
                     )
                 }
-            }
-            row {
-                comment("Input the API key from your LaunchDarkly account. If you don’t have one, you must <a href=\"https://docs.launchdarkly.com/home/account-security/api-access-tokens#creating-api-access-tokens\">create an access token</a> first.")
-            }
+            }.rowComment("Input the API key from your LaunchDarkly account. If you don’t have one, you must <a href=\"https://docs.launchdarkly.com/home/account-security/api-access-tokens#creating-api-access-tokens\">create an access token</a> first.")
 
             try {
                 projectBox = if (::projectContainer.isInitialized) {
