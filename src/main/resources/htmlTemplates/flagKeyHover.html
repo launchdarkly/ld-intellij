@@ -1,20 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <style>
+        .heading {
+            margin-top: 10px;
+            font-weight: bolder;
+        }
+
+        .rootContainer {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .flagNameState {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .flagState {
+            color: red;
+        }
+
+        .marginTop {
+            margin-top: 10px;
+        }
+
+        .variations {
+            border-top: 3px solid #bbb;
+        }
+    </style>
 </head>
 <body>
-<section>
-    <h1>My List of Messages:</h1>
-    <ul>
-
-        {% for message in messages  %}
-        <li>{{ message }}</li>
-        {% endfor %}
-
-    </ul>
-</section>
+<div class="rootContainer">
+    <section>
+        <div class="flagNameState">
+            <span class="heading">Configure: Logging Level</span>
+            <span class="flagState">Off</span>
+        </div>
+        <div class="marginTop">
+            Sets the Logging level in the Application dynamically.
+        </div>
+        <div class="marginTop">
+            <a href="https://app.launchdarkly.com">Open in LaunchDarkly</a>
+        </div>
+    </section>
+    <section class="marginTop variations">
+        <div class="heading">Variations</div>
+    </section>
+</div>
 </body>
 </html>
