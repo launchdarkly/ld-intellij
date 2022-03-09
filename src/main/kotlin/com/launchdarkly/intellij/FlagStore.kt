@@ -146,7 +146,7 @@ class FlagStore(private var project: Project) {
 
     fun setupStore() {
         val ldProject =
-            LaunchDarklyApiClient.projectInstance(project, settings.authorization)
+            LaunchDarklyApiClient.projectInstance(settings.authorization)
                 .getProject(settings.project)
         val myStreamBaseURI = System.getenv("LD_STREAMER_CONFIG") ?: settings.baseUri.replace("app", "stream")
         val (store, client) = createClientAndGetStore(
