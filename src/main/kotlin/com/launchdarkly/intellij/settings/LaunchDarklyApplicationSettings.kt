@@ -9,19 +9,21 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
-
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.ui.DialogPanel
+import com.intellij.openapi.ui.ValidationInfo
+import com.intellij.openapi.util.Disposer
+import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.SimpleListCellRenderer
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.*
+import com.intellij.ui.layout.ComponentPredicate
+import com.launchdarkly.api.ApiException
 import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.messaging.AppDefaultMessageBusService
 import java.awt.event.ActionEvent
-import javax.swing.DefaultComboBoxModel
-import javax.swing.JButton
-import javax.swing.JPanel
-import javax.swing.JPasswordField
+import javax.swing.*
+import javax.swing.event.DocumentEvent
 
 const val CHECK_API = "Check API Key"
 
@@ -94,7 +96,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     private var origApiKey = settings.authorization
     private var origBaseUri = settings.baseUri
     private var modified = false
-    private var panel = JPanel()
+    private var panel = DialogPanel()
     private var apiUpdate = false
     private var lastSelectedProject = ""
     private lateinit var projectContainer: MutableList<com.launchdarkly.api.model.Project>
@@ -133,17 +135,17 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             row {
                 text("Access feature flags in the IDE without having to navigate away from your current workflow.")
             }
+
             row {
                 cell(apiField)
                     .label("API Key:")
                     .bindText(settings::authorization)
-                    .columns(COLUMNS_MEDIUM)
+                    .columns(COLUMNS_MEDIUM).component
                 button("Get Projects") {
-                    updateProjects(
-                        panel as DialogPanel,
-                        it
-                    )
-                }
+                    updateProjects(panel, it)
+                }.enabledIf(
+                    ApiFieldPredicate(apiField, ::validKey)
+                )
             }.rowComment("Input the API key from your LaunchDarkly account. If you don’t have one, you must <a href=\"https://docs.launchdarkly.com/home/account-security/api-access-tokens#creating-api-access-tokens\">create an access token</a> first.")
 
             try {
@@ -151,11 +153,6 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     DefaultComboBoxModel(projectContainer.map { it.key }.toTypedArray())
                 } else {
                     DefaultComboBoxModel(arrayOf(defaultMessage))
-                }
-                row {
-                    comboBox(projectBox, renderer)
-                        .label("Project:")
-                        .bindItem(settings::project)
                 }
 
                 environmentBox = if (::environmentContainer.isInitialized) {
@@ -181,7 +178,9 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                                     isEditable = true
                                 }
                         }
-                    }
+                    }.enabledIf(
+                        ApiFieldPredicate(apiField, ::validKey)
+                    )
                 }
             } catch (err: Exception) {
                 println(err)
@@ -216,7 +215,10 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             }
         }
 
-        return panel as DialogPanel
+        val disposable = Disposer.newDisposable()
+        panel.registerValidators(disposable)
+
+        return panel
     }
 
     override fun isModified(): Boolean {
@@ -231,7 +233,8 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     projectContainer.map { addElement(it.key) }
                 }
                 apiUpdate = false
-            } catch (err: Error) {
+            } catch (err: ApiException) {
+                println("caught error")
                 println(err)
                 with(projectBox) {
                     removeAllElements()
@@ -277,6 +280,8 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     override fun apply() {
         super.apply()
 
+        ValidationInfo("Target name is not specified", apiField)
+
         settings.baseUri = settings.baseUri.replace(Regex("/+$"), "")
 
         if (settings.project != projectBox.selectedItem.toString()) {
@@ -306,4 +311,32 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         val projectApi = LaunchDarklyApiClient.projectInstance(apiKey, baseUri)
         return projectApi.projects.items.sortedBy { it.key } as MutableList<com.launchdarkly.api.model.Project>
     }
+
+    private fun validKey(apiKey: String): Boolean {
+        println("test connection")
+        return try {
+            LaunchDarklyApiClient.testAccessToken(apiKey, settings.baseUri)
+            println("valid token")
+            true
+        } catch (e: ApiException) {
+            println(e)
+            println("invalid token")
+            false
+        }
+    }
+}
+
+class ApiFieldPredicate(private val component: JTextField, private val predicate: (text: String) -> Boolean) :
+    ComponentPredicate() {
+
+    override fun addListener(listener: (Boolean) -> Unit) {
+        component.document.addDocumentListener(object : DocumentAdapter() {
+            override fun textChanged(e: DocumentEvent) {
+                println("text changed")
+                listener(predicate(component.text))
+            }
+        })
+    }
+
+    override fun invoke(): Boolean = predicate(component.text)
 }
