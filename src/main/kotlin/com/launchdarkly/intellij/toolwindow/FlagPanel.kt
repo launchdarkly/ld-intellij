@@ -24,7 +24,6 @@ import com.launchdarkly.intellij.FlagStore
 import com.launchdarkly.intellij.action.*
 import com.launchdarkly.intellij.messaging.FlagNotifier
 import com.launchdarkly.intellij.messaging.MessageBusService
-import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import java.awt.CardLayout
 import javax.swing.JPanel
@@ -258,13 +257,9 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                 }
             )
         } catch (err: Error) {
-            System.err.println("Exception when updating LaunchDarkly FlagPanel Toolwindow")
-            err.printStackTrace()
-            val notifier = GeneralNotifier()
-            notifier.notify(
-                myProject,
-                "Error updating LaunchDarkly Toolwindow $err"
-            )
+            Utilities.handlePanelError(err, myProject)
         }
     }
+
+
 }

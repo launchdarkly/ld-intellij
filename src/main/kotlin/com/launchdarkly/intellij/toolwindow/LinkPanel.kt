@@ -15,7 +15,6 @@ import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.tree.TreeUtil
 import com.launchdarkly.intellij.messaging.FlagNotifier
 import com.launchdarkly.intellij.messaging.MessageBusService
-import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import java.awt.CardLayout
 import java.awt.event.MouseAdapter
@@ -122,13 +121,7 @@ class LinkPanel(private val myProject: Project, messageBusService: MessageBusSer
                 }
             )
         } catch (err: Error) {
-            System.err.println("Exception when updating LaunchDarkly LinkPanel Toolwindow")
-            err.printStackTrace()
-            val notifier = GeneralNotifier()
-            notifier.notify(
-                myProject,
-                "Error updating LaunchDarkly Toolwindow $err"
-            )
+            Utilities.handlePanelError(err, myProject)
         }
     }
 }
