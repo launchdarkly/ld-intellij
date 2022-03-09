@@ -133,8 +133,11 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             row {
                 text("Access feature flags in the IDE without having to navigate away from your current workflow.")
             }
-            row("API Key:") {
-                cell(apiField).bindText(settings::authorization).columns(COLUMNS_MEDIUM)
+            row {
+                cell(apiField)
+                    .label("API Key:")
+                    .bindText(settings::authorization)
+                    .columns(COLUMNS_MEDIUM)
                 button("Get Projects") {
                     updateProjects(
                         panel as DialogPanel,
@@ -152,8 +155,10 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                 } else {
                     DefaultComboBoxModel(arrayOf(defaultMessage))
                 }
-                row("Project") {
-                    comboBox(projectBox, renderer).bindItem(settings::project)
+                row {
+                    comboBox(projectBox, renderer)
+                        .label("Project:")
+                        .bindItem(settings::project)
                 }
 
                 environmentBox = if (::environmentContainer.isInitialized) {
@@ -161,8 +166,10 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                 } else {
                     DefaultComboBoxModel(arrayOf("Please select a Project"))
                 }
-                row("Environments:") {
-                    comboBox(environmentBox, renderer).bindItem(settings::environment)
+                row("Environment:") {
+                    comboBox(environmentBox, renderer)
+                        .label("Environment")
+                        .bindItem(settings::environment)
                 }
                 environmentBox.selectedItem = settings.environment
             } catch (err: Exception) {
