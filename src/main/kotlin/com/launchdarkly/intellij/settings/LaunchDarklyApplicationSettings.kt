@@ -140,7 +140,6 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     )
                 }
             }
-            row("Refresh Rate(in Minutes):") { intTextField().bindIntText(settings::refreshRate) }
 
             try {
                 projectBox = if (::projectContainer.isInitialized) {
@@ -161,16 +160,17 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     comboBox(environmentBox, renderer).bindItem(settings::environment)
                 }
                 environmentBox.selectedItem = settings.environment
-                collapsibleGroup("Base URL:") {
-                    row {
+                collapsibleGroup("Advanced") {
+                    row("Base URL:") {
                         textField().bindText(settings::baseUri)
                     }
-                }
-                collapsibleGroup("Code References") {
-                    row {
-                        checkBox("Enable Code References").bindSelected(settings::codeReferences)
+                    row("Refresh Rate (in Minutes):") {
+                        intTextField().bindIntText(settings::refreshRate)
                     }
-                    row("Code References Refresh Rate") {
+                    row {
+                        checkBox("Enable Code References:").bindSelected(settings::codeReferences)
+                    }
+                    row("Code References Refresh Rate: ") {
                         intTextField().bindIntText(settings::codeReferencesRefreshRate)
                     }
                 }
