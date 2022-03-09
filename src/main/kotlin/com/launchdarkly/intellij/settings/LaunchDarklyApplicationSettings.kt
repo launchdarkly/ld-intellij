@@ -160,22 +160,23 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     comboBox(environmentBox, renderer).bindItem(settings::environment)
                 }
                 environmentBox.selectedItem = settings.environment
-                collapsibleGroup("Advanced") {
-                    row("Base URL:") {
-                        textField().bindText(settings::baseUri)
-                    }
-                    row("Refresh Rate (in Minutes):") {
-                        intTextField().bindIntText(settings::refreshRate)
-                    }
-                    row {
-                        checkBox("Enable Code References:").bindSelected(settings::codeReferences)
-                    }
-                    row("Code References Refresh Rate: ") {
-                        intTextField().bindIntText(settings::codeReferencesRefreshRate)
-                    }
-                }
             } catch (err: Exception) {
                 println(err)
+            }
+
+            collapsibleGroup("Advanced") {
+                row("Base URL:") {
+                    textField().bindText(settings::baseUri)
+                }
+                row("Refresh Rate (in Minutes):") {
+                    intTextField().bindIntText(settings::refreshRate)
+                }
+                row {
+                    checkBox("Enable Code References:").bindSelected(settings::codeReferences)
+                }
+                row("Code References Refresh Rate: ") {
+                    intTextField().bindIntText(settings::codeReferencesRefreshRate)
+                }
             }
         }
 
