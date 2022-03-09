@@ -1,7 +1,6 @@
 package com.launchdarkly.intellij.settings
 
 interface LDSettings {
-    var credName: String
     var project: String
     var environment: String
     var refreshRate: Int

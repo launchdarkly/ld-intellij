@@ -11,7 +11,7 @@ import com.launchdarkly.api.model.PatchOperation
 import com.launchdarkly.api.model.Variation
 import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.notifications.GeneralNotifier
-import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
+import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
 import com.launchdarkly.intellij.toolwindow.FlagToolWindow
 import java.awt.Component
@@ -78,7 +78,7 @@ class ChangeOffVariationAction : AnAction {
                 }
             })
             .setItemChosenCallback {
-                val settings = LaunchDarklyMergedSettings.getInstance(project)
+                val settings = LaunchDarklyApplicationConfig.getInstance().ldState
                 val patchComment = PatchComment()
                 val patch = PatchOperation()
                 val currentIdx = parentNode.flag.variations.indexOf(it)

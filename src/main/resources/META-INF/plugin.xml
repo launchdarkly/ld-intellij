@@ -14,9 +14,7 @@
         <applicationConfigurable
                 instance="com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfigurable"
                 id="launchdarkly.app.settings" displayName="LaunchDarkly Plugin"/>
-        <projectConfigurable instance="com.launchdarkly.intellij.settings.LaunchDarklyConfigurable"
-                             displayName="Project Overrides" id="launchdarkly.settings"
-                             parentId="launchdarkly.app.settings"/>
+
 
         <applicationService
                 serviceImplementation="com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig"/>
@@ -25,10 +23,7 @@
         />
 
         <projectService serviceImplementation="com.launchdarkly.intellij.coderefs.FlagAliases"/>
-        <projectService
-                serviceImplementation="com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings"/>
         <projectService serviceImplementation="com.launchdarkly.intellij.FlagStore"/>
-        <projectService serviceImplementation="com.launchdarkly.intellij.settings.LaunchDarklyConfig"/>
         <projectService serviceInterface="com.launchdarkly.intellij.messaging.MessageBusService"
                         serviceImplementation="com.launchdarkly.intellij.messaging.DefaultMessageBusService"
         />

@@ -53,7 +53,6 @@ open class LaunchDarklyApplicationConfig : PersistentStateComponent<LaunchDarkly
     }
 
     data class ConfigState(
-        override var credName: String = "",
         override var project: String = "",
         override var environment: String = "",
         override var refreshRate: Int = 120,
@@ -267,7 +266,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     }
 
     fun getProjects(apiKey: String?, baseUri: String?): MutableList<com.launchdarkly.api.model.Project> {
-        val projectApi = LaunchDarklyApiClient.projectInstance(null, apiKey, baseUri)
+        val projectApi = LaunchDarklyApiClient.projectInstance(apiKey, baseUri)
         return projectApi.projects.items.sortedBy { it.key } as MutableList<com.launchdarkly.api.model.Project>
     }
 }

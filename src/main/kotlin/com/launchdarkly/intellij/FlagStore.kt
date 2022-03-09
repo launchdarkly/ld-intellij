@@ -19,7 +19,7 @@ import com.launchdarkly.intellij.messaging.ConfigurationNotifier
 import com.launchdarkly.intellij.messaging.DefaultMessageBusService
 import com.launchdarkly.intellij.notifications.ConfigNotifier
 import com.launchdarkly.intellij.notifications.GeneralNotifier
-import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
+import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.sdk.server.DataModel
 import com.launchdarkly.sdk.server.LDClient
 import com.launchdarkly.sdk.server.LDConfig
@@ -41,7 +41,7 @@ class FlagStore(private var project: Project) {
     var flagClient: LDClient = LDClient("sdk-12345", LDConfig.Builder().offline(true).build())
     val messageBusService = project.service<DefaultMessageBusService>()
     val appBusService = service<AppDefaultMessageBusService>()
-    private val settings = LaunchDarklyMergedSettings.getInstance(project)
+    private val settings = LaunchDarklyApplicationConfig.getInstance().ldState
     private var envList = listOf(settings.environment)
 
     /**
@@ -146,7 +146,7 @@ class FlagStore(private var project: Project) {
 
     fun setupStore() {
         val ldProject =
-            LaunchDarklyApiClient.projectInstance(project, settings.authorization)
+            LaunchDarklyApiClient.projectInstance(settings.authorization)
                 .getProject(settings.project)
         val myStreamBaseURI = System.getenv("LD_STREAMER_CONFIG") ?: settings.baseUri.replace("app", "stream")
         val (store, client) = createClientAndGetStore(
@@ -167,7 +167,7 @@ class FlagStore(private var project: Project) {
     }
 
     init {
-        val settings = LaunchDarklyMergedSettings.getInstance(project)
+        val settings = LaunchDarklyApplicationConfig.getInstance().ldState
         val refreshRate: Long = settings.refreshRate.toLong()
         project.service<FlagAliases>()
         if (settings.project != "" && settings.authorization != "") {
@@ -192,7 +192,7 @@ class FlagStore(private var project: Project) {
             appBusService.configurationEnabledTopic,
             object : ConfigurationNotifier {
                 override fun notify(isConfigured: Boolean) {
-                    if (isConfigured && !settings.projectOverrides()) {
+                    if (isConfigured) {
                         try {
                             ApplicationManager.getApplication().executeOnPooledThread {
                                 setupStore()
@@ -200,19 +200,6 @@ class FlagStore(private var project: Project) {
                         } catch (err: ApiException) {
                             val notify = ConfigNotifier()
                             notify.notify(project, err.toString())
-                        }
-                    }
-                }
-            }
-        )
-
-        project.messageBus.connect().subscribe(
-            messageBusService.configurationEnabledTopic,
-            object : ConfigurationNotifier {
-                override fun notify(isConfigured: Boolean) {
-                    if (isConfigured) {
-                        ApplicationManager.getApplication().executeOnPooledThread {
-                            setupStore()
                         }
                     }
                 }

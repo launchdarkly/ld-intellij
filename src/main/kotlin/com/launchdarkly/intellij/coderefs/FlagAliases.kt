@@ -11,7 +11,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.util.concurrency.AppExecutorUtil
-import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
+import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import java.io.File
 import java.nio.charset.Charset
 import java.util.concurrent.TimeUnit
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 class FlagAliases(private var project: Project) {
     var aliases = mutableMapOf<String, String>()
     val cr = CodeRefs()
-    val settings = LaunchDarklyMergedSettings.getInstance(project)
+    val settings = LaunchDarklyApplicationConfig.getInstance().ldState
 
     fun readAliases(file: File) {
         csvReader().open(file) {
@@ -35,7 +35,7 @@ class FlagAliases(private var project: Project) {
 
     fun runCodeRefs(project: Project) {
         try {
-            val settings = LaunchDarklyMergedSettings.getInstance(project)
+            val settings = LaunchDarklyApplicationConfig.getInstance().ldState
             val tmpDir = File(PathManager.getTempPath())
 
             val cmds = ArrayList<String>()
