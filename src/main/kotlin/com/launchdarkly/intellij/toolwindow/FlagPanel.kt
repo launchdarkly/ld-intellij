@@ -260,6 +260,4 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
             Utilities.handlePanelError(err, myProject)
         }
     }
-
-
 }
