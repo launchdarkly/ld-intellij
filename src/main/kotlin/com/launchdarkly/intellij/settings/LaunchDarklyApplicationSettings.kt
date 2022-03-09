@@ -117,12 +117,12 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         }
     }
 
-    private fun updateProjects(panel: DialogPanel, row: ActionEvent) {
-        val btn = row.source as JButton
+    private fun onClickGetProjects(event: ActionEvent) {
+        val btn = event.source as JButton
+        btn.isEnabled = false
         btn.text = "Fetching Projects..."
-        modified = true
-        panel.apply()
-        isModified()
+        updateProjects()
+        btn.isEnabled = true
         btn.text = "Get Projects"
     }
 
@@ -139,10 +139,15 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             row {
                 cell(apiField)
                     .label("API Key:")
+                    .applyToComponent {
+                        this.addActionListener{ e ->
+                            println(e)
+                        }
+                    }
                     .bindText(settings::authorization)
                     .columns(COLUMNS_MEDIUM).component
                 button("Get Projects") {
-                    updateProjects(panel, it)
+                    onClickGetProjects(it)
                 }.enabledIf(
                     ApiFieldPredicate(apiField, ::validKey)
                 )
@@ -169,6 +174,9 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                                 .bindItem(settings::project)
                                 .applyToComponent {
                                     isEditable = true
+                                    this.addItemListener { _ ->
+                                        updateProjectEnvironments()
+                                    }
                                 }
                         }
                         row("Environment:") {
@@ -222,65 +230,65 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     }
 
     override fun isModified(): Boolean {
+        println("isModified")
+        println(super.isModified())
+        return super.isModified()
+    }
+
+    private fun updateOptions() {
         if ((settings.authorization != origApiKey || settings.baseUri != origBaseUri) || apiUpdate) {
-            try {
-                projectContainer = getProjects(settings.authorization, settings.baseUri)
-                with(projectBox) {
-                    removeAllElements()
-                    if (selectedItem == null || selectedItem.toString() == CHECK_API) {
-                        selectedItem = projectContainer.map { it.key }.firstOrNull()
-                    }
-                    projectContainer.map { addElement(it.key) }
-                }
-                apiUpdate = false
-            } catch (err: ApiException) {
-                println("caught error")
-                println(err)
-                with(projectBox) {
-                    removeAllElements()
-                    addElement(err.toString())
-                }
-            }
+            updateProjects()
         }
 
         if (::projectContainer.isInitialized && lastSelectedProject != projectBox.selectedItem.toString()) {
-            lastSelectedProject = projectBox.selectedItem.toString()
-            try {
-                environmentContainer = projectContainer.find { it.key == projectBox.selectedItem.toString() }!!
-                val envMap = environmentContainer.environments.map { it.key }.sorted()
-                if (::environmentBox.isInitialized) {
-                    with(environmentBox) {
-                        removeAllElements()
-                        envMap.map { addElement(it) }
-                        selectedItem =
-                            if (settings.environment != "" && envMap.contains(settings.environment)) settings.environment else envMap.firstOrNull()
-                    }
-                }
-            } catch (err: Error) {
-                println(err)
+            updateProjectEnvironments()
+        }
+    }
+
+    private fun updateProjects() {
+        try {
+            projectContainer = getProjects(settings.authorization, settings.baseUri)
+            with(projectBox) {
+                removeAllElements()
+                selectedItem = projectContainer.map { it.key }.firstOrNull()
+                projectContainer.map { addElement(it.key) }
             }
+            apiUpdate = false
+        } catch (err: ApiException) {
+            println("caught error")
+            println(err)
+            with(projectBox) {
+                removeAllElements()
+            }
+            ValidationInfo("Invalid API Key", apiField)
+        }
+    }
+
+    private fun updateProjectEnvironments() {
+        settings.environment = ""
+        with(environmentBox) {
+            removeAllElements()
+        }
+        if (projectBox.selectedItem == null) {
+            return
         }
 
-        if (::projectBox.isInitialized) {
-            if (settings.project != projectBox.selectedItem.toString()) {
-                modified = true
-            }
-        }
+        lastSelectedProject = projectBox.selectedItem.toString()
 
-        if (::environmentBox.isInitialized) {
-            if (settings.environment != environmentBox.selectedItem.toString()) {
-                modified = true
+        try {
+            environmentContainer = projectContainer.find { it.key == projectBox.selectedItem.toString() }!!
+            val envMap = environmentContainer.environments.map { it.key }.sorted()
+            with(environmentBox) {
+                envMap.map { addElement(it) }
+                selectedItem = envMap.firstOrNull()
             }
+        } catch (err: Error) {
+            println(err)
         }
-
-        val sup = super.isModified()
-        return sup || modified
     }
 
     override fun apply() {
         super.apply()
-
-        ValidationInfo("Target name is not specified", apiField)
 
         settings.baseUri = settings.baseUri.replace(Regex("/+$"), "")
 
@@ -298,6 +306,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             origBaseUri = settings.baseUri
         }
         if ((projectBox.selectedItem != CHECK_API) && modified) {
+            updateOptions()
             val appMsgService = ApplicationManager.getApplication().messageBus
             val topic = service<AppDefaultMessageBusService>().configurationEnabledTopic
 
