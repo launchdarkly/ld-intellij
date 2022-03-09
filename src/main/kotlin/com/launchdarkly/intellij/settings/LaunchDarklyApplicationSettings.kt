@@ -170,10 +170,16 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                         row("Project:") {
                             comboBox(projectBox, renderer)
                                 .bindItem(settings::project)
+                                .applyToComponent {
+                                    isEditable = true
+                                }
                         }
                         row("Environment:") {
                             comboBox(environmentBox, renderer)
                                 .bindItem(settings::environment)
+                                .applyToComponent {
+                                    isEditable = true
+                                }
                         }
                     }
                 }
