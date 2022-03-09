@@ -9,6 +9,7 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
+
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.SimpleListCellRenderer
@@ -130,7 +131,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
         panel = panel {
             row {
-                comment("Add your LaunchDarkly API Key and click Get Projects. Project and Environment selections will populate based on key permissions.")
+                text("Access feature flags in the IDE without having to navigate away from your current workflow.")
             }
             row("API Key:") {
                 cell(apiField).bindText(settings::authorization).columns(COLUMNS_MEDIUM)
@@ -140,6 +141,9 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                         it
                     )
                 }
+            }
+            row {
+                comment("Input the API key from your LaunchDarkly account. If you don’t have one, you must <a href=\"https://docs.launchdarkly.com/home/account-security/api-access-tokens#creating-api-access-tokens\">create an access token</a> first.")
             }
 
             try {
