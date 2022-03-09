@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
 import com.launchdarkly.intellij.notifications.GeneralNotifier
-import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
+import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
 import com.launchdarkly.intellij.toolwindow.FlagToolWindow
 import javax.swing.Icon
@@ -48,8 +48,8 @@ class OpenInBrowserAction : AnAction {
      */
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project
-        val settings = LaunchDarklyMergedSettings.getInstance(project!!)
-        if (project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent !== null) {
+        val settings = LaunchDarklyApplicationConfig.getInstance().ldState
+        if (project?.service<FlagToolWindow>()?.getPanel()?.tree?.lastSelectedPathComponent !== null) {
             val selectedNode =
                 project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
             // If cast fails, it means the root node with project/env info was selected, so we'll open that.

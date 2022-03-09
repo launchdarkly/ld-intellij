@@ -11,7 +11,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.launchdarkly.api.model.FeatureFlag
 import com.launchdarkly.intellij.coderefs.FlagAliases
 import com.launchdarkly.intellij.featurestore.FlagConfiguration
-import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
+import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 
 class LDDocumentationProvider : AbstractDocumentationProvider() {
     // Not sure how this is all working yet but it works for custom documentation in other IDEs than IDEA
@@ -61,7 +61,7 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
         val getFlags = element.project.service<com.launchdarkly.intellij.FlagStore>()
         if (getFlags.flags.items == null) return null
         val getAliases = element.project.service<FlagAliases>()
-        val settings = LaunchDarklyMergedSettings.getInstance(element.project)
+        val settings = LaunchDarklyApplicationConfig.getInstance().ldState
 
         var flag: FeatureFlag? =
             getFlags.flags?.items?.find { element.text.contains(it.key) }

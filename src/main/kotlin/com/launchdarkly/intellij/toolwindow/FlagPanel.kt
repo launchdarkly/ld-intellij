@@ -24,7 +24,7 @@ import com.launchdarkly.intellij.FlagStore
 import com.launchdarkly.intellij.action.*
 import com.launchdarkly.intellij.messaging.FlagNotifier
 import com.launchdarkly.intellij.messaging.MessageBusService
-import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
+import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import java.awt.CardLayout
 import javax.swing.JPanel
 import javax.swing.tree.DefaultMutableTreeNode
@@ -38,7 +38,7 @@ private const val SPLITTER_PROPERTY = "BuildAttribution.Splitter.Proportion"
  */
 class FlagPanel(private val myProject: Project, messageBusService: MessageBusService) :
     SimpleToolWindowPanel(false, false), Disposable {
-    private val settings = LaunchDarklyMergedSettings.getInstance(myProject)
+    private val settings = LaunchDarklyApplicationConfig.getInstance().ldState
     private var getFlags = myProject.service<FlagStore>()
     private var root = RootNode(getFlags.flags, settings, myProject)
     private var treeStructure = createTreeStructure()
