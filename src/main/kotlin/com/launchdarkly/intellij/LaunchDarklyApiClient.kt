@@ -14,7 +14,7 @@ class LaunchDarklyApiClient() {
 
     companion object {
         @JvmStatic
-        fun flagInstance(project: Project, apiKey: String? = null, baseUri: String? = null): ApiClient {
+        fun flagInstance(project: Project, apiKey: String? = null, baseUri: String? = null): FeatureFlagsApi {
             val settings = LaunchDarklyApplicationConfig.getInstance().ldState
             val ldBaseUri = baseUri ?: settings.baseUri
             val ldApiKey = apiKey ?: settings.authorization
