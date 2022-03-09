@@ -163,12 +163,22 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                 } else {
                     DefaultComboBoxModel(arrayOf("Please select a Project"))
                 }
-                row("Environment:") {
-                    comboBox(environmentBox, renderer)
-                        .label("Environment")
-                        .bindItem(settings::environment)
-                }
                 environmentBox.selectedItem = settings.environment
+
+                indent {
+                    rowsRange {
+                        row {
+                            comboBox(projectBox, renderer)
+                                .label("Project:")
+                                .bindItem(settings::project)
+                        }
+                        row {
+                            comboBox(environmentBox, renderer)
+                                .label("Environment:")
+                                .bindItem(settings::environment)
+                        }
+                    }
+                }
             } catch (err: Exception) {
                 println(err)
             }
