@@ -16,7 +16,7 @@ import com.intellij.util.ui.tree.TreeUtil
 import com.launchdarkly.intellij.messaging.FlagNotifier
 import com.launchdarkly.intellij.messaging.MessageBusService
 import com.launchdarkly.intellij.notifications.GeneralNotifier
-import com.launchdarkly.intellij.settings.LaunchDarklyMergedSettings
+import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import java.awt.CardLayout
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
@@ -32,7 +32,7 @@ private const val SPLITTER_PROPERTY = "BuildAttribution.Splitter.Proportion"
  */
 class LinkPanel(private val myProject: Project, messageBusService: MessageBusService) :
     SimpleToolWindowPanel(false, false), Disposable {
-    private val settings = LaunchDarklyMergedSettings.getInstance(myProject)
+    private val settings = LaunchDarklyApplicationConfig.getInstance().ldState
     private var root = LinkNodeRoot(settings)
     private var treeStructure = createTreeStructure()
     private var treeModel = StructureTreeModel(treeStructure, this)
