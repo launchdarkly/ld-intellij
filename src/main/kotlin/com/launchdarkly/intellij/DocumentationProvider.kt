@@ -1,5 +1,6 @@
 package com.launchdarkly.intellij
 
+import com.mitchellbosecke.pebble.PebbleEngine
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
@@ -12,8 +13,10 @@ import com.launchdarkly.api.model.FeatureFlag
 import com.launchdarkly.intellij.coderefs.FlagAliases
 import com.launchdarkly.intellij.featurestore.FlagConfiguration
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
+import com.sun.jna.StringArray
+import java.io.StringWriter
 
-class LDDocumentationProvider : AbstractDocumentationProvider() {
+class DocumentationProvider : AbstractDocumentationProvider() {
     // Not sure how this is all working yet but it works for custom documentation in other IDEs than IDEA
     override fun getCustomDocumentationElement(
         editor: Editor,
@@ -106,55 +109,54 @@ class LDDocumentationProvider : AbstractDocumentationProvider() {
             if (targets != "") {
                 buildEnvString += targets
             }
-            result.append("<html>")
-            if (env.version === -1) {
-                result.append("<b>FLAG TARGETING INFORMATION IS NOT AVAILABLE. Below Values are placeholders</b><br />")
-            }
-            result.append("<b>LaunchDarkly Feature Flag \u2022 ${flag.name ?: flag.key}</b><br />")
-            result.append("<a href=\"${settings.baseUri}${flag.environments[settings.environment]!!.site.href}\">Open In LaunchDarkly</a><br />")
-//            val enabledIcon = if (env.version === -1) {
-//                "<img src=\"${LDIcons.TOGGLE_DISCONNECTED}\" alt=\"Disconnected\">"
-//            } else if (env.on) {
-//                "<img src=\"${LDIcons.TOGGLE_ON}\" alt=\"On\">"
-//            } else {
-//                "<img src=\"${LDIcons.TOGGLE_OFF}\" alt=\"Off\">"
+//            result.append("<html>")
+//            if (env.version === -1) {
+//                result.append("<b>FLAG TARGETING INFORMATION IS NOT AVAILABLE. Below Values are placeholders</b><br />")
 //            }
-            val state = if (env.version === -1) {
-                "Disconnect"
-            } else if (env.on) {
-                "On"
-            } else {
-                "Off"
-            }
-            result.append("Enabled: $state<br />")
-            result.append("${flag.description}<br />")
-            result.append(buildEnvString)
-            result.append("<br /><b>Variations ${if (env.fallthrough?.rollout != null) " ◆ Rollout Configured" else ""}</b><br />")
-            flag.variations.mapIndexed { i, it ->
-                val rolloutPercentage: Double = if (env.fallthrough?.rollout != null) {
-                    val rollout = env.fallthrough?.rollout
-                    val foundVariation = rollout!!.variations.filter { it.variation == i }
-                    (foundVariation[0].weight.toDouble() / 1000)
-                } else -1.000
-                var variationOut = "$i"
-                if (it.name != "" && it.name != null) {
-                    variationOut += " ◆ ${it.name}"
-                }
-                variationOut += " ◆ ${if (rolloutPercentage != null && rolloutPercentage != -1.000) "Rollout $rolloutPercentage% ◆ " else ""}<code>Return value:</code> <code>${it.value}</code><br />"
-                result.append(variationOut)
-                if (env.offVariation != null && env.offVariation == i) {
-                    result.append("<p><b>Off Variation</b></p>")
-                }
-                if (env.fallthrough?.variation != null && env.fallthrough?.variation == i) {
-                    result.append("<p><b>Fallthrough Variation</b></p>")
-                }
-                if (it.description != "" && it.description != null) {
-                    result.append("<p>${it.description ?: ""}</p><br />")
-                }
-            }
-            result.append("</html>")
+//            result.append("<b>LaunchDarkly Feature Flag \u2022 ${flag.name ?: flag.key}</b><br />")
+//            result.append("<a href=\"${settings.baseUri}${flag.environments[settings.environment]!!.site.href}\">Open In LaunchDarkly</a><br />")
+//
+//            val state = if (env.version === -1) {
+//                "Disconnect"
+//            } else if (env.on) {
+//                "On"
+//            } else {
+//                "Off"
+//            }
+//            result.append("Enabled: $state<br />")
+//            result.append("${flag.description}<br />")
+//            result.append(buildEnvString)
+//            result.append("<br /><b>Variations ${if (env.fallthrough?.rollout != null) " ◆ Rollout Configured" else ""}</b><br />")
+//            flag.variations.mapIndexed { i, it ->
+//                val rolloutPercentage: Double = if (env.fallthrough?.rollout != null) {
+//                    val rollout = env.fallthrough?.rollout
+//                    val foundVariation = rollout!!.variations.filter { it.variation == i }
+//                    (foundVariation[0].weight.toDouble() / 1000)
+//                } else -1.000
+//                var variationOut = "$i"
+//                if (it.name != "" && it.name != null) {
+//                    variationOut += " ◆ ${it.name}"
+//                }
+//                variationOut += " ◆ ${if (rolloutPercentage != null && rolloutPercentage != -1.000) "Rollout $rolloutPercentage% ◆ " else ""}<code>Return value:</code> <code>${it.value}</code><br />"
+//                result.append(variationOut)
+//                if (env.offVariation != null && env.offVariation == i) {
+//                    result.append("<p><b>Off Variation</b></p>")
+//                }
+//                if (env.fallthrough?.variation != null && env.fallthrough?.variation == i) {
+//                    result.append("<p><b>Fallthrough Variation</b></p>")
+//                }
+//                if (it.description != "" && it.description != null) {
+//                    result.append("<p>${it.description ?: ""}</p><br />")
+//                }
+//            }
+//            result.append("</html>")
 
-            return result.toString()
+
+            val messages = arrayOf("lettuce", "carrots")
+            val template = PebbleEngine.Builder().build().getTemplate("htmlTemplates/flagKeyHover.html")
+            val writer = StringWriter()
+            template.evaluate(writer, mapOf("messages" to messages))
+            return writer.toString()
         }
 
         return null

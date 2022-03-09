@@ -33,7 +33,7 @@
                     factoryClass="com.launchdarkly.intellij.toolwindow.FlagToolWindowFactory"/>
 
         <documentationProvider order="first"
-                               implementation="com.launchdarkly.intellij.LDDocumentationProvider"/>
+                               implementation="com.launchdarkly.intellij.DocumentationProvider"/>
         <!--        <configurationType-->
         <!--                implementation="com.launchdarkly.intellij.coderefs.CodeRefsRunConfigurationType"/>-->
 
