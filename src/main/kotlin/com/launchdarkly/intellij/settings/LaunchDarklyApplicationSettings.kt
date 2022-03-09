@@ -12,6 +12,7 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.SimpleListCellRenderer
+import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.*
 import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.messaging.AppDefaultMessageBusService
@@ -165,17 +166,27 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             }
 
             collapsibleGroup("Advanced") {
-                row("Base URL:") {
-                    textField().bindText(settings::baseUri)
-                }
-                row("Refresh Rate (in Minutes):") {
-                    intTextField().bindIntText(settings::refreshRate)
+                row {
+                    textField()
+                        .label("Base URL:")
+                        .bindText(settings::baseUri)
                 }
                 row {
-                    checkBox("Enable Code References:").bindSelected(settings::codeReferences)
+                    intTextField()
+                        .label("Refresh Rate (in Minutes):")
+                        .bindIntText(settings::refreshRate)
                 }
-                row("Code References Refresh Rate: ") {
-                    intTextField().bindIntText(settings::codeReferencesRefreshRate)
+
+                lateinit var enableCodeRefs: Cell<JBCheckBox>
+                row {
+                    enableCodeRefs = checkBox("Enable Code References").bindSelected(settings::codeReferences)
+                }
+
+                row {
+                    intTextField()
+                        .label("Code References Refresh Rate:")
+                        .enabledIf(enableCodeRefs.selected)
+                        .bindIntText(settings::codeReferencesRefreshRate)
                 }
             }
         }
