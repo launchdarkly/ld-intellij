@@ -144,7 +144,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
             row {
                 cell(accessTokenField)
-                    .label("API Key:")
+                    .label("Access token:")
                     .bindText(settings::authorization)
                     .columns(COLUMNS_MEDIUM)
                     .validationOnInput(apiKeyValidation())
@@ -154,7 +154,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                 icon(AllIcons.General.BalloonWarning)
                     .label("Apply changes")
                     .visibleIf(refreshProjectsPredicate(accessTokenField))
-            }.rowComment("Input the API key from your LaunchDarkly account. If you don’t have one, you must <a href=\"https://docs.launchdarkly.com/home/account-security/api-access-tokens#creating-api-access-tokens\">create an access token</a> first.")
+            }.rowComment("Input the access token from your LaunchDarkly account. If you don’t have one, you must <a href=\"https://docs.launchdarkly.com/home/account-security/api-access-tokens#creating-api-access-tokens\">create an access token</a> first.")
 
             try {
                 projectBox = if (::projectContainer.isInitialized) {
@@ -325,12 +325,12 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
     private fun apiKeyValidation(): ValidationInfoBuilder.(JPasswordField) -> ValidationInfo? = {
         if (String(it.password).trim() == "") {
-            error("API key is required")
+            error("Access token is required")
         } else if (!String(it.password).startsWith("api-")) {
-            error("Key should start with \"api-\"")
+            error("Access token should start with \"api-\"")
         } else if (!validKey(String(it.password))) {
             // TODO - see if we can move this to an apply level validation
-            error("This API key is not authorized to get projects")
+            error("This access token is not authorized to get projects")
         } else {
             null
         }
