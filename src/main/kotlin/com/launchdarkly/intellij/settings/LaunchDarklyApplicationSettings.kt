@@ -100,7 +100,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     private var apiUpdate = false
     private var lastSelectedProject: String? = ""
     private lateinit var projectContainer: MutableList<ApiProject>
-    private var environmentContainer: ApiProject? = null
+    private lateinit var environmentContainer: ApiProject
     private lateinit var projectBox: DefaultComboBoxModel<String>
     private lateinit var environmentBox: DefaultComboBoxModel<String>
     private lateinit var projectComboBox: ComboBox<String>
@@ -109,12 +109,16 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         try {
             projectContainer = getProjects(null, null)
             if (projectContainer.size > 0) {
-                environmentContainer = projectContainer.find { it.key == settings.project }
-                    ?: projectContainer.firstOrNull()
+                environmentContainer = getEnvironmentContainer(settings.project)
             }
         } catch (err: Exception) {
             println("Error initializing")
         }
+    }
+
+    private fun getEnvironmentContainer(projectKey: String): ApiProject {
+        return projectContainer.find { it.key == projectKey }
+            ?: projectContainer.firstOrNull() as ApiProject
     }
 
     private fun onClickGetProjects(event: ActionEvent) {
@@ -159,8 +163,8 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     DefaultComboBoxModel()
                 }
 
-                environmentBox = if (environmentContainer != null) {
-                    DefaultComboBoxModel(environmentContainer!!.environments.map { it.key }.toTypedArray())
+                environmentBox = if (::environmentContainer.isInitialized) {
+                    DefaultComboBoxModel(environmentContainer.environments.map { it.key }.toTypedArray())
                 } else {
                     DefaultComboBoxModel()
                 }
@@ -278,9 +282,8 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         lastSelectedProject = projectBox.selectedItem?.toString() ?: return
 
         try {
-            environmentContainer = projectContainer.find { it.key == projectBox.selectedItem?.toString() }
-
-            val envMap = if (environmentContainer != null) environmentContainer!!.environments.map { it.key }.sorted() else return
+            environmentContainer = getEnvironmentContainer(projectBox.selectedItem.toString())
+            val envMap = environmentContainer.environments.map { it.key }.sorted()
             with(environmentBox) {
                 envMap.map { addElement(it) }
                 selectedItem =
@@ -353,7 +356,6 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     }
 
     private fun enableProjectsPredicate(component: JPasswordField): ComponentPredicate {
-        println("size ${projectComboBox.size}")
         return component.enteredTextSatisfies { String(component.password).trim() != "" } and
                 component.enteredTextSatisfies { origApiKey == String(component.password) } and
                 projectComboBox.hasOptions { it.itemCount > 0 }
