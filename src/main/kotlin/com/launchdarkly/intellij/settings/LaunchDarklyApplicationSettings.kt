@@ -14,19 +14,17 @@ import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.SimpleListCellRenderer
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.*
-import com.intellij.ui.layout.ComponentPredicate
-import com.intellij.ui.layout.and
-import com.intellij.ui.layout.enteredTextSatisfies
+import com.intellij.ui.dsl.builder.panel
+import com.intellij.ui.dsl.builder.selected
+import com.intellij.ui.layout.*
 import com.launchdarkly.api.ApiException
 import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.messaging.AppDefaultMessageBusService
 import java.awt.event.ActionEvent
 import javax.swing.*
-import javax.swing.event.DocumentEvent
 
 const val CHECK_API = "Check API Key"
 
@@ -120,12 +118,13 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         }
     }
 
-    private fun onClickGetProjects(panel: DialogPanel, event: ActionEvent) {
+    private fun onClickGetProjects(event: ActionEvent) {
         val btn = event.source as JButton
         btn.isEnabled = false
         btn.text = "Fetching Projects..."
         modified = true
-        panel.apply()
+        apply()
+        reset()
         btn.isEnabled = true
         btn.text = "Get Projects"
     }
@@ -144,13 +143,20 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                 cell(apiField)
                     .label("API Key:")
                     .bindText(settings::authorization)
-                    .columns(COLUMNS_MEDIUM).component
+                    .columns(COLUMNS_MEDIUM)
+                    .validationOnInput(apiKeyValidation())
+                    .onApply {
+                        if (!validKey(String(apiField.password))) {
+                            settings.project = ""
+                            settings.environment = ""
+                        }
+                    }
                 button("Get Projects") {
-                    onClickGetProjects(panel, it)
+                    onClickGetProjects(it)
                 }
                 icon(AllIcons.General.BalloonWarning)
-                    .label("Refresh")
-                    .visibleIf(apiField.enteredTextSatisfies { settings.authorization != String(apiField.password) })
+                    .label("Apply changes")
+                    .visibleIf(refreshProjectsPredicate(apiField))
             }.rowComment("Input the API key from your LaunchDarkly account. If you don’t have one, you must <a href=\"https://docs.launchdarkly.com/home/account-security/api-access-tokens#creating-api-access-tokens\">create an access token</a> first.")
 
             try {
@@ -185,10 +191,9 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                                 .applyToComponent {
                                     isEditable = true
                                 }
+                                .applyIfEnabled()
                         }
-                    }.enabledIf(
-                        apiField.enteredTextSatisfies { settings.authorization == String(apiField.password) } and ApiFieldPredicate(apiField, ::validKey)
-                    )
+                    }.enabledIf(enableProjectsPredicate(apiField))
                 }
             } catch (err: Exception) {
                 println(err)
@@ -229,27 +234,22 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         return panel
     }
 
-    override fun isModified(): Boolean {
-        println("isModified")
-        println(super.isModified())
-        return super.isModified()
-    }
-
     private fun updateOptions() {
         println("updating options")
         if (apiUpdate) {
             updateProjects()
         }
 
-        if (::projectContainer.isInitialized && lastSelectedProject != projectBox.selectedItem.toString()) {
+        if (::projectContainer.isInitialized && lastSelectedProject != projectBox.selectedItem?.toString()) {
             updateProjectEnvironments()
         }
     }
 
     private fun updateProjects() {
         if (!::projectBox.isInitialized) return
+        println("updateProjects ${settings.authorization}, ${String(apiField.password)}")
         try {
-            projectContainer = getProjects(settings.authorization, settings.baseUri)
+            projectContainer = getProjects(String(apiField.password), settings.baseUri)
             with(projectBox) {
                 removeAllElements()
                 selectedItem = projectContainer.map { it.key }.firstOrNull()
@@ -262,7 +262,8 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             with(projectBox) {
                 removeAllElements()
             }
-            ValidationInfo("Invalid API Key", apiField)
+            settings.project = ""
+            settings.environment = ""
         }
     }
 
@@ -278,7 +279,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         lastSelectedProject = projectBox.selectedItem.toString()
 
         try {
-            environmentContainer = projectContainer.find { it.key == projectBox.selectedItem.toString() }!!
+            environmentContainer = projectContainer.find { it.key == projectBox.selectedItem?.toString() }!!
             val envMap = environmentContainer.environments.map { it.key }.sorted()
             with(environmentBox) {
                 envMap.map { addElement(it) }
@@ -293,7 +294,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     override fun apply() {
         super.apply()
 
-        println("apply")
+        println("applying...")
 
         settings.baseUri = settings.baseUri.replace(Regex("/+$"), "")
 
@@ -310,18 +311,17 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             origApiKey = settings.authorization
             origBaseUri = settings.baseUri
         }
-        if (modified) {
-            updateOptions()
-            val appMsgService = ApplicationManager.getApplication().messageBus
-            val topic = service<AppDefaultMessageBusService>().configurationEnabledTopic
 
-            val publisher = appMsgService.syncPublisher(topic)
-            publisher.notify(true)
-            println("notifying app")
-        }
+        updateOptions()
+        val appMsgService = ApplicationManager.getApplication().messageBus
+        val topic = service<AppDefaultMessageBusService>().configurationEnabledTopic
+
+        val publisher = appMsgService.syncPublisher(topic)
+        publisher.notify(true)
+        println("notifying app")
     }
 
-    fun getProjects(apiKey: String?, baseUri: String?): MutableList<com.launchdarkly.api.model.Project> {
+    private fun getProjects(apiKey: String?, baseUri: String?): MutableList<com.launchdarkly.api.model.Project> {
         val projectApi = LaunchDarklyApiClient.projectInstance(apiKey, baseUri)
         return projectApi.projects.items.sortedBy { it.key } as MutableList<com.launchdarkly.api.model.Project>
     }
@@ -335,18 +335,43 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             false
         }
     }
-}
 
-class ApiFieldPredicate(private val component: JTextField, private val predicate: (text: String) -> Boolean) :
-    ComponentPredicate() {
-
-    override fun addListener(listener: (Boolean) -> Unit) {
-        component.document.addDocumentListener(object : DocumentAdapter() {
-            override fun textChanged(e: DocumentEvent) {
-                listener(predicate(component.text))
-            }
-        })
+    private fun apiKeyValidation(): ValidationInfoBuilder.(JPasswordField) -> ValidationInfo? = {
+        if (String(it.password).trim() == "") {
+            error("API key is required")
+        } else if (!String(it.password).startsWith("api-")) {
+            error("Key should start with \"api-\"")
+        } else if (!validKey(String(it.password))) {
+            // TODO - see if we can move this to an apply level validation
+            error("This API key is not authorized to get projects")
+        } else {
+            null
+        }
     }
 
-    override fun invoke(): Boolean = predicate(component.text)
+    private fun refreshProjectsPredicate(component: JPasswordField): ComponentPredicate {
+        println("refreshProjectsPredicate ${String(component.password)}, $origApiKey")
+        return component.enteredTextSatisfies { String(component.password).trim() != "" } and
+                component.enteredTextSatisfies { origApiKey != String(component.password) }
+    }
+
+    private fun enableProjectsPredicate(component: JPasswordField): ComponentPredicate {
+        println("enableProjectsPredicate ${String(component.password)}, $origApiKey")
+        return component.enteredTextSatisfies { String(component.password).trim() != "" } and
+                component.enteredTextSatisfies { origApiKey == String(component.password) }
+    }
 }
+
+//class ApiFieldPredicate(private val component: JTextField, private val predicate: (text: String) -> Boolean) :
+//    ComponentPredicate() {
+//
+//    override fun addListener(listener: (Boolean) -> Unit) {
+//        component.document.addDocumentListener(object : DocumentAdapter() {
+//            override fun textChanged(e: DocumentEvent) {
+//                listener(predicate(component.text))
+//            }
+//        })
+//    }
+//
+//    override fun invoke(): Boolean = predicate(component.text)
+//}
