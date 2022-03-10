@@ -121,17 +121,6 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             ?: projectContainer.firstOrNull() as ApiProject
     }
 
-    private fun onClickGetProjects(event: ActionEvent) {
-        val btn = event.source as JButton
-        btn.isEnabled = false
-        btn.text = "Fetching Projects..."
-        modified = true
-        apply()
-        reset()
-        btn.isEnabled = true
-        btn.text = "Get Projects"
-    }
-
     override fun createPanel(): DialogPanel {
         val renderer = SimpleListCellRenderer.create<String> { label, value, _ ->
             label.text = value
@@ -148,9 +137,6 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     .bindText(settings::authorization)
                     .columns(COLUMNS_MEDIUM)
                     .validationOnInput(apiKeyValidation())
-//                button("Get Projects") {
-//                    onClickGetProjects(it)
-//                }
                 icon(AllIcons.General.BalloonWarning)
                     .label("Apply changes")
                     .visibleIf(refreshProjectsPredicate(accessTokenField))
