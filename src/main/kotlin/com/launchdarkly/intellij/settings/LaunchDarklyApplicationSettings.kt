@@ -12,7 +12,6 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.SimpleListCellRenderer
-import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.*
 import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.messaging.AppDefaultMessageBusService
@@ -173,20 +172,21 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                 }
                 row {
                     intTextField()
-                        .label("Refresh Rate (in Minutes):")
+                        .label("Refresh Rate:")
                         .bindIntText(settings::refreshRate)
-                }
-
-                lateinit var enableCodeRefs: Cell<JBCheckBox>
-                row {
-                    enableCodeRefs = checkBox("Enable Code References").bindSelected(settings::codeReferences)
+                        .gap(RightGap.SMALL)
+                    label("minutes")
                 }
 
                 row {
+                    val enableCodeRefs = checkBox("Enable Code References?").bindSelected(settings::codeReferences)
                     intTextField()
-                        .label("Code References Refresh Rate:")
-                        .enabledIf(enableCodeRefs.selected)
+                        .label("Refresh Rate:")
+                        .visibleIf(enableCodeRefs.selected)
                         .bindIntText(settings::codeReferencesRefreshRate)
+                        .gap(RightGap.SMALL)
+                    label("minutes")
+                        .visibleIf(enableCodeRefs.selected)
                 }
             }
         }
