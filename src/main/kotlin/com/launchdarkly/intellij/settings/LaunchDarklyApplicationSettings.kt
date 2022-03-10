@@ -182,16 +182,6 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                                     }
                                 }
                                 .applyIfEnabled()
-                                .validationOnInput {
-                                    println("validation on input")
-                                    val match = projectContainer.find { it.key == projectComboBox.selectedItem }
-                                    println(match)
-                                    if (match == null) {
-                                        error("Not a valid project")
-                                    } else {
-                                        null
-                                    }
-                                }
                                 .component
                         }
                         row("Environment:") {
