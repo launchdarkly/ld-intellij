@@ -176,7 +176,6 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                             projectComboBox = comboBox(projectBox, renderer)
                                 .bindItem(settings::project)
                                 .applyToComponent {
-                                    isEditable = true
                                     this.addItemListener { _ ->
                                         updateProjectEnvironments()
                                     }
@@ -187,9 +186,6 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                         row("Environment:") {
                             comboBox(environmentBox, renderer)
                                 .bindItem(settings::environment)
-                                .applyToComponent {
-                                    isEditable = true
-                                }
                                 .applyIfEnabled()
                         }
                     }.enabledIf(enableProjectsPredicate(accessTokenField))
