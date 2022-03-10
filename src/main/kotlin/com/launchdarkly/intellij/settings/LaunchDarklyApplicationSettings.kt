@@ -22,9 +22,9 @@ import com.intellij.ui.dsl.builder.selected
 import com.intellij.ui.layout.*
 import com.launchdarkly.api.ApiException
 import com.launchdarkly.api.model.Project as ApiProject
+import com.intellij.ui.dsl.builder.Cell
 import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.messaging.AppDefaultMessageBusService
-import java.awt.event.ActionEvent
 import javax.swing.*
 
 /*
