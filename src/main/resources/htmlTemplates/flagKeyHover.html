@@ -3,7 +3,7 @@
     <style>
         .heading {
             margin-top: 10px;
-            font-weight: bolder;
+            font-weight: bold;
         }
 
         .rootContainer {
@@ -25,8 +25,16 @@
             margin-top: 10px;
         }
 
-        .variations {
+        .variationSection {
             border-top: 3px solid #bbb;
+        }
+
+        .variationList {
+            list-style-type: none;
+        }
+
+        .variation {
+            font-size: 10px;
         }
     </style>
 </head>
@@ -44,8 +52,13 @@
             <a href="https://app.launchdarkly.com">Open in LaunchDarkly</a>
         </div>
     </section>
-    <section class="marginTop variations">
+    <section class="marginTop variationSection">
         <div class="heading">Variations</div>
+        <ul class="variationList">
+            {% for v in variations %}
+            <li class="variation">{{ v.name }}</li>
+            {% endfor %}
+        </ul>
     </section>
 </div>
 </body>

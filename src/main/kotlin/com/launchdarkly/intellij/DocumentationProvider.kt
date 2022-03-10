@@ -10,6 +10,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import com.launchdarkly.api.model.FeatureFlag
+import com.launchdarkly.api.model.Variation
 import com.launchdarkly.intellij.coderefs.FlagAliases
 import com.launchdarkly.intellij.featurestore.FlagConfiguration
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
@@ -77,7 +78,6 @@ class DocumentationProvider : AbstractDocumentationProvider() {
         if (flag != null) {
             val env: FlagConfiguration = getFlags.flagConfigs[flag.key]
                 ?: FlagConfiguration(flag.key, null, null, listOf(), listOf(), arrayOf(), false, -1)
-            val result = StringBuilder()
             val prereqs = if (env.prerequisites.isNotEmpty()) {
                 "<b>Prerequisites</b> ${env.prerequisites.size} • "
             } else ""
@@ -152,10 +152,18 @@ class DocumentationProvider : AbstractDocumentationProvider() {
 //            result.append("</html>")
 
 
-            val messages = arrayOf("lettuce", "carrots")
+            // Massage data so we don't perform logic in the html template.
+            val displayVariations = ArrayList<Variation>()
+            flag.variations.forEach { v ->
+                val dv = Variation()
+                dv.name = (v.name ?: v.value.toString()).uppercase()
+                displayVariations.add(dv)
+            }
+
+            // Pass data to html template to be rendered
             val template = PebbleEngine.Builder().build().getTemplate("htmlTemplates/flagKeyHover.html")
             val writer = StringWriter()
-            template.evaluate(writer, mapOf("messages" to messages))
+            template.evaluate(writer, mapOf("variations" to displayVariations))
             return writer.toString()
         }
 
