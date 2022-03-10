@@ -14,7 +14,6 @@ import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.ValidationInfo
-import com.intellij.openapi.util.Disposer
 import com.intellij.ui.SimpleListCellRenderer
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.*
@@ -22,12 +21,11 @@ import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.dsl.builder.selected
 import com.intellij.ui.layout.*
 import com.launchdarkly.api.ApiException
+import com.launchdarkly.api.model.Project as ApiProject
 import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.messaging.AppDefaultMessageBusService
 import java.awt.event.ActionEvent
 import javax.swing.*
-
-const val CHECK_API = "Check API Key"
 
 /*
  * Maintain state of what LaunchDarkly Project to connect to.
@@ -100,9 +98,9 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     private var modified = false
     private var panel = DialogPanel()
     private var apiUpdate = false
-    private var lastSelectedProject = ""
-    private lateinit var projectContainer: MutableList<com.launchdarkly.api.model.Project>
-    private lateinit var environmentContainer: com.launchdarkly.api.model.Project
+    private var lastSelectedProject: String? = ""
+    private lateinit var projectContainer: MutableList<ApiProject>
+    private var environmentContainer: ApiProject? = null
     private lateinit var projectBox: DefaultComboBoxModel<String>
     private lateinit var environmentBox: DefaultComboBoxModel<String>
     private lateinit var projectComboBox: ComboBox<String>
@@ -112,7 +110,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             projectContainer = getProjects(null, null)
             if (projectContainer.size > 0) {
                 environmentContainer = projectContainer.find { it.key == settings.project }
-                    ?: projectContainer.firstOrNull() as com.launchdarkly.api.model.Project
+                    ?: projectContainer.firstOrNull()
             }
         } catch (err: Exception) {
             println("Error initializing")
@@ -161,8 +159,8 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     DefaultComboBoxModel()
                 }
 
-                environmentBox = if (::environmentContainer.isInitialized) {
-                    DefaultComboBoxModel(environmentContainer.environments.map { it.key }.toTypedArray())
+                environmentBox = if (environmentContainer != null) {
+                    DefaultComboBoxModel(environmentContainer!!.environments.map { it.key }.toTypedArray())
                 } else {
                     DefaultComboBoxModel()
                 }
@@ -180,6 +178,16 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                                     }
                                 }
                                 .applyIfEnabled()
+                                .validationOnInput {
+                                    println("validation on input")
+                                    val match = projectContainer.find { it.key == projectComboBox.selectedItem }
+                                    println(match)
+                                    if (match == null) {
+                                        error("Not a valid project")
+                                    } else {
+                                        null
+                                    }
+                                }
                                 .component
                         }
                         row("Environment:") {
@@ -266,15 +274,13 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         with(environmentBox) {
             removeAllElements()
         }
-        if (projectBox.selectedItem == null) {
-            return
-        }
 
-        lastSelectedProject = projectBox.selectedItem.toString()
+        lastSelectedProject = projectBox.selectedItem?.toString() ?: return
 
         try {
-            environmentContainer = projectContainer.find { it.key == projectBox.selectedItem?.toString() }!!
-            val envMap = environmentContainer.environments.map { it.key }.sorted()
+            environmentContainer = projectContainer.find { it.key == projectBox.selectedItem?.toString() }
+
+            val envMap = if (environmentContainer != null) environmentContainer!!.environments.map { it.key }.sorted() else return
             with(environmentBox) {
                 envMap.map { addElement(it) }
                 selectedItem =
@@ -290,13 +296,9 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
         settings.baseUri = settings.baseUri.replace(Regex("/+$"), "")
 
-        if (settings.project != projectBox.selectedItem?.toString()) {
-            settings.project = projectBox.selectedItem.toString()
-        }
+        settings.project = projectBox.selectedItem?.toString() ?: settings.project
 
-        if (settings.environment != environmentBox.selectedItem?.toString()) {
-            settings.environment = environmentBox.selectedItem.toString()
-        }
+        settings.environment = environmentBox.selectedItem?.toString() ?: settings.environment
 
         if (settings.authorization != origApiKey || settings.baseUri != origBaseUri) {
             apiUpdate = true
@@ -317,9 +319,9 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
        }
     }
 
-    private fun getProjects(apiKey: String?, baseUri: String?): MutableList<com.launchdarkly.api.model.Project> {
+    private fun getProjects(apiKey: String?, baseUri: String?): MutableList<ApiProject> {
         val projectApi = LaunchDarklyApiClient.projectInstance(apiKey, baseUri)
-        return projectApi.projects.items.sortedBy { it.key } as MutableList<com.launchdarkly.api.model.Project>
+        return projectApi.projects.items.sortedBy { it.key } as MutableList<ApiProject>
     }
 
     private fun validKey(apiKey: String): Boolean {
@@ -351,8 +353,23 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     }
 
     private fun enableProjectsPredicate(component: JPasswordField): ComponentPredicate {
+        println("size ${projectComboBox.size}")
         return component.enteredTextSatisfies { String(component.password).trim() != "" } and
                 component.enteredTextSatisfies { origApiKey == String(component.password) } and
-                projectComboBox.selectedValueMatches { projectComboBox.selectedItem != null }
+                projectComboBox.hasOptions { it.itemCount > 0 }
+    }
+}
+
+fun <T> JComboBox<T>.hasOptions(predicate: (JComboBox<T>) -> Boolean): ComponentPredicate {
+    return ComboBoxPredicate(this, predicate)
+}
+
+class ComboBoxPredicate<T>(private val comboBox: JComboBox<T>, private val predicate: (JComboBox<T>) -> Boolean) : ComponentPredicate() {
+    override fun invoke(): Boolean = predicate(comboBox)
+
+    override fun addListener(listener: (Boolean) -> Unit) {
+        comboBox.addActionListener {
+            listener(invoke())
+        }
     }
 }
