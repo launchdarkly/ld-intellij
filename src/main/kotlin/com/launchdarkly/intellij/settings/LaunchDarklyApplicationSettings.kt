@@ -301,11 +301,11 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
         val publisher = appMsgService.syncPublisher(topic)
         publisher.notify(true)
-       try {
-           reset()
-       } catch (err: Exception) {
-           println(err)
-       }
+        try {
+            reset()
+        } catch (err: Exception) {
+            println(err)
+        }
     }
 
     private fun getProjects(apiKey: String?, baseUri: String?): MutableList<ApiProject> {
@@ -338,13 +338,13 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
     private fun refreshProjectsPredicate(component: JPasswordField): ComponentPredicate {
         return component.enteredTextSatisfies { String(component.password).trim() != "" } and
-                component.enteredTextSatisfies { origApiKey != String(component.password) }
+            component.enteredTextSatisfies { origApiKey != String(component.password) }
     }
 
     private fun enableProjectsPredicate(component: JPasswordField): ComponentPredicate {
         return component.enteredTextSatisfies { String(component.password).trim() != "" } and
-                component.enteredTextSatisfies { origApiKey == String(component.password) } and
-                projectComboBox.hasOptions { it.itemCount > 0 }
+            component.enteredTextSatisfies { origApiKey == String(component.password) } and
+            projectComboBox.hasOptions { it.itemCount > 0 }
     }
 }
 
