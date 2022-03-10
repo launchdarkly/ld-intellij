@@ -3,9 +3,8 @@ package com.launchdarkly.intellij.action
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.components.service
 import com.intellij.openapi.util.io.FileUtilRt
-import com.launchdarkly.intellij.toolwindow.FlagToolWindow
+import com.launchdarkly.intellij.action.Utils.updateNode
 import java.nio.charset.Charset
 import javax.swing.Icon
 
@@ -73,15 +72,6 @@ class RunCoderefsAction : AnAction {
      */
     override fun update(e: AnActionEvent) {
         super.update(e)
-        val project = e.project
-        if (project != null) {
-            if (project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.lastSelectedPathComponent != null) {
-                val selectedNode =
-                    project.service<FlagToolWindow>().getPanel()
-                        .getFlagPanel().tree.lastSelectedPathComponent.toString()
-                e.presentation.isEnabledAndVisible =
-                    e.presentation.isEnabled && (selectedNode.startsWith("Fallthrough"))
-            }
-        }
+        updateNode(e, "Fallthrough")
     }
 }

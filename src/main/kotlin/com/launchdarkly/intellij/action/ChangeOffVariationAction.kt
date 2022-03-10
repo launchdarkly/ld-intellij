@@ -10,6 +10,7 @@ import com.launchdarkly.api.model.PatchComment
 import com.launchdarkly.api.model.PatchOperation
 import com.launchdarkly.api.model.Variation
 import com.launchdarkly.intellij.LaunchDarklyApiClient
+import com.launchdarkly.intellij.action.Utils.updateNode
 import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
@@ -112,12 +113,6 @@ class ChangeOffVariationAction : AnAction {
      */
     override fun update(e: AnActionEvent) {
         super.update(e)
-        val project = e.project ?: return
-        if (project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.lastSelectedPathComponent != null) {
-            val selectedNode =
-                project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.lastSelectedPathComponent.toString()
-            e.presentation.isEnabledAndVisible =
-                e.presentation.isEnabled && (selectedNode.startsWith("Off Variation:"))
-        }
+        updateNode(e, "Off Variation:")
     }
 }

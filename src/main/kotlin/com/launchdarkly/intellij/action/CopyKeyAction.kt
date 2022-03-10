@@ -2,9 +2,8 @@ package com.launchdarkly.intellij.action
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.components.service
+import com.launchdarkly.intellij.action.Utils.getSelectedNode
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
-import com.launchdarkly.intellij.toolwindow.FlagToolWindow
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.StringSelection
@@ -44,23 +43,17 @@ class CopyKeyAction : AnAction {
      * @param event Event received when the associated menu item is chosen.
      */
     override fun actionPerformed(event: AnActionEvent) {
-        val project = event.project
+        val selectedNode = getSelectedNode(event) as? DefaultMutableTreeNode ?: return
         var selection = StringSelection("")
-        if (project != null) {
-            val selectedNode =
-                project.service<FlagToolWindow>().getPanel()
-                    .getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
-            if (selectedNode != null) {
-                // Right clicking on Key node. Will break if order changes.
-                if (selectedNode.childCount == 0 && selectedNode.toString().startsWith("Key:")) {
-                    selection = StringSelection(selectedNode.toString().substringAfter(" "))
-                } else if (selectedNode.depth == FLAG_NAME_DEPTH) { //
-                    selection = StringSelection(selectedNode.firstChild.toString().substringAfter(" "))
-                }
-                val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
-                clipboard.setContents(selection, selection)
-            }
+
+        // Right clicking on Key node. Will break if order changes.
+        if (selectedNode.childCount == 0 && selectedNode.toString().startsWith("Key:")) {
+            selection = StringSelection(selectedNode.toString().substringAfter(" "))
+        } else if (selectedNode.depth == FLAG_NAME_DEPTH) { //
+            selection = StringSelection(selectedNode.firstChild.toString().substringAfter(" "))
         }
+        val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
+        clipboard.setContents(selection, selection)
     }
 
     /**
@@ -70,19 +63,9 @@ class CopyKeyAction : AnAction {
      */
     override fun update(e: AnActionEvent) {
         super.update(e)
-        val project = e.project
-        if (project != null) {
-            if (project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.lastSelectedPathComponent != null) {
-                val selectedNode =
-                    project.service<FlagToolWindow>()
-                        .getPanel().getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
-                val isFlagParentNode = selectedNode.userObject as? FlagNodeParent
-
-                e.presentation.isEnabledAndVisible =
-                    e.presentation.isEnabled && (selectedNode.toString().startsWith("Key:") || isFlagParentNode != null)
-            }
-        } else {
-            e.presentation.isEnabledAndVisible = false
-        }
+        val selectedNode = getSelectedNode(e) as? DefaultMutableTreeNode ?: return
+        val isFlagNode = selectedNode.userObject as? FlagNodeParent
+        e.presentation.isEnabledAndVisible =
+            e.presentation.isEnabled && (selectedNode.toString().startsWith("Key:") || isFlagNode != null)
     }
 }

@@ -3,17 +3,17 @@ package com.launchdarkly.intellij.action
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.service
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.launchdarkly.api.ApiException
 import com.launchdarkly.api.model.PatchComment
 import com.launchdarkly.api.model.PatchOperation
 import com.launchdarkly.api.model.Variation
 import com.launchdarkly.intellij.LaunchDarklyApiClient
+import com.launchdarkly.intellij.action.Utils.getSelectedNode
+import com.launchdarkly.intellij.action.Utils.updateNode
 import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
-import com.launchdarkly.intellij.toolwindow.FlagToolWindow
 import java.awt.Component
 import javax.swing.DefaultListCellRenderer
 import javax.swing.Icon
@@ -50,9 +50,7 @@ class ChangeFallthroughAction : AnAction {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val currentComponent = event?.inputEvent?.component ?: return
-        val selectedNode =
-            project.service<FlagToolWindow>().getPanel()
-                .getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
+        val selectedNode = getSelectedNode(event) as DefaultMutableTreeNode
         val parentNodeMut = selectedNode.parent as DefaultMutableTreeNode
         val parentNode = parentNodeMut.userObject as FlagNodeParent
         JBPopupFactory.getInstance().createPopupChooserBuilder(parentNode.flag.variations)
@@ -111,12 +109,6 @@ class ChangeFallthroughAction : AnAction {
      */
     override fun update(e: AnActionEvent) {
         super.update(e)
-        val project = e.project ?: return
-        if (project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.lastSelectedPathComponent != null) {
-            val selectedNode =
-                project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.lastSelectedPathComponent.toString()
-            e.presentation.isEnabledAndVisible =
-                e.presentation.isEnabled && (selectedNode.startsWith("Fallthrough"))
-        }
+        updateNode(e, "Fallthrough")
     }
 }

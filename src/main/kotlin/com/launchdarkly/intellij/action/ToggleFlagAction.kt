@@ -3,15 +3,14 @@ package com.launchdarkly.intellij.action
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.service
 import com.launchdarkly.api.ApiException
 import com.launchdarkly.api.model.PatchComment
 import com.launchdarkly.api.model.PatchOperation
 import com.launchdarkly.intellij.LaunchDarklyApiClient
+import com.launchdarkly.intellij.action.Utils.getSelectedNode
 import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
-import com.launchdarkly.intellij.toolwindow.FlagToolWindow
 import javax.swing.Icon
 import javax.swing.tree.DefaultMutableTreeNode
 
@@ -52,10 +51,9 @@ class ToggleFlagAction : AnAction {
      */
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
-        val selectedNode =
-            project.service<FlagToolWindow>().getPanel()
-                .getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
+        val selectedNode = getSelectedNode(event) as DefaultMutableTreeNode
         val nodeInfo: FlagNodeParent = selectedNode.userObject as FlagNodeParent
+
         // Relies on implicit behavior of key being first child.
         val flagKey = selectedNode.firstChild.toString().substringAfter(" ")
         val settings = LaunchDarklyApplicationConfig.getInstance().ldState
@@ -87,15 +85,8 @@ class ToggleFlagAction : AnAction {
      */
     override fun update(e: AnActionEvent) {
         super.update(e)
-        val project = e.project ?: return
-        if (project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.selectionPath != null) {
-            val selectedNode =
-                project.service<FlagToolWindow>().getPanel()
-                    .getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
-            val isFlagNode = selectedNode.userObject as? FlagNodeParent
-            e.presentation.isEnabledAndVisible = e.presentation.isEnabled && isFlagNode != null
-        } else {
-            e.presentation.isEnabledAndVisible = false
-        }
+        val selectedNode = getSelectedNode(e) as? DefaultMutableTreeNode ?: return
+        val isFlagNode = selectedNode.userObject as? FlagNodeParent
+        e.presentation.isEnabledAndVisible = e.presentation.isEnabled && isFlagNode != null
     }
 }

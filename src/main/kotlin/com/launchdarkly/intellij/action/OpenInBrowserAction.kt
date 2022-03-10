@@ -3,11 +3,11 @@ package com.launchdarkly.intellij.action
 import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.components.service
+import com.launchdarkly.intellij.action.Utils.getSelectedNode
+import com.launchdarkly.intellij.action.Utils.updateNode
 import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
-import com.launchdarkly.intellij.toolwindow.FlagToolWindow
 import javax.swing.Icon
 import javax.swing.tree.DefaultMutableTreeNode
 
@@ -47,12 +47,10 @@ class OpenInBrowserAction : AnAction {
      * @param event Event received when the associated menu item is chosen.
      */
     override fun actionPerformed(event: AnActionEvent) {
+        val selectedNode = getSelectedNode(event) as? DefaultMutableTreeNode
         val project = event.project
         val settings = LaunchDarklyApplicationConfig.getInstance().ldState
-        if (project?.service<FlagToolWindow>()?.getPanel()?.getFlagPanel()?.tree?.lastSelectedPathComponent !== null) {
-            val selectedNode =
-                project?.service<FlagToolWindow>().getPanel()
-                    .getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
+        if (selectedNode !== null) {
             // If cast fails, it means the root node with project/env info was selected, so we'll open that.
             val nodeInfo: FlagNodeParent? = selectedNode.userObject as? FlagNodeParent
             if (nodeInfo != null) {
@@ -76,10 +74,6 @@ class OpenInBrowserAction : AnAction {
      */
     override fun update(e: AnActionEvent) {
         super.update(e)
-        val project = e.project ?: return
-        if (project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.lastSelectedPathComponent != null) {
-            e.presentation.isEnabledAndVisible = e.presentation.isEnabled && project.service<FlagToolWindow>()
-                .getPanel().getFlagPanel().tree.selectionPath.path.size == FLAG_NAME_PATH
-        }
+        updateNode(e, "Open in browser")
     }
 }
