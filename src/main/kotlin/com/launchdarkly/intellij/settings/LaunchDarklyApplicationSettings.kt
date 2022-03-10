@@ -3,6 +3,7 @@ package com.launchdarkly.intellij.settings
 import com.intellij.credentialStore.CredentialAttributes
 import com.intellij.credentialStore.Credentials
 import com.intellij.credentialStore.generateServiceName
+import com.intellij.icons.AllIcons
 import com.intellij.ide.passwordSafe.PasswordSafe
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent
@@ -18,6 +19,8 @@ import com.intellij.ui.SimpleListCellRenderer
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.*
 import com.intellij.ui.layout.ComponentPredicate
+import com.intellij.ui.layout.and
+import com.intellij.ui.layout.enteredTextSatisfies
 import com.launchdarkly.api.ApiException
 import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.messaging.AppDefaultMessageBusService
@@ -117,11 +120,12 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         }
     }
 
-    private fun onClickGetProjects(event: ActionEvent) {
+    private fun onClickGetProjects(panel: DialogPanel, event: ActionEvent) {
         val btn = event.source as JButton
         btn.isEnabled = false
         btn.text = "Fetching Projects..."
-        updateProjects()
+        modified = true
+        panel.apply()
         btn.isEnabled = true
         btn.text = "Get Projects"
     }
@@ -139,18 +143,14 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             row {
                 cell(apiField)
                     .label("API Key:")
-                    .applyToComponent {
-                        this.addActionListener{ e ->
-                            println(e)
-                        }
-                    }
                     .bindText(settings::authorization)
                     .columns(COLUMNS_MEDIUM).component
                 button("Get Projects") {
-                    onClickGetProjects(it)
-                }.enabledIf(
-                    ApiFieldPredicate(apiField, ::validKey)
-                )
+                    onClickGetProjects(panel, it)
+                }
+                icon(AllIcons.General.BalloonWarning)
+                    .label("Refresh")
+                    .visibleIf(apiField.enteredTextSatisfies { settings.authorization != String(apiField.password) })
             }.rowComment("Input the API key from your LaunchDarkly account. If you don’t have one, you must <a href=\"https://docs.launchdarkly.com/home/account-security/api-access-tokens#creating-api-access-tokens\">create an access token</a> first.")
 
             try {
@@ -187,7 +187,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                                 }
                         }
                     }.enabledIf(
-                        ApiFieldPredicate(apiField, ::validKey)
+                        apiField.enteredTextSatisfies { settings.authorization == String(apiField.password) } and ApiFieldPredicate(apiField, ::validKey)
                     )
                 }
             } catch (err: Exception) {
@@ -236,7 +236,8 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     }
 
     private fun updateOptions() {
-        if ((settings.authorization != origApiKey || settings.baseUri != origBaseUri) || apiUpdate) {
+        println("updating options")
+        if (apiUpdate) {
             updateProjects()
         }
 
@@ -246,6 +247,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     }
 
     private fun updateProjects() {
+        if (!::projectBox.isInitialized) return
         try {
             projectContainer = getProjects(settings.authorization, settings.baseUri)
             with(projectBox) {
@@ -265,7 +267,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     }
 
     private fun updateProjectEnvironments() {
-        settings.environment = ""
+        if (!::projectContainer.isInitialized) return
         with(environmentBox) {
             removeAllElements()
         }
@@ -280,7 +282,8 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             val envMap = environmentContainer.environments.map { it.key }.sorted()
             with(environmentBox) {
                 envMap.map { addElement(it) }
-                selectedItem = envMap.firstOrNull()
+                selectedItem =
+                    if (settings.environment != "" && envMap.contains(settings.environment)) settings.environment else envMap.firstOrNull()
             }
         } catch (err: Error) {
             println(err)
@@ -289,6 +292,8 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
     override fun apply() {
         super.apply()
+
+        println("apply")
 
         settings.baseUri = settings.baseUri.replace(Regex("/+$"), "")
 
@@ -305,7 +310,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             origApiKey = settings.authorization
             origBaseUri = settings.baseUri
         }
-        if ((projectBox.selectedItem != CHECK_API) && modified) {
+        if (modified) {
             updateOptions()
             val appMsgService = ApplicationManager.getApplication().messageBus
             val topic = service<AppDefaultMessageBusService>().configurationEnabledTopic
@@ -322,14 +327,11 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     }
 
     private fun validKey(apiKey: String): Boolean {
-        println("test connection")
         return try {
             LaunchDarklyApiClient.testAccessToken(apiKey, settings.baseUri)
-            println("valid token")
             true
         } catch (e: ApiException) {
             println(e)
-            println("invalid token")
             false
         }
     }
@@ -341,7 +343,6 @@ class ApiFieldPredicate(private val component: JTextField, private val predicate
     override fun addListener(listener: (Boolean) -> Unit) {
         component.document.addDocumentListener(object : DocumentAdapter() {
             override fun textChanged(e: DocumentEvent) {
-                println("text changed")
                 listener(predicate(component.text))
             }
         })
