@@ -17,8 +17,8 @@
             justify-content: space-between;
         }
 
-        .flagState {
-            color: red;
+        .flagOnOff {
+            color: {{ flag.on ? "green" : "red" }}
         }
 
         .marginTop {
@@ -44,7 +44,7 @@
     <section>
         <div class="flagNameState">
             <span class="heading">{{ flag.name }}</span>
-            <span class="flagState">Off</span>
+            <span class="flagOnOff">{{ flag.on ? "On" : "Off" }}</span>
         </div>
         <div class="marginTop">
             {{ flag.description }}

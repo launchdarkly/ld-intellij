@@ -168,6 +168,7 @@ class HoverDocumentationProvider : AbstractDocumentationProvider() {
             val flagViewModel = buildMap {
                 put("name", flag.name)
                 put("description", flag.description)
+                put("on", env.on)
                 put("url", Utils.getFlagUrl(flag.key))
                 put("variations", variationsViewModel)
             }
