@@ -92,10 +92,10 @@ open class LaunchDarklyApplicationConfig : PersistentStateComponent<LaunchDarkly
 
 class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "LaunchDarkly Application Plugin") {
     private val accessTokenField = JPasswordField()
+    private val baseUriField = JTextField()
     private val settings = LaunchDarklyApplicationConfig.getInstance().ldState
     private var origApiKey = settings.authorization
     private var origBaseUri = settings.baseUri
-    private var modified = false
     private var panel = DialogPanel()
     private var apiUpdate = false
     private var lastSelectedProject: String? = ""
@@ -139,7 +139,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     .validationOnInput(apiKeyValidation())
                 icon(AllIcons.General.BalloonWarning)
                     .label("Apply changes")
-                    .visibleIf(refreshProjectsPredicate(accessTokenField))
+                    .visibleIf(refreshProjectsPredicate())
             }
 
             row {
@@ -178,7 +178,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                                 .bindItem(settings::environment)
                                 .applyIfEnabled()
                         }
-                    }.enabledIf(enableProjectsPredicate(accessTokenField))
+                    }.enabledIf(enableProjectsPredicate())
                 }
             } catch (err: Exception) {
                 println(err)
@@ -186,9 +186,11 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
             collapsibleGroup("Advanced") {
                 row {
-                    textField()
+                    cell(baseUriField)
                         .label("Base URL:")
                         .bindText(settings::baseUri)
+                        .columns(COLUMNS_MEDIUM)
+                        .component
                 }
                 row {
                     intTextField()
@@ -303,9 +305,9 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         return projectApi.projects.items.sortedBy { it.key } as MutableList<ApiProject>
     }
 
-    private fun validKey(apiKey: String): Boolean {
+    private fun validKey(apiKey: String, baseUri: String): Boolean {
         return try {
-            LaunchDarklyApiClient.testAccessToken(apiKey, settings.baseUri)
+            LaunchDarklyApiClient.testAccessToken(apiKey, baseUri)
             true
         } catch (e: ApiException) {
             println(e)
@@ -318,23 +320,24 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             error("Access token is required")
         } else if (!String(it.password).startsWith("api-")) {
             error("Access token should start with \"api-\"")
-        } else if (!validKey(String(it.password))) {
-            // TODO - see if we can move this to an apply level validation
+        } else if (!validKey(String(it.password), settings.baseUri)) {
             error("This access token is not authorized to get projects")
         } else {
             null
         }
     }
 
-    private fun refreshProjectsPredicate(component: JPasswordField): ComponentPredicate {
-        return component.enteredTextSatisfies { String(component.password).trim() != "" } and
-            component.enteredTextSatisfies { origApiKey != String(component.password) }
+    private fun refreshProjectsPredicate(): ComponentPredicate {
+        return (accessTokenField.enteredTextSatisfies { String(accessTokenField.password).trim() != "" } and
+                accessTokenField.enteredTextSatisfies { origApiKey != String(accessTokenField.password) }) or
+                baseUriField.enteredTextSatisfies { origBaseUri != it }
     }
 
-    private fun enableProjectsPredicate(component: JPasswordField): ComponentPredicate {
-        return component.enteredTextSatisfies { String(component.password).trim() != "" } and
-            component.enteredTextSatisfies { origApiKey == String(component.password) } and
-            projectComboBox.hasOptions { it.itemCount > 0 }
+    private fun enableProjectsPredicate(): ComponentPredicate {
+        return accessTokenField.enteredTextSatisfies { String(accessTokenField.password).trim() != "" } and
+                accessTokenField.enteredTextSatisfies { origApiKey == String(accessTokenField.password) } and
+                baseUriField.enteredTextSatisfies { origBaseUri == it } and
+                projectComboBox.hasOptions { it.itemCount > 0 }
     }
 }
 

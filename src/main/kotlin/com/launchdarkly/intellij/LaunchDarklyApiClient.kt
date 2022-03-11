@@ -12,6 +12,8 @@ import com.launchdarkly.api.auth.ApiKeyAuth
 import com.launchdarkly.api.model.Tokens
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 
+private const val APP_URI = "https://app.launchdarkly.com"
+
 class LaunchDarklyApiClient() {
 
     companion object {
@@ -35,7 +37,7 @@ class LaunchDarklyApiClient() {
         @JvmStatic
         fun projectInstance(apiKey: String? = null, baseUri: String? = null): ProjectsApi {
             val settings = LaunchDarklyApplicationConfig.getInstance().ldState
-            val ldBaseUri = baseUri ?: settings.baseUri
+            val ldBaseUri = if (!baseUri.isNullOrEmpty()) baseUri else getUri(settings.baseUri)
             val ldApiKey = apiKey ?: settings.authorization
             val client: ApiClient = Configuration.getDefaultApiClient()
             val pluginVersion =
@@ -49,14 +51,19 @@ class LaunchDarklyApiClient() {
         }
 
         fun testAccessToken(apiKey: String, baseUri: String): Tokens {
+            val uri = getUri(baseUri)
             val client: ApiClient = Configuration.getDefaultApiClient()
             val pluginVersion =
                 PluginManagerCore.getPlugin(PluginId.getId("com.github.intheclouddan.intellijpluginld"))?.version ?: "noversion"
             client.setUserAgent("launchdarkly-intellij/$pluginVersion")
-            client.basePath = "$baseUri/api/v2"
+            client.basePath = "$uri/api/v2"
             val token = client.getAuthentication("Token") as ApiKeyAuth
             token.apiKey = apiKey
             return AccessTokensApi().getTokens(false)
         }
     }
+}
+
+fun getUri(baseUri: String?): String {
+    return if (baseUri.isNullOrEmpty()) APP_URI else baseUri
 }
