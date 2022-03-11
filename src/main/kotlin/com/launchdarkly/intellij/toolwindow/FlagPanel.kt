@@ -70,7 +70,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
     }
 
     fun start(): Tree {
-        var reviewTreeBuilder = AsyncTreeModel(treeModel, this)
+        val reviewTreeBuilder = AsyncTreeModel(treeModel, this)
         tree = initTree(reviewTreeBuilder)
 
         val componentsSplitter = OnePixelSplitter(SPLITTER_PROPERTY, 0.33f)
@@ -95,7 +95,6 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         val openBrowserAction = actionManager.getAction(OpenInBrowserAction.ID)
         val changeFallthroughAction = actionManager.getAction(ChangeFallthroughAction.ID)
         val changeOffVariationAction = actionManager.getAction(ChangeOffVariationAction.ID)
-
         actionToolbar.setTargetComponent(this)
         actionGroup.addAction(refreshAction)
 
@@ -205,6 +204,11 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         if (!this::tree.isInitialized) {
             start = true
         }
+
+        /*
+         * This section handles updates from Configuration changes or SDK flag changes
+         * `reinit` is called when the project/settings change and the whole tree needs to be re-rendered
+         */
         try {
             myProject.messageBus.connect().subscribe(
                 messageBusService.flagsUpdatedTopic,
@@ -253,8 +257,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                 }
             )
         } catch (err: Error) {
-            println(err)
-            println("something went wrong")
+            Utilities.handlePanelError(err, myProject)
         }
     }
 }

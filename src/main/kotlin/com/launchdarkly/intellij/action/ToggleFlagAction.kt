@@ -53,7 +53,8 @@ class ToggleFlagAction : AnAction {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val selectedNode =
-            project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
+            project.service<FlagToolWindow>().getPanel()
+                .getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
         val nodeInfo: FlagNodeParent = selectedNode.userObject as FlagNodeParent
         // Relies on implicit behavior of key being first child.
         val flagKey = selectedNode.firstChild.toString().substringAfter(" ")
@@ -87,11 +88,11 @@ class ToggleFlagAction : AnAction {
     override fun update(e: AnActionEvent) {
         super.update(e)
         val project = e.project ?: return
-        if (project.service<FlagToolWindow>().getPanel().tree.selectionPath != null) {
+        if (project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.selectionPath != null) {
             val selectedNode =
-                project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
+                project.service<FlagToolWindow>().getPanel()
+                    .getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
             val isFlagNode = selectedNode.userObject as? FlagNodeParent
-
             e.presentation.isEnabledAndVisible = e.presentation.isEnabled && isFlagNode != null
         } else {
             e.presentation.isEnabledAndVisible = false
