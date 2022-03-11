@@ -2,14 +2,18 @@
 
 ## [Unreleased]
 ### Added
+- Quick links panel
 
 ### Changed
+- Merged non-project settings into one Advanced section
 
 ### Deprecated
 
 ### Removed
+- Project override settings
 
 ### Fixed
+- Code completion for flag keys
 
 ### Security
 
