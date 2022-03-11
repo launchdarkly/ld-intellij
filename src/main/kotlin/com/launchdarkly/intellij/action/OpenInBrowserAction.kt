@@ -49,9 +49,10 @@ class OpenInBrowserAction : AnAction {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project
         val settings = LaunchDarklyApplicationConfig.getInstance().ldState
-        if (project?.service<FlagToolWindow>()?.getPanel()?.tree?.lastSelectedPathComponent !== null) {
+        if (project?.service<FlagToolWindow>()?.getPanel()?.getFlagPanel()?.tree?.lastSelectedPathComponent !== null) {
             val selectedNode =
-                project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
+                project?.service<FlagToolWindow>().getPanel()
+                    .getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
             // If cast fails, it means the root node with project/env info was selected, so we'll open that.
             val nodeInfo: FlagNodeParent? = selectedNode.userObject as? FlagNodeParent
             if (nodeInfo != null) {
@@ -76,9 +77,9 @@ class OpenInBrowserAction : AnAction {
     override fun update(e: AnActionEvent) {
         super.update(e)
         val project = e.project ?: return
-        if (project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent != null) {
+        if (project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.lastSelectedPathComponent != null) {
             e.presentation.isEnabledAndVisible = e.presentation.isEnabled && project.service<FlagToolWindow>()
-                .getPanel().tree.selectionPath.path.size == FLAG_NAME_PATH
+                .getPanel().getFlagPanel().tree.selectionPath.path.size == FLAG_NAME_PATH
         }
     }
 }

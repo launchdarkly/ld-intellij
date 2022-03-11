@@ -48,7 +48,8 @@ class CopyKeyAction : AnAction {
         var selection = StringSelection("")
         if (project != null) {
             val selectedNode =
-                project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
+                project.service<FlagToolWindow>().getPanel()
+                    .getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
             if (selectedNode != null) {
                 // Right clicking on Key node. Will break if order changes.
                 if (selectedNode.childCount == 0 && selectedNode.toString().startsWith("Key:")) {
@@ -71,10 +72,10 @@ class CopyKeyAction : AnAction {
         super.update(e)
         val project = e.project
         if (project != null) {
-            if (project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent != null) {
+            if (project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.lastSelectedPathComponent != null) {
                 val selectedNode =
                     project.service<FlagToolWindow>()
-                        .getPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
+                        .getPanel().getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
                 val isFlagParentNode = selectedNode.userObject as? FlagNodeParent
 
                 e.presentation.isEnabledAndVisible =

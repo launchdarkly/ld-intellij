@@ -12,6 +12,7 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.SimpleListCellRenderer
+import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.*
 import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.messaging.AppDefaultMessageBusService
@@ -140,7 +141,6 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     )
                 }
             }
-            row("Refresh Rate(in Minutes):") { intTextField().bindIntText(settings::refreshRate) }
 
             try {
                 projectBox = if (::projectContainer.isInitialized) {
@@ -161,21 +161,36 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     comboBox(environmentBox, renderer).bindItem(settings::environment)
                 }
                 environmentBox.selectedItem = settings.environment
-                collapsibleGroup("Base URL:") {
-                    row {
-                        textField().bindText(settings::baseUri)
-                    }
-                }
-                collapsibleGroup("Code References") {
-                    row {
-                        checkBox("Enable Code References").bindSelected(settings::codeReferences)
-                    }
-                    row("Code References Refresh Rate") {
-                        intTextField().bindIntText(settings::codeReferencesRefreshRate)
-                    }
-                }
             } catch (err: Exception) {
                 println(err)
+            }
+
+            collapsibleGroup("Advanced") {
+                row {
+                    textField()
+                        .label("Base URL:")
+                        .bindText(settings::baseUri)
+                }
+                row {
+                    intTextField()
+                        .label("Refresh flags every")
+                        .bindIntText(settings::refreshRate)
+                        .gap(RightGap.SMALL)
+                    label("minutes")
+                }
+                lateinit var enableCodeRefs: Cell<JBCheckBox>
+                row {
+                    enableCodeRefs = checkBox("Use Code References").bindSelected(settings::codeReferences)
+                }
+                indent {
+                    row {
+                        intTextField()
+                            .label("Refresh every")
+                            .bindIntText(settings::codeReferencesRefreshRate)
+                            .gap(RightGap.SMALL)
+                        label("minutes")
+                    }.enabledIf(enableCodeRefs.selected)
+                }
             }
         }
 

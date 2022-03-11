@@ -75,9 +75,10 @@ class RunCoderefsAction : AnAction {
         super.update(e)
         val project = e.project
         if (project != null) {
-            if (project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent != null) {
+            if (project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.lastSelectedPathComponent != null) {
                 val selectedNode =
-                    project.service<FlagToolWindow>().getPanel().tree.lastSelectedPathComponent.toString()
+                    project.service<FlagToolWindow>().getPanel()
+                        .getFlagPanel().tree.lastSelectedPathComponent.toString()
                 e.presentation.isEnabledAndVisible =
                     e.presentation.isEnabled && (selectedNode.startsWith("Fallthrough"))
             }
