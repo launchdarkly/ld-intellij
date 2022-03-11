@@ -1,6 +1,5 @@
-package com.launchdarkly.intellij
+package com.launchdarkly.intellij.hover
 
-import com.mitchellbosecke.pebble.PebbleEngine
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
@@ -11,14 +10,15 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import com.launchdarkly.api.model.FeatureFlag
 import com.launchdarkly.api.model.Variation
+import com.launchdarkly.intellij.FlagStore
+import com.launchdarkly.intellij.Utils
 import com.launchdarkly.intellij.coderefs.FlagAliases
 import com.launchdarkly.intellij.featurestore.FlagConfiguration
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
-import com.sun.jna.StringArray
+import com.mitchellbosecke.pebble.PebbleEngine
 import java.io.StringWriter
 
-class DocumentationProvider : AbstractDocumentationProvider() {
-    // Not sure how this is all working yet but it works for custom documentation in other IDEs than IDEA
+class HoverDocumentationProvider : AbstractDocumentationProvider() {
     override fun getCustomDocumentationElement(
         editor: Editor,
         file: PsiFile,
@@ -40,7 +40,7 @@ class DocumentationProvider : AbstractDocumentationProvider() {
             )
         ) return null
 
-        val getFlags = contextElement.project.service<com.launchdarkly.intellij.FlagStore>()
+        val getFlags = contextElement.project.service<FlagStore>()
 
         var flag: FeatureFlag? =
             getFlags.flags?.items?.find { contextElement.text.contains(it.key) }
@@ -62,8 +62,10 @@ class DocumentationProvider : AbstractDocumentationProvider() {
                 PlatformPatterns.psiElement().notEmpty()
             )
         ) return null
-        val getFlags = element.project.service<com.launchdarkly.intellij.FlagStore>()
+        val getFlags = element.project.service<FlagStore>()
+
         if (getFlags.flags.items == null) return null
+
         val getAliases = element.project.service<FlagAliases>()
         val settings = LaunchDarklyApplicationConfig.getInstance().ldState
 
@@ -151,19 +153,29 @@ class DocumentationProvider : AbstractDocumentationProvider() {
 //            }
 //            result.append("</html>")
 
-
-            // Massage data so we don't perform logic in the html template.
-            val displayVariations = ArrayList<Variation>()
+            // Build the variations object we can use in the html template
+            // to minimise logic operations in pebble (pain!)
+            val variationsViewModel = ArrayList<Variation>()
             flag.variations.forEach { v ->
-                val dv = Variation()
-                dv.name = (v.name ?: v.value.toString()).uppercase()
-                displayVariations.add(dv)
+                val model = Variation()
+                model.name = (v.name ?: v.value.toString()).uppercase()
+                model.value = v.value
+                model.description = v.description
+                variationsViewModel.add(model)
+            }
+
+            // Build the parent flag object and add the above variations object to it
+            val flagViewModel = buildMap {
+                put("name", flag.name)
+                put("description", flag.description)
+                put("url", Utils.getFlagUrl(flag.key))
+                put("variations", variationsViewModel)
             }
 
             // Pass data to html template to be rendered
             val template = PebbleEngine.Builder().build().getTemplate("htmlTemplates/flagKeyHover.html")
             val writer = StringWriter()
-            template.evaluate(writer, mapOf("variations" to displayVariations))
+            template.evaluate(writer, mapOf("flag" to flagViewModel))
             return writer.toString()
         }
 

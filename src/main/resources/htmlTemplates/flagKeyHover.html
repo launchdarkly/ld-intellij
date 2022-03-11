@@ -33,7 +33,8 @@
             list-style-type: none;
         }
 
-        .variation {
+        .variationListItem {
+            margin-bottom: 10px;
             font-size: 10px;
         }
     </style>
@@ -42,21 +43,25 @@
 <div class="rootContainer">
     <section>
         <div class="flagNameState">
-            <span class="heading">Configure: Logging Level</span>
+            <span class="heading">{{ flag.name }}</span>
             <span class="flagState">Off</span>
         </div>
         <div class="marginTop">
-            Sets the Logging level in the Application dynamically.
+            {{ flag.description }}
         </div>
         <div class="marginTop">
-            <a href="https://app.launchdarkly.com">Open in LaunchDarkly</a>
+            <a href="{{ flag.url }}">Open in LaunchDarkly</a>
         </div>
     </section>
     <section class="marginTop variationSection">
         <div class="heading">Variations</div>
         <ul class="variationList">
-            {% for v in variations %}
-            <li class="variation">{{ v.name }}</li>
+            {% for v in flag.variations %}
+            <li class="variationListItem">
+                <div>{{ v.name }}</div>
+                <div>Return value: {{ v.value }}</div>
+                <div>{{ v.description }}</div>
+            </li>
             {% endfor %}
         </ul>
     </section>
