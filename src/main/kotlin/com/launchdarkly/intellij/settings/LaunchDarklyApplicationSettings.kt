@@ -20,9 +20,13 @@ import com.intellij.ui.dsl.builder.*
 import com.intellij.ui.dsl.builder.Cell
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.dsl.builder.selected
-import com.intellij.ui.layout.*
 import com.launchdarkly.api.ApiException
 import com.launchdarkly.api.model.Project as ApiProject
+import com.intellij.ui.layout.ComponentPredicate
+import com.intellij.ui.layout.ValidationInfoBuilder
+import com.intellij.ui.layout.and
+import com.intellij.ui.layout.enteredTextSatisfies
+import com.intellij.ui.layout.or
 import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.messaging.AppDefaultMessageBusService
 import javax.swing.*
