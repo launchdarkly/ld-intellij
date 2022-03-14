@@ -23,7 +23,8 @@ class HoverDocumentationProvider : AbstractDocumentationProvider() {
     }
 
     private fun getFlag(contextElement: PsiElement): FeatureFlag? {
-        val flags = contextElement.project.service<FlagStore>().flags.items
+        // flags.items can be null if the IDE is not ready during startup
+        val flags = contextElement.project.service<FlagStore>().flags.items ?: return null
         val flag = flags.find { contextElement.text.contains(it.key) }
 
         if (flag == null) {
@@ -80,35 +81,31 @@ class HoverDocumentationProvider : AbstractDocumentationProvider() {
             return null
         }
 
-        val flag = getFlag(element)
-        if (flag != null) {
-            val flagConfig: FlagConfiguration = getFlagConfig(element, flag.key)
+        val flag = getFlag(element) ?: return null;
+        val flagConfig: FlagConfiguration = getFlagConfig(element, flag.key)
 
-            // Construct view models in kotlin to avoid logic operations in pebble (pain!)
-            val variationsViewModel = ArrayList<Variation>()
-            flag.variations.forEach { v ->
-                val model = Variation()
-                model.name = (v.name ?: v.value.toString()).uppercase()
-                model.value = v.value
-                model.description = v.description
-                variationsViewModel.add(model)
-            }
-
-            // Build the parent flag object and add the above variations object to it
-            val flagViewModel = buildMap {
-                put("name", flag.name)
-                put("description", flag.description)
-                put("on", flagConfig.on)
-                put("url", Utils.getFlagUrl(flag.key))
-                put("variations", variationsViewModel)
-            }
-
-            val template = PebbleEngine.Builder().build().getTemplate("htmlTemplates/flagKeyHover.html")
-            val writer = StringWriter()
-            template.evaluate(writer, mapOf("flag" to flagViewModel))
-            return writer.toString()
+        // Construct view models in kotlin to avoid logic operations in pebble (pain!)
+        val variationsViewModel = ArrayList<Variation>()
+        flag.variations.forEach { v ->
+            val model = Variation()
+            model.name = (v.name ?: v.value.toString()).uppercase()
+            model.value = v.value
+            model.description = v.description
+            variationsViewModel.add(model)
         }
 
-        return null
+        // Build the parent flag object and add the above variations object to it
+        val flagViewModel = buildMap {
+            put("name", flag.name)
+            put("description", flag.description)
+            put("on", flagConfig.on)
+            put("url", Utils.getFlagUrl(flag.key))
+            put("variations", variationsViewModel)
+        }
+
+        val template = PebbleEngine.Builder().build().getTemplate("htmlTemplates/flagKeyHover.html")
+        val writer = StringWriter()
+        template.evaluate(writer, mapOf("flag" to flagViewModel))
+        return writer.toString()
     }
 }

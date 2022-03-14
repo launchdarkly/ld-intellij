@@ -25,8 +25,9 @@
             margin-top: 10px;
         }
 
-        .variationSection {
-            border-top: 3px solid #bbb;
+        .flagDescription {
+            margin-top: 10px;
+            padding-bottom: 5px;
         }
 
         .variationList {
@@ -37,6 +38,14 @@
             margin-bottom: 10px;
             font-size: 10px;
         }
+
+        .variationValueDescription {
+            padding-left: 10px;
+        }
+
+        .variationDescription {
+            color: gray;
+        }
     </style>
 </head>
 <body>
@@ -46,21 +55,28 @@
             <span class="heading">{{ flag.name }}</span>
             <span class="flagOnOff">{{ flag.on ? "On" : "Off" }}</span>
         </div>
+    {% if flag.description %}
         <div class="marginTop">
             {{ flag.description }}
         </div>
-        <div class="marginTop">
+    {% endif %}
+        <div class="flagDescription">
             <a href="{{ flag.url }}">Open in LaunchDarkly</a>
         </div>
     </section>
-    <section class="marginTop variationSection">
+    <hr />
+    <section class="variationSection">
         <div class="heading">Variations</div>
         <ul class="variationList">
             {% for v in flag.variations %}
             <li class="variationListItem">
                 <div>{{ v.name }}</div>
-                <div>Return value: {{ v.value }}</div>
-                <div>{{ v.description }}</div>
+                <div class="variationValueDescription">
+                    <div>Return value: {{ v.value }}</div>
+                {% if v.description %}
+                    <span class="variationDescription">{{ v.description }}</span>
+                {% endif %}
+                </div>
             </li>
             {% endfor %}
         </ul>
