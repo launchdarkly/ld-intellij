@@ -10,6 +10,7 @@
 ### Removed
 
 ### Fixed
+- Invalid layout function in plugin settings
 
 ### Security
 
