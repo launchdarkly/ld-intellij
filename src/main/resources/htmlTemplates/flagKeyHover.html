@@ -11,12 +11,6 @@
             flex-direction: column;
         }
 
-        .flagNameState {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-        }
-
         .flagOnOff {
             color: {{ flag.on ? "green" : "red" }}
         }
@@ -51,8 +45,8 @@
 <body>
 <div class="rootContainer">
     <section>
-        <div class="flagNameState">
-            <span class="heading">{{ flag.name }}</span>
+        <div>
+            <span>{{ flag.name }}</span>
             <span class="flagOnOff">{{ flag.on ? "On" : "Off" }}</span>
         </div>
     {% if flag.description %}
