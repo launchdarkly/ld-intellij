@@ -18,6 +18,38 @@ import com.mitchellbosecke.pebble.PebbleEngine
 import java.io.StringWriter
 
 class HoverDocumentationProvider : AbstractDocumentationProvider() {
+    private fun getFlagConfig(contextElement: PsiElement, flagKey: String): FlagConfiguration {
+        return contextElement.project.service<FlagStore>().flagConfigs[flagKey]!!
+    }
+
+    private fun getFlag(contextElement: PsiElement): FeatureFlag? {
+        val flags = contextElement.project.service<FlagStore>().flags.items
+        val flag = flags.find { contextElement.text.contains(it.key) }
+
+        if (flag == null) {
+            val alias =
+                contextElement.project.service<FlagAliases>().aliases[contextElement.text.removeSurrounding("\"")]
+                    ?: return null
+            return flags.find { it.key == alias }
+        }
+
+        return flag
+    }
+
+    private fun getElementForDocumentation(contextElement: PsiElement?): PsiElement? {
+        if (contextElement == null || contextElement == StandardPatterns.not(PlatformPatterns.psiElement().notEmpty())
+        ) {
+            return null
+        }
+
+        val flag = getFlag(contextElement)
+        if (flag != null) {
+            return contextElement
+        }
+
+        return contextElement.parent
+    }
+
     override fun getCustomDocumentationElement(
         editor: Editor,
         file: PsiFile,
@@ -33,54 +65,26 @@ class HoverDocumentationProvider : AbstractDocumentationProvider() {
         return getElementForDocumentation(contextElement)
     }
 
-    private fun getElementForDocumentation(contextElement: PsiElement?): PsiElement? {
-        if (contextElement == null || contextElement == StandardPatterns.not(
-                PlatformPatterns.psiElement().notEmpty()
-            )
-        ) return null
-
-        val getFlags = contextElement.project.service<FlagStore>()
-
-        var flag: FeatureFlag? =
-            getFlags.flags?.items?.find { contextElement.text.contains(it.key) }
-        if (flag != null) {
-            return contextElement
-        }
-        val getAliases = contextElement.project.service<FlagAliases>()
-        val aliasFlag = getAliases.aliases[contextElement.text.removeSurrounding("\"")]
-        if (aliasFlag != null) return contextElement
-        return contextElement?.parent
-    }
-
     override fun generateHoverDoc(element: PsiElement, originalElement: PsiElement?): String? {
         return generateDoc(element, originalElement)
     }
 
     override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
+        // TODO: if element is of type "empty token" then exit immediately.
+        // This can happen when a go project is opened in intellij i.e. when a project type
+        // is unsupported by the IDE flavor.
         if (element == null || element == StandardPatterns.not(
                 PlatformPatterns.psiElement().notEmpty()
             )
-        ) return null
-
-        val getFlags = element.project.service<FlagStore>()
-        if (getFlags.flags.items == null) return null
-
-        val getAliases = element.project.service<FlagAliases>()
-        var flag: FeatureFlag? =
-            getFlags.flags?.items?.find { element.text.contains(it.key) }
-        var alias: String?
-        if (flag == null) {
-            alias = getAliases.aliases[element.text.removeSurrounding("\"")]
-            flag = getFlags.flags.items.find { it.key == alias }
+        ) {
+            return null
         }
 
-        // TODO: gracefully handle API call working and Datastore being unavailable
+        val flag = getFlag(element)
         if (flag != null) {
-            val env: FlagConfiguration = getFlags.flagConfigs[flag.key]
-                ?: FlagConfiguration(flag.key, null, null, listOf(), listOf(), arrayOf(), false, -1)
+            val flagConfig: FlagConfiguration = getFlagConfig(element, flag.key)
 
-            // Construct view models in kotlin so we can use them in the html template
-            // to minimise logic operations in pebble (pain!)
+            // Construct view models in kotlin to avoid logic operations in pebble (pain!)
             val variationsViewModel = ArrayList<Variation>()
             flag.variations.forEach { v ->
                 val model = Variation()
@@ -94,7 +98,7 @@ class HoverDocumentationProvider : AbstractDocumentationProvider() {
             val flagViewModel = buildMap {
                 put("name", flag.name)
                 put("description", flag.description)
-                put("on", env.on)
+                put("on", flagConfig.on)
                 put("url", Utils.getFlagUrl(flag.key))
                 put("variations", variationsViewModel)
             }
@@ -104,11 +108,6 @@ class HoverDocumentationProvider : AbstractDocumentationProvider() {
             template.evaluate(writer, mapOf("flag" to flagViewModel))
             return writer.toString()
         }
-
-        return null
-    }
-
-    override fun getQuickNavigateInfo(element: PsiElement?, originalElement: PsiElement?): String? {
 
         return null
     }
