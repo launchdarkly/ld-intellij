@@ -164,26 +164,25 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                 }
                 environmentBox.selectedItem = settings.environment
 
-                indent {
-                    rowsRange {
-                        row("Project:") {
-                            projectComboBox = comboBox(projectBox, renderer)
-                                .bindItem(settings::project)
-                                .applyToComponent {
-                                    this.addItemListener { _ ->
-                                        updateProjectEnvironments()
-                                    }
+                // TODO: alternative to indent?
+                rowsRange {
+                    row("Project:") {
+                        projectComboBox = comboBox(projectBox, renderer)
+                            .bindItem(settings::project)
+                            .applyToComponent {
+                                this.addItemListener { _ ->
+                                    updateProjectEnvironments()
                                 }
-                                .applyIfEnabled()
-                                .component
-                        }
-                        row("Environment:") {
-                            comboBox(environmentBox, renderer)
-                                .bindItem(settings::environment)
-                                .applyIfEnabled()
-                        }
-                    }.enabledIf(enableProjectsPredicate())
-                }
+                            }
+                            .applyIfEnabled()
+                            .component
+                    }
+                    row("Environment:") {
+                        comboBox(environmentBox, renderer)
+                            .bindItem(settings::environment)
+                            .applyIfEnabled()
+                    }
+                }.enabledIf(enableProjectsPredicate())
             } catch (err: Exception) {
                 println(err)
             }
