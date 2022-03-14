@@ -13,6 +13,23 @@
 
 ### Security
 
+## [0.5.0-idea22]
+### Added
+- Quick links panel
+
+### Changed
+- Merged non-project settings into one Advanced section
+
+### Deprecated
+
+### Removed
+- Project override settings
+
+### Fixed
+- Code completion for flag keys
+
+### Security
+
 ## [0.4.0-idea22]
 ### Fixed
 - Top info node showing project/environment info errored when opening in browser.
