@@ -328,16 +328,18 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     }
 
     private fun refreshProjectsPredicate(): ComponentPredicate {
-        return (accessTokenField.enteredTextSatisfies { String(accessTokenField.password).trim() != "" } and
-                accessTokenField.enteredTextSatisfies { origApiKey != String(accessTokenField.password) }) or
-                baseUriField.enteredTextSatisfies { origBaseUri != it }
+        return (
+            accessTokenField.enteredTextSatisfies { String(accessTokenField.password).trim() != "" } and
+                accessTokenField.enteredTextSatisfies { origApiKey != String(accessTokenField.password) }
+            ) or
+            baseUriField.enteredTextSatisfies { origBaseUri != it }
     }
 
     private fun enableProjectsPredicate(): ComponentPredicate {
         return accessTokenField.enteredTextSatisfies { String(accessTokenField.password).trim() != "" } and
-                accessTokenField.enteredTextSatisfies { origApiKey == String(accessTokenField.password) } and
-                baseUriField.enteredTextSatisfies { origBaseUri == it } and
-                projectComboBox.hasOptions { it.itemCount > 0 }
+            accessTokenField.enteredTextSatisfies { origApiKey == String(accessTokenField.password) } and
+            baseUriField.enteredTextSatisfies { origBaseUri == it } and
+            projectComboBox.hasOptions { it.itemCount > 0 }
     }
 }
 
