@@ -51,16 +51,16 @@
             <span>{{ flag.name }}</span>
             <span class="flagOnOff">{{ flag.on ? "On" : "Off" }}</span>
         </div>
-    {% if flag.description %}
+        {% if flag.description %}
         <div class="marginTop">
             {{ flag.description }}
         </div>
-    {% endif %}
+        {% endif %}
         <div class="flagDescription">
             <a href="{{ flag.url }}">Open in LaunchDarkly</a>
         </div>
     </section>
-    <hr />
+    <hr/>
     <section class="variationSection">
         <div class="heading">Variations</div>
         <ul class="variationList">
@@ -71,7 +71,7 @@
                 <div class="variationName">{{ v.name }}</div>
                 {% endif %}
                 {% if v.description %}
-                 <div class="variationDescription">{{ v.description }}</div>
+                <div class="variationDescription">{{ v.description }}</div>
                 {% endif %}
             </li>
             {% endfor %}
