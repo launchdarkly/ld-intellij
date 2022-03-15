@@ -12,7 +12,7 @@
         }
 
         .flagOnOff {
-            color: {{ flag.on ? "green" : "red" }}
+            color: {{ flag.on ? "green" : "gray" }}
         }
 
         .marginTop {
@@ -26,6 +26,7 @@
 
         .variationList {
             list-style-type: none;
+            margin-left: 0;
         }
 
         .variationListItem {
@@ -33,11 +34,12 @@
             font-size: 10px;
         }
 
-        .variationValueDescription {
+        .variationName {
             padding-left: 10px;
         }
 
         .variationDescription {
+            padding-left: 10px;
             color: gray;
         }
     </style>
@@ -64,13 +66,13 @@
         <ul class="variationList">
             {% for v in flag.variations %}
             <li class="variationListItem">
-                <div>{{ v.name }}</div>
-                <div class="variationValueDescription">
-                    <div>Return value: {{ v.value }}</div>
-                {% if v.description %}
-                    <span class="variationDescription">{{ v.description }}</span>
+                <div>{{ v.value }}</div>
+                {% if v.name %}
+                <div class="variationName">{{ v.name }}</div>
                 {% endif %}
-                </div>
+                {% if v.description %}
+                 <div class="variationDescription">{{ v.description }}</div>
+                {% endif %}
             </li>
             {% endfor %}
         </ul>

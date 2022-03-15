@@ -9,7 +9,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import com.launchdarkly.api.model.FeatureFlag
-import com.launchdarkly.api.model.Variation
 import com.launchdarkly.intellij.FlagStore
 import com.launchdarkly.intellij.Utils
 import com.launchdarkly.intellij.coderefs.FlagAliases
@@ -85,22 +84,12 @@ class HoverDocumentationProvider : AbstractDocumentationProvider() {
         val flagConfig: FlagConfiguration = getFlagConfig(element, flag.key)
 
         // Construct view models in kotlin to avoid logic operations in pebble (pain!)
-        val variationsViewModel = ArrayList<Variation>()
-        flag.variations.forEach { v ->
-            val model = Variation()
-            model.name = (v.name ?: v.value.toString()).uppercase()
-            model.value = v.value
-            model.description = v.description
-            variationsViewModel.add(model)
-        }
-
-        // Build the parent flag object and add the above variations object to it
         val flagViewModel = buildMap {
             put("name", flag.name)
             put("description", flag.description)
             put("on", flagConfig.on)
             put("url", Utils.getFlagUrl(flag.key))
-            put("variations", variationsViewModel)
+            put("variations", flag.variations)
         }
 
         val template = PebbleEngine.Builder().build().getTemplate("htmlTemplates/flagKeyHover.html")
