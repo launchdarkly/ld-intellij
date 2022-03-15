@@ -81,7 +81,7 @@ class HoverDocumentationProvider : AbstractDocumentationProvider() {
             return null
         }
 
-        val flag = getFlag(element) ?: return null;
+        val flag = getFlag(element) ?: return null
         val flagConfig: FlagConfiguration = getFlagConfig(element, flag.key)
 
         // Construct view models in kotlin to avoid logic operations in pebble (pain!)
