@@ -181,15 +181,12 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                 lateinit var enableCodeRefs: Cell<JBCheckBox>
                 row {
                     enableCodeRefs = checkBox("Use Code References").bindSelected(settings::codeReferences)
-                }
-                indent {
-                    row {
-                        intTextField()
-                            .label("Refresh every")
-                            .bindIntText(settings::codeReferencesRefreshRate)
-                            .gap(RightGap.SMALL)
-                        label("minutes")
-                    }.enabledIf(enableCodeRefs.selected)
+                    intTextField()
+                        .label("Refresh every")
+                        .bindIntText(settings::codeReferencesRefreshRate)
+                        .gap(RightGap.SMALL)
+                        .enabledIf(enableCodeRefs.selected)
+                    label("minutes").enabledIf(enableCodeRefs.selected)
                 }
             }
         }
