@@ -12,7 +12,6 @@ import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.StringSelection
 import javax.swing.Icon
 import javax.swing.tree.DefaultMutableTreeNode
-import kotlinx.coroutines.selects.select
 
 const val FLAG_NAME_PATH = 2
 
@@ -82,8 +81,8 @@ class CopyKeyAction : AnAction {
         if (project != null) {
             if (project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.lastSelectedPathComponent != null) {
                 val selectedNode =
-                        project.service<FlagToolWindow>()
-                                .getPanel().getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
+                    project.service<FlagToolWindow>()
+                        .getPanel().getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
                 val isFlagParentNode = selectedNode.userObject is FlagNodeParent
                 val hasKeyPrefix = selectedNode.toString().startsWith(KEY_PREFIX)
 
@@ -93,6 +92,4 @@ class CopyKeyAction : AnAction {
             e.presentation.isEnabledAndVisible = false
         }
     }
-
-
 }
