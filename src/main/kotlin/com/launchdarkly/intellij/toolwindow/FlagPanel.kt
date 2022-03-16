@@ -160,7 +160,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
             val defaultTree = tree.model as AsyncTreeModel
             if (defaultTree.root != null) {
                 val root = defaultTree.root as DefaultMutableTreeNode
-                val flagFind = getFlags.flags.items.sortedBy { it.name }
+                val flagFind = getFlags.flags.items
                 for (flag in flagFind) {
                     var found = false
                     var e = root.depthFirstEnumeration()

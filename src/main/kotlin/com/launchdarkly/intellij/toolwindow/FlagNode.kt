@@ -16,7 +16,7 @@ class RootNode(private val flags: FeatureFlags, private val settings: LDSettings
         when {
             myChildren.isEmpty() && flags.items != null -> {
                 myChildren.add(InfoNode("${settings.project} / ${settings.environment}"))
-                for (flag in flags.items.sortedBy { it.name }) {
+                for (flag in flags.items) {
                     myChildren.add(FlagNodeParent(flag, flags, intProject))
                 }
             }
