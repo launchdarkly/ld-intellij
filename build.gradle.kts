@@ -30,6 +30,7 @@ repositories {
 }
 
 dependencies {
+    implementation("io.pebbletemplates:pebble:3.1.5")
     implementation("org.junit.jupiter:junit-jupiter:5.8.1")
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.10.0-RC1")
     implementation("com.launchdarkly:api-client:3.10.0")
