@@ -1,6 +1,5 @@
 package com.launchdarkly.intellij.toolwindow
 
-import com.intellij.openapi.project.Project
 import com.intellij.ui.treeStructure.SimpleNode
 import com.intellij.ui.treeStructure.SimpleTreeStructure
 
