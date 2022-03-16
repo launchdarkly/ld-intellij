@@ -38,7 +38,7 @@ class LinkPanel(private val myProject: Project, messageBusService: MessageBusSer
     lateinit var tree: Tree
 
     private fun createTreeStructure(): SimpleTreeStructure {
-        return FlagTreeStructure(myProject, root)
+        return FlagTreeStructure(root)
     }
 
     override fun dispose() {}

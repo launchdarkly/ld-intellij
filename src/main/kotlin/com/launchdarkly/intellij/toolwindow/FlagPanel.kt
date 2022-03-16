@@ -46,7 +46,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
     lateinit var tree: Tree
 
     private fun createTreeStructure(): SimpleTreeStructure {
-        return FlagTreeStructure(myProject, root)
+        return FlagTreeStructure(root)
     }
 
     override fun dispose() {}
@@ -160,7 +160,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
             val defaultTree = tree.model as AsyncTreeModel
             if (defaultTree.root != null) {
                 val root = defaultTree.root as DefaultMutableTreeNode
-                val flagFind = getFlags.flags.items
+                val flagFind = getFlags.flags.items.sortedBy { it.name }
                 for (flag in flagFind) {
                     var found = false
                     var e = root.depthFirstEnumeration()
