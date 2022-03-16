@@ -17,7 +17,7 @@ on:
   push:
     tags:
     branches:
-      - 2022 #TODO: Switch branch when strategy is finalized
+      - main
   # Trigger the workflow on any pull request
   pull_request:
     types:
@@ -72,8 +72,6 @@ jobs:
       # Run verifyPlugin Gradle task
       - name: Verify Plugin
         run: ./gradlew verifyPlugin
-
-
 
   # Build plugin with buildPlugin Gradle task and provide the artifact for the next workflow jobs
   # Requires test job to be passed
