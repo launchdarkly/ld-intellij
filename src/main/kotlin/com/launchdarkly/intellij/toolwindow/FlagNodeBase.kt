@@ -12,7 +12,6 @@ class FlagNodeBase(var label: String, var labelIcon: Icon? = null) : SimpleNode(
     override fun update(data: PresentationData) {
         super.update(data)
         data.presentableText = label
-        data.tooltip = label
         if (labelIcon != null) {
             data.setIcon(labelIcon)
         }
