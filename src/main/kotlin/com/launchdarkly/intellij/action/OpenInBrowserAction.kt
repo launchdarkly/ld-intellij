@@ -3,11 +3,9 @@ package com.launchdarkly.intellij.action
 import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.components.service
 import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
-import com.launchdarkly.intellij.toolwindow.FlagToolWindow
 import com.launchdarkly.intellij.toolwindow.InfoNode
 import javax.swing.Icon
 
@@ -54,14 +52,12 @@ class OpenInBrowserAction : AnAction {
         if (selectedNode?.userObject is FlagNodeParent) {
             val parentNode = selectedNode.userObject as FlagNodeParent
             val url =
-                    "${settings.baseUri}/${settings.project}/${settings.environment}/features/${parentNode.flag.key}"
+                "${settings.baseUri}/${settings.project}/${settings.environment}/features/${parentNode.flag.key}"
             BrowserLauncher.instance.open(url)
-        }
-        else if (selectedNode?.userObject is InfoNode) {
+        } else if (selectedNode?.userObject is InfoNode) {
             val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features"
             BrowserLauncher.instance.open(url)
-        }
-        else {
+        } else {
             val notifier = GeneralNotifier()
             notifier.notify(project, "Error opening in browser, please try again.")
         }

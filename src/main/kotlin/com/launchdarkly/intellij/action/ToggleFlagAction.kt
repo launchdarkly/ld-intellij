@@ -3,7 +3,6 @@ package com.launchdarkly.intellij.action
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.service
 import com.launchdarkly.api.ApiException
 import com.launchdarkly.api.model.PatchComment
 import com.launchdarkly.api.model.PatchOperation
@@ -11,9 +10,7 @@ import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
-import com.launchdarkly.intellij.toolwindow.FlagToolWindow
 import javax.swing.Icon
-import javax.swing.tree.DefaultMutableTreeNode
 
 /**
  * Action class to demonstrate how to interact with the IntelliJ Platform.

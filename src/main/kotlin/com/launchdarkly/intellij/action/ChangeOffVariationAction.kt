@@ -3,7 +3,6 @@ package com.launchdarkly.intellij.action
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.service
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.launchdarkly.api.ApiException
 import com.launchdarkly.api.model.PatchComment
@@ -13,7 +12,6 @@ import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
-import com.launchdarkly.intellij.toolwindow.FlagToolWindow
 import java.awt.Component
 import javax.swing.DefaultListCellRenderer
 import javax.swing.Icon
