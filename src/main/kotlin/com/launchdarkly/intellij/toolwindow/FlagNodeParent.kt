@@ -11,6 +11,8 @@ import com.launchdarkly.intellij.LDIcons
 import com.launchdarkly.intellij.featurestore.FlagConfiguration
 import java.util.*
 
+const val KEY_PREFIX = "Key:"
+
 class FlagNodeParent(FFlag: FeatureFlag, private var flags: FeatureFlags, myProject: Project) : SimpleNode() {
     private var children: MutableList<SimpleNode> = ArrayList()
     private val getFlags = myProject.service<FlagStore>()
@@ -30,7 +32,7 @@ class FlagNodeParent(FFlag: FeatureFlag, private var flags: FeatureFlags, myProj
     }
 
     private fun buildChildren() {
-        children.add(FlagNodeBase("Key: ${flag.key}", LDIcons.FLAG_KEY))
+        children.add(FlagNodeBase("$KEY_PREFIX ${flag.key}", LDIcons.FLAG_KEY))
         if (flag.description != "") children.add(FlagNodeBase("Description: ${flag.description}", LDIcons.DESCRIPTION))
         children.add(FlagNodeVariations(flag))
 

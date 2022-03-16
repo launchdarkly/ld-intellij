@@ -3,15 +3,17 @@ package com.launchdarkly.intellij.action
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
+import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
 import com.launchdarkly.intellij.toolwindow.FlagToolWindow
+import com.launchdarkly.intellij.toolwindow.KEY_PREFIX
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.StringSelection
 import javax.swing.Icon
 import javax.swing.tree.DefaultMutableTreeNode
+import kotlinx.coroutines.selects.select
 
-const val FLAG_NAME_DEPTH = 1
 const val FLAG_NAME_PATH = 2
 
 /**
@@ -45,21 +47,27 @@ class CopyKeyAction : AnAction {
      */
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project
-        var selection = StringSelection("")
         if (project != null) {
-            val selectedNode =
+            var selectedNode =
                 project.service<FlagToolWindow>().getPanel()
-                    .getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
-            if (selectedNode != null) {
-                // Right clicking on Key node. Will break if order changes.
-                if (selectedNode.childCount == 0 && selectedNode.toString().startsWith("Key:")) {
-                    selection = StringSelection(selectedNode.toString().substringAfter(" "))
-                } else if (selectedNode.depth == FLAG_NAME_DEPTH) { //
-                    selection = StringSelection(selectedNode.firstChild.toString().substringAfter(" "))
+                    .getFlagPanel().tree.lastSelectedPathComponent as? DefaultMutableTreeNode
+            while (selectedNode != null) {
+                if (selectedNode.userObject is FlagNodeParent) {
+                    val flagNodeParent = selectedNode.userObject as FlagNodeParent
+                    val selection = StringSelection(flagNodeParent.key)
+                    val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
+                    return clipboard.setContents(selection, selection)
+                } else {
+                    selectedNode = selectedNode.parent as? DefaultMutableTreeNode
                 }
-                val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
-                clipboard.setContents(selection, selection)
             }
+
+            // If we can't find the key to copy, notify the user
+            val notifier = GeneralNotifier()
+            notifier.notify(
+                project,
+                "Could not copy flag key."
+            )
         }
     }
 
@@ -74,15 +82,17 @@ class CopyKeyAction : AnAction {
         if (project != null) {
             if (project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.lastSelectedPathComponent != null) {
                 val selectedNode =
-                    project.service<FlagToolWindow>()
-                        .getPanel().getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
-                val isFlagParentNode = selectedNode.userObject as? FlagNodeParent
+                        project.service<FlagToolWindow>()
+                                .getPanel().getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
+                val isFlagParentNode = selectedNode.userObject is FlagNodeParent
+                val hasKeyPrefix = selectedNode.toString().startsWith(KEY_PREFIX)
 
-                e.presentation.isEnabledAndVisible =
-                    e.presentation.isEnabled && (selectedNode.toString().startsWith("Key:") || isFlagParentNode != null)
+                e.presentation.isEnabledAndVisible = e.presentation.isEnabled && (hasKeyPrefix || isFlagParentNode)
             }
         } else {
             e.presentation.isEnabledAndVisible = false
         }
     }
+
+
 }
