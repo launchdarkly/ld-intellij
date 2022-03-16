@@ -88,14 +88,9 @@ class ToggleFlagAction : AnAction {
     override fun update(e: AnActionEvent) {
         super.update(e)
         val project = e.project ?: return
-        if (project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.selectionPath != null) {
-            val selectedNode =
-                project.service<FlagToolWindow>().getPanel()
-                    .getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
-            val isFlagNode = selectedNode.userObject as? FlagNodeParent
-            e.presentation.isEnabledAndVisible = e.presentation.isEnabled && isFlagNode != null
-        } else {
-            e.presentation.isEnabledAndVisible = false
-        }
+        val selectedNode = ActionHelpers.getLastSelectedPathComponent(project) ?: return
+        val isFlagNode = selectedNode?.userObject is FlagNodeParent
+
+        e.presentation.isEnabledAndVisible = e.presentation.isEnabled && isFlagNode
     }
 }

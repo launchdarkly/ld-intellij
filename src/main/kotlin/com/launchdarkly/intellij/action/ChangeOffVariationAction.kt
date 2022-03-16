@@ -51,8 +51,8 @@ class ChangeOffVariationAction : AnAction {
      * @param event Event received when the associated menu item is chosen.
      */
     override fun actionPerformed(event: AnActionEvent) {
-        val project = event.project!!
-        val currentComponent = event?.inputEvent?.component ?: return
+        val project = event.project ?: return
+        val currentComponent = event.inputEvent?.component ?: return
         val selectedNode =
             project.service<FlagToolWindow>()
                 .getPanel().getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
@@ -113,11 +113,8 @@ class ChangeOffVariationAction : AnAction {
     override fun update(e: AnActionEvent) {
         super.update(e)
         val project = e.project ?: return
-        if (project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.lastSelectedPathComponent != null) {
-            val selectedNode =
-                project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.lastSelectedPathComponent.toString()
-            e.presentation.isEnabledAndVisible =
-                e.presentation.isEnabled && (selectedNode.startsWith("Off Variation:"))
-        }
+        val selectedNode = ActionHelpers.getLastSelectedPathComponent(project) ?: return
+        e.presentation.isEnabledAndVisible =
+            e.presentation.isEnabled && (selectedNode.toString().startsWith("Off Variation:"))
     }
 }

@@ -73,15 +73,10 @@ class RunCoderefsAction : AnAction {
      */
     override fun update(e: AnActionEvent) {
         super.update(e)
-        val project = e.project
-        if (project != null) {
-            if (project.service<FlagToolWindow>().getPanel().getFlagPanel().tree.lastSelectedPathComponent != null) {
-                val selectedNode =
-                    project.service<FlagToolWindow>().getPanel()
-                        .getFlagPanel().tree.lastSelectedPathComponent.toString()
-                e.presentation.isEnabledAndVisible =
-                    e.presentation.isEnabled && (selectedNode.startsWith("Fallthrough"))
-            }
-        }
+        val project = e.project ?: return
+        val selectedNode = ActionHelpers.getLastSelectedPathComponent(project) ?: return
+
+        e.presentation.isEnabledAndVisible =
+            e.presentation.isEnabled && (selectedNode.toString().startsWith("Fallthrough"))
     }
 }
