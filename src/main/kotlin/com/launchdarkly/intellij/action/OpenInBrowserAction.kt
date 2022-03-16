@@ -8,8 +8,8 @@ import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
 import com.launchdarkly.intellij.toolwindow.FlagToolWindow
+import com.launchdarkly.intellij.toolwindow.InfoNode
 import javax.swing.Icon
-import javax.swing.tree.DefaultMutableTreeNode
 
 /**
  * Action class to demonstrate how to interact with the IntelliJ Platform.
@@ -49,19 +49,19 @@ class OpenInBrowserAction : AnAction {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val settings = LaunchDarklyApplicationConfig.getInstance().ldState
-        if (ActionHelpers.getLastSelectedPathComponent(project) !== null) {
-            val selectedNode = ActionHelpers.getLastSelectedPathComponent(project)
-            // If cast fails, it means the root node with project/env info was selected, so we'll open that.
-            val nodeInfo = selectedNode?.userObject as? FlagNodeParent
-            if (nodeInfo != null) {
-                val url =
-                    "${settings.baseUri}/${settings.project}/${settings.environment}/features/${nodeInfo.flag.key}"
-                BrowserLauncher.instance.open(url)
-            } else {
-                val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features"
-                BrowserLauncher.instance.open(url)
-            }
-        } else {
+        val selectedNode = ActionHelpers.getLastSelectedDefaultMutableTreeNode(project)
+
+        if (selectedNode?.userObject is FlagNodeParent) {
+            val parentNode = selectedNode.userObject as FlagNodeParent
+            val url =
+                    "${settings.baseUri}/${settings.project}/${settings.environment}/features/${parentNode.flag.key}"
+            BrowserLauncher.instance.open(url)
+        }
+        else if (selectedNode?.userObject is InfoNode) {
+            val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features"
+            BrowserLauncher.instance.open(url)
+        }
+        else {
             val notifier = GeneralNotifier()
             notifier.notify(project, "Error opening in browser, please try again.")
         }
@@ -75,9 +75,10 @@ class OpenInBrowserAction : AnAction {
     override fun update(e: AnActionEvent) {
         super.update(e)
         val project = e.project ?: return
-        val selectedNode = ActionHelpers.getLastSelectedPathComponent(project) ?: return
+        val selectedNode = ActionHelpers.getLastSelectedDefaultMutableTreeNode(project) ?: return
+        val isFlagNode = selectedNode.userObject is FlagNodeParent
+        val isInfoNode = selectedNode.userObject is InfoNode
 
-        e.presentation.isEnabledAndVisible = e.presentation.isEnabled && project.service<FlagToolWindow>()
-                .getPanel().getFlagPanel().tree.selectionPath.path.size == FLAG_NAME_PATH
+        e.presentation.isEnabledAndVisible = e.presentation.isEnabled && (isFlagNode || isInfoNode)
     }
 }

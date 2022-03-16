@@ -52,10 +52,9 @@ class ToggleFlagAction : AnAction {
      */
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
-        val selectedNode =
-            project.service<FlagToolWindow>().getPanel()
-                .getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
-        val nodeInfo: FlagNodeParent = selectedNode.userObject as FlagNodeParent
+        val selectedNode = ActionHelpers.getLastSelectedDefaultMutableTreeNode(project) ?: return
+        val nodeInfo = selectedNode.userObject as? FlagNodeParent ?: return
+
         // Relies on implicit behavior of key being first child.
         val flagKey = selectedNode.firstChild.toString().substringAfter(" ")
         val settings = LaunchDarklyApplicationConfig.getInstance().ldState
@@ -88,7 +87,7 @@ class ToggleFlagAction : AnAction {
     override fun update(e: AnActionEvent) {
         super.update(e)
         val project = e.project ?: return
-        val selectedNode = ActionHelpers.getLastSelectedPathComponent(project) ?: return
+        val selectedNode = ActionHelpers.getLastSelectedDefaultMutableTreeNode(project) ?: return
         val isFlagNode = selectedNode?.userObject is FlagNodeParent
 
         e.presentation.isEnabledAndVisible = e.presentation.isEnabled && isFlagNode

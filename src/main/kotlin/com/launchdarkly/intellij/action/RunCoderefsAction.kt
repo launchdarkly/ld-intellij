@@ -3,9 +3,7 @@ package com.launchdarkly.intellij.action
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.components.service
 import com.intellij.openapi.util.io.FileUtilRt
-import com.launchdarkly.intellij.toolwindow.FlagToolWindow
 import java.nio.charset.Charset
 import javax.swing.Icon
 
@@ -74,7 +72,7 @@ class RunCoderefsAction : AnAction {
     override fun update(e: AnActionEvent) {
         super.update(e)
         val project = e.project ?: return
-        val selectedNode = ActionHelpers.getLastSelectedPathComponent(project) ?: return
+        val selectedNode = ActionHelpers.getLastSelectedDefaultMutableTreeNode(project) ?: return
 
         e.presentation.isEnabledAndVisible =
             e.presentation.isEnabled && (selectedNode.toString().startsWith("Fallthrough"))

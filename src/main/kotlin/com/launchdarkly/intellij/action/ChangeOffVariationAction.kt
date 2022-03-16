@@ -53,11 +53,10 @@ class ChangeOffVariationAction : AnAction {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val currentComponent = event.inputEvent?.component ?: return
-        val selectedNode =
-            project.service<FlagToolWindow>()
-                .getPanel().getFlagPanel().tree.lastSelectedPathComponent as DefaultMutableTreeNode
-        val parentNodeMut = selectedNode.parent as DefaultMutableTreeNode
-        val parentNode = parentNodeMut.userObject as FlagNodeParent
+        val selectedNode = ActionHelpers.getLastSelectedDefaultMutableTreeNode(project) ?: return
+        val parentNodeMut = selectedNode.parent as? DefaultMutableTreeNode ?: return
+        val parentNode = parentNodeMut.userObject as? FlagNodeParent ?: return
+
         JBPopupFactory.getInstance().createPopupChooserBuilder(parentNode.flag.variations)
             .setTitle("New Off Variation")
             .setMovable(false).setResizable(false)
@@ -113,7 +112,8 @@ class ChangeOffVariationAction : AnAction {
     override fun update(e: AnActionEvent) {
         super.update(e)
         val project = e.project ?: return
-        val selectedNode = ActionHelpers.getLastSelectedPathComponent(project) ?: return
+        val selectedNode = ActionHelpers.getLastSelectedDefaultMutableTreeNode(project) ?: return
+
         e.presentation.isEnabledAndVisible =
             e.presentation.isEnabled && (selectedNode.toString().startsWith("Off Variation:"))
     }

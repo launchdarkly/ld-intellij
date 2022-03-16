@@ -42,9 +42,9 @@ class RefreshAction : AnAction {
      * @param event Event received when the associated menu item is chosen.
      */
     override fun actionPerformed(event: AnActionEvent) {
-        // Using the event, create and show a dialog
-        val currentProject = event.project
-        val flags = currentProject!!.service<FlagStore>()
+        val project = event.project ?: return
+
+        val flags = project.service<FlagStore>()
         flags.flagsNotify(reinit = true, rebuild = true)
     }
 
@@ -55,7 +55,8 @@ class RefreshAction : AnAction {
      */
     override fun update(e: AnActionEvent) {
         super.update(e)
-        val project = e.project
-        e.presentation.isEnabledAndVisible = project != null
+        val project = e.project ?: return
+
+        e.presentation.isEnabledAndVisible = true
     }
 }

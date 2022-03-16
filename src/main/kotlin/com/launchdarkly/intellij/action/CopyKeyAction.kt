@@ -2,18 +2,14 @@ package com.launchdarkly.intellij.action
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.components.service
 import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
-import com.launchdarkly.intellij.toolwindow.FlagToolWindow
 import com.launchdarkly.intellij.toolwindow.KEY_PREFIX
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.StringSelection
 import javax.swing.Icon
 import javax.swing.tree.DefaultMutableTreeNode
-
-const val FLAG_NAME_PATH = 2
 
 /**
  * Action class to demonstrate how to interact with the IntelliJ Platform.
@@ -46,7 +42,7 @@ class CopyKeyAction : AnAction {
      */
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
-        var selectedNode = ActionHelpers.getLastSelectedPathComponent(project)
+        var selectedNode = ActionHelpers.getLastSelectedDefaultMutableTreeNode(project)
         while (selectedNode != null) {
             if (selectedNode.userObject is FlagNodeParent) {
                 val flagNodeParent = selectedNode.userObject as FlagNodeParent
@@ -74,7 +70,7 @@ class CopyKeyAction : AnAction {
     override fun update(e: AnActionEvent) {
         super.update(e)
         val project = e.project ?: return
-        val selectedNode = ActionHelpers.getLastSelectedPathComponent(project) ?: return
+        val selectedNode = ActionHelpers.getLastSelectedDefaultMutableTreeNode(project) ?: return
         val isFlagParentNode = selectedNode?.userObject is FlagNodeParent
         val hasKeyPrefix = selectedNode.toString().startsWith(KEY_PREFIX)
 
