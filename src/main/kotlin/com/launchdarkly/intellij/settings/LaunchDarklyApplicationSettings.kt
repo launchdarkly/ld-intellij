@@ -140,7 +140,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     .label("Access token:")
                     .bindText(settings::authorization)
                     .columns(COLUMNS_MEDIUM)
-                    .validationOnInput(apiKeyValidation())
+                    .validationOnInput(accessTokenValidation())
                 icon(AllIcons.General.BalloonWarning)
                     .label("Apply changes")
                     .visibleIf(refreshProjectsPredicate())
@@ -308,7 +308,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         return projectApi.projects.items.sortedBy { it.key } as MutableList<ApiProject>
     }
 
-    private fun validKey(apiKey: String, baseUri: String): Boolean {
+    private fun isValidAccessToken(apiKey: String, baseUri: String): Boolean {
         return try {
             LaunchDarklyApiClient.testAccessToken(apiKey, baseUri)
             true
@@ -318,12 +318,12 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         }
     }
 
-    private fun apiKeyValidation(): ValidationInfoBuilder.(JPasswordField) -> ValidationInfo? = {
+    private fun accessTokenValidation(): ValidationInfoBuilder.(JPasswordField) -> ValidationInfo? = {
         if (String(it.password).trim() == "") {
             error("Access token is required")
         } else if (!String(it.password).startsWith("api-")) {
             error("Access token should start with \"api-\"")
-        } else if (!validKey(String(it.password), settings.baseUri)) {
+        } else if (!isValidAccessToken(String(it.password), settings.baseUri)) {
             error("This access token is not authorized to get projects")
         } else {
             null
