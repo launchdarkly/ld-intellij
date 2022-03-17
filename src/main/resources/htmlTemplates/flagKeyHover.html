@@ -1,0 +1,82 @@
+<html>
+<head>
+    <style>
+        .heading {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .rootContainer {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .flagOnOff {
+            color: {{ flag.on ? "green" : "gray" }}
+        }
+
+        .marginTop {
+            margin-top: 10px;
+        }
+
+        .flagDescription {
+            margin-top: 10px;
+            padding-bottom: 5px;
+        }
+
+        .variationList {
+            list-style-type: none;
+            margin-left: 0;
+        }
+
+        .variationListItem {
+            margin-bottom: 10px;
+            font-size: 10px;
+        }
+
+        .variationName {
+            padding-left: 10px;
+        }
+
+        .variationDescription {
+            padding-left: 10px;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+<div class="rootContainer">
+    <section>
+        <div>
+            <span>{{ flag.name }}</span>
+            <span class="flagOnOff">{{ flag.on ? "On" : "Off" }}</span>
+        </div>
+        {% if flag.description %}
+        <div class="marginTop">
+            {{ flag.description }}
+        </div>
+        {% endif %}
+        <div class="flagDescription">
+            <a href="{{ flag.url }}">Open in LaunchDarkly</a>
+        </div>
+    </section>
+    <hr/>
+    <section class="variationSection">
+        <div class="heading">Variations</div>
+        <ul class="variationList">
+            {% for v in flag.variations %}
+            <li class="variationListItem">
+                <div>{{ v.value }}</div>
+                {% if v.name %}
+                <div class="variationName">{{ v.name }}</div>
+                {% endif %}
+                {% if v.description %}
+                <div class="variationDescription">{{ v.description }}</div>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+</div>
+</body>
+</html>

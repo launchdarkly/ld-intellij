@@ -46,7 +46,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
     lateinit var tree: Tree
 
     private fun createTreeStructure(): SimpleTreeStructure {
-        return FlagTreeStructure(myProject, root)
+        return FlagTreeStructure(root)
     }
 
     override fun dispose() {}
@@ -239,7 +239,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                         } else {
                             val notification = Notification(
                                 "ProjectOpenNotification", "LaunchDarkly",
-                                String.format("LaunchDarkly Plugin is not configured"), NotificationType.WARNING
+                                String.format("LaunchDarkly is not configured"), NotificationType.WARNING
                             )
                             notification.notify(myProject)
                         }

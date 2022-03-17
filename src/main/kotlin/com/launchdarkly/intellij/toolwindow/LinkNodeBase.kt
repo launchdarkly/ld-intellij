@@ -13,7 +13,6 @@ class LinkNodeBase(var label: String, val url: String, var labelIcon: Icon? = nu
     override fun update(data: PresentationData) {
         super.update(data)
         data.presentableText = label
-        data.tooltip = label
         data.setIcon(AllIcons.Ide.External_link_arrow)
     }
 }

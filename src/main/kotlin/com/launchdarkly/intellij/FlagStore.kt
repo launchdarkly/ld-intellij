@@ -55,7 +55,7 @@ class FlagStore(private var project: Project) {
         try {
             val getFlags = LaunchDarklyApiClient.flagInstance(settings.authorization, settings.baseUri)
             envList = listOf(settings.environment)
-            return getFlags.getFeatureFlags(ldProject, envList, true, null, null, null, null, null, null)
+            return getFlags.getFeatureFlags(ldProject, envList, true, null, null, null, null, "name", null)
         } catch (err: Exception) {
             System.err.println(err)
             val notifier = GeneralNotifier()

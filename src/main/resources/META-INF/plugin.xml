@@ -13,7 +13,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <applicationConfigurable
                 instance="com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfigurable"
-                id="launchdarkly.app.settings" displayName="LaunchDarkly Plugin"/>
+                id="launchdarkly.app.settings" displayName="LaunchDarkly"/>
 
 
         <applicationService
@@ -33,7 +33,7 @@
                     factoryClass="com.launchdarkly.intellij.toolwindow.FlagToolWindowFactory"/>
 
         <documentationProvider order="first"
-                               implementation="com.launchdarkly.intellij.LDDocumentationProvider"/>
+                               implementation="com.launchdarkly.intellij.hover.HoverDocumentationProvider"/>
         <!--        <configurationType-->
         <!--                implementation="com.launchdarkly.intellij.coderefs.CodeRefsRunConfigurationType"/>-->
 
