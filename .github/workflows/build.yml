@@ -116,11 +116,3 @@ jobs:
             INVALID_PLUGIN
             NOT_DYNAMIC
 
-      # Print the output of the verify step
-      - name: Print Logs
-        if: failure() || success()
-        env:
-          OUTPUT_LOG: ${{ steps.verify.outputs.verification-output-log-filename }}
-        run: |
-          echo "The verifier log file [$OUTPUT_LOG] contents : " ;
-          cat $OUTPUT_LOG
