@@ -39,45 +39,11 @@ jobs:
       - name: Gradle Wrapper Validation
         uses: gradle/wrapper-validation-action@v1
 
-  # Run verifyPlugin and test Gradle tasks
-  test:
-    name: Test
-    needs: gradleValidation
-    runs-on: ubuntu-latest
-    steps:
-
-      # Check out current repository
-      - name: Fetch Sources
-        uses: actions/checkout@v3
-
-      # Setup Java 11 environment for the next steps
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: 11
-
-      # Cache Gradle dependencies
-      - name: Setup Cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle-
-
-      # Run check Gradle task - includes tests
-      - name: Run Checks
-        run: ./gradlew check
-
-      # Run verifyPlugin Gradle task
-      - name: Verify Plugin
-        run: ./gradlew verifyPlugin
-
   # Build plugin with buildPlugin Gradle task and provide the artifact for the next workflow jobs
   # Requires test job to be passed
   build:
-    name: Build
-    needs: test
+    name: Build & Verify
+    needs: gradleValidation
     runs-on: ubuntu-latest
     outputs:
       name: ${{ steps.properties.outputs.name }}
@@ -105,6 +71,14 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle-
 
+      # Run check Gradle task - includes tests
+      - name: Run Checks
+        run: ./gradlew check
+
+      # Run verifyPlugin Gradle task
+      - name: Verify Plugin
+        run: ./gradlew verifyPlugin
+
       # Set environment variables
       - name: Export Properties
         id: properties
@@ -122,13 +96,6 @@ jobs:
       - name: Build Plugin
         run: ./gradlew buildPlugin
 
-      # Upload plugin artifact to make it available in the next jobs
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: plugin-artifact
-          path: build/distributions
-    
       - name: Summary
         run: |
           echo "Name: ${{ steps.properties.outputs.name }}"
@@ -136,35 +103,13 @@ jobs:
           echo "Artifact: ${{ steps.properties.outputs.name }}-${{ steps.properties.outputs.version }}.zip"
           echo "Changelog: ${{ steps.properties.outputs.changelog }}"
 
-  # Verify built plugin using IntelliJ Plugin Verifier tool
-  # Requires build job to be passed
-  verify:
-    name: Verify
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-
-      # Download plugin artifact provided by the previous job
-      - name: Download Artifact
-        id: download
-        uses: actions/download-artifact@v3
-        with:
-          name: plugin-artifact
-          path: /github/workspace/plugin-artifact
-          
-      # Check out current repository (required for fetching ide versions file)
-      - name: Fetch Sources
-        uses: actions/checkout@v3
-      
-      # Run IntelliJ Plugin Verifier action using GitHub Action
+     # Run IntelliJ Plugin Verifier action using GitHub Action
       - name: Verify Plugin
         id: verify
         uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.2.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          verifier-version: LATEST
-          plugin-location: plugin-artifact/${{ needs.build.outputs.artifact }}
           ide-versions: .github/workflows/ide_versions_file.txt
           failure-levels: |
             COMPATIBILITY_PROBLEMS
