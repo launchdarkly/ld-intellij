@@ -139,6 +139,7 @@ jobs:
 
       # Download plugin artifact provided by the previous job
       - name: Download Artifact
+        id: download
         uses: actions/download-artifact@v3
         with:
           name: plugin-artifact
@@ -152,7 +153,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           verifier-version: LATEST
-          plugin-location: 'build/distributions/*.zip'
+          plugin-location: ${{ steps.download.outputs.download-path }}
           ide-versions: .github/workflows/ide_versions_file.txt
           failure-levels: |
             COMPATIBILITY_PROBLEMS
