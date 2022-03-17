@@ -139,6 +139,7 @@ jobs:
           name: plugin-artifact
 
       # Run IntelliJ Plugin Verifier action using GitHub Action
+      - uses: actions/checkout@v3 # required for fetching ide versions file
       - name: Verify Plugin
         id: verify
         uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.2.1
