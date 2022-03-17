@@ -28,6 +28,7 @@ import com.intellij.ui.layout.or
 import com.launchdarkly.api.ApiException
 import com.launchdarkly.api.model.Project as ApiProject
 import com.launchdarkly.intellij.LaunchDarklyApiClient
+import com.launchdarkly.intellij.constants.DEFAULT_BASE_URI
 import com.launchdarkly.intellij.messaging.AppDefaultMessageBusService
 import javax.swing.*
 
@@ -64,7 +65,7 @@ open class LaunchDarklyApplicationConfig : PersistentStateComponent<LaunchDarkly
         override var project: String = "",
         override var environment: String = "",
         override var refreshRate: Int = 120,
-        override var baseUri: String = "https://app.launchdarkly.com",
+        override var baseUri: String = DEFAULT_BASE_URI,
         override var codeReferences: Boolean = true,
         override var codeReferencesRefreshRate: Int = 240
     ) : LDSettings {

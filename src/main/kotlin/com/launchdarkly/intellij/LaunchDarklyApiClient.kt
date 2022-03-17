@@ -11,8 +11,7 @@ import com.launchdarkly.api.api.ProjectsApi
 import com.launchdarkly.api.auth.ApiKeyAuth
 import com.launchdarkly.api.model.Tokens
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
-
-private const val APP_URI = "https://app.launchdarkly.com"
+import com.launchdarkly.intellij.constants.DEFAULT_BASE_URI
 
 class LaunchDarklyApiClient() {
 
@@ -65,5 +64,5 @@ class LaunchDarklyApiClient() {
 }
 
 fun getUri(baseUri: String?): String {
-    return if (baseUri.isNullOrEmpty()) APP_URI else baseUri
+    return if (baseUri.isNullOrEmpty()) DEFAULT_BASE_URI else baseUri
 }
