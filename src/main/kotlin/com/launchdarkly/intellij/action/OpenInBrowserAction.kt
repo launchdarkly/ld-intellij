@@ -7,7 +7,6 @@ import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
 import com.launchdarkly.intellij.toolwindow.InfoNode
-import javax.swing.Icon
 
 class OpenInBrowserAction : AnAction() {
     companion object {

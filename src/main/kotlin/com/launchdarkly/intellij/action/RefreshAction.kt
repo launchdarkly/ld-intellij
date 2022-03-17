@@ -4,7 +4,6 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
 import com.launchdarkly.intellij.FlagStore
-import javax.swing.Icon
 
 class RefreshAction : AnAction() {
     companion object {

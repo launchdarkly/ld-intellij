@@ -10,7 +10,6 @@ import com.launchdarkly.intellij.LaunchDarklyApiClient
 import com.launchdarkly.intellij.notifications.GeneralNotifier
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
-import javax.swing.Icon
 
 class ToggleFlagAction : AnAction() {
     companion object {

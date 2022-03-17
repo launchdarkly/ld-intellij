@@ -8,7 +8,6 @@ import com.launchdarkly.intellij.toolwindow.KEY_PREFIX
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.StringSelection
-import javax.swing.Icon
 import javax.swing.tree.DefaultMutableTreeNode
 
 class CopyKeyAction : AnAction() {

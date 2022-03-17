@@ -14,7 +14,6 @@ import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
 import java.awt.Component
 import javax.swing.DefaultListCellRenderer
-import javax.swing.Icon
 import javax.swing.JList
 import javax.swing.tree.DefaultMutableTreeNode
 
