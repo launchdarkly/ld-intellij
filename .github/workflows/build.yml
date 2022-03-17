@@ -71,13 +71,13 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle-
 
-      # Run check Gradle task - includes tests
-      - name: Run Checks
-        run: ./gradlew check
+      # # Run check Gradle task - includes tests
+      # - name: Run Checks
+      #   run: ./gradlew check
 
-      # Run verifyPlugin Gradle task
-      - name: Verify Plugin
-        run: ./gradlew verifyPlugin
+      # # Run verifyPlugin Gradle task
+      # - name: Verify Plugin
+      #   run: ./gradlew verifyPlugin
 
       # Set environment variables
       - name: Export Properties
