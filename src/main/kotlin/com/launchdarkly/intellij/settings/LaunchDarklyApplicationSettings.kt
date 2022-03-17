@@ -243,8 +243,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             }
             apiUpdate = false
         } catch (err: ApiException) {
-            println("caught error")
-            println(err)
+            println("Error updating projects: $err")
             with(projectBox) {
                 removeAllElements()
             }
