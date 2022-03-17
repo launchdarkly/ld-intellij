@@ -146,6 +146,8 @@ jobs:
       - name: Verify Plugin
         id: verify
         uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.2.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           verifier-version: LATEST
           plugin-location: 'build/distributions/*.zip'
