@@ -15,7 +15,6 @@
 name: Build
 on:
   push:
-    tags:
     branches:
       - main
   # Trigger the workflow on any pull request
