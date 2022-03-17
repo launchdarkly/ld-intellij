@@ -22,32 +22,11 @@ import javax.swing.tree.DefaultMutableTreeNode
  * ChangeOffVariationAction allows users to update the Off targeting
  * for the selected flag in the configured environment.
  */
-class ChangeOffVariationAction : AnAction {
-    /**
-     *  breaks if this is not called, even though IntelliJ says it's never used.
-     */
-    constructor() : super()
-
+class ChangeOffVariationAction : AnAction() {
     companion object {
         const val ID = "com.launchdarkly.intellij.action.ChangeOffVariationAction"
     }
 
-    /**
-     * This constructor is used to support dynamically added menu actions.
-     * It sets the text, description to be displayed for the menu item.
-     * Otherwise, the default AnAction constructor is used by the IntelliJ Platform.
-     * @param text  The text to be displayed as a menu item.
-     * @param description  The description of the menu item.
-     * @param icon  The icon to be used with the menu item.
-     */
-    constructor(text: String? = "Open in Browser", description: String?, icon: Icon?) : super(text, description, icon)
-
-    /**
-     * Gives the user feedback when the dynamic action menu is chosen.
-     * Pops a simple message dialog. See the psi_demo plugin for an
-     * example of how to use AnActionEvent to access data.
-     * @param event Event received when the associated menu item is chosen.
-     */
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val currentComponent = event.inputEvent?.component ?: return
