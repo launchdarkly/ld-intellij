@@ -144,10 +144,15 @@ jobs:
       # Run IntelliJ Plugin Verifier action using GitHub Action
       - name: Verify Plugin
         id: verify
-        uses: ChrisCarini/intellij-platform-plugin-verifier-action@v0.0.2
+        uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.2.1
         with:
+          verifier-version: LATEST
           plugin-location: plugin-artifact/${{ needs.build.outputs.artifact }}
           ide-versions: .github/workflows/ide_versions_file.txt
+          failure-levels: |
+            COMPATIBILITY_PROBLEMS
+            INVALID_PLUGIN
+            NOT_DYNAMIC
 
       # Print the output of the verify step
       - name: Print Logs
