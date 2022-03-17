@@ -25,7 +25,7 @@ class RootNode(private val flags: FeatureFlags, private val settings: LDSettings
                     "Loading Flags..."
                 )
             )
-            flags.items == null -> myChildren.add(FlagNodeBase("LaunchDarkly Plugin is not configured."))
+            flags.items == null -> myChildren.add(FlagNodeBase("LaunchDarkly is not configured."))
         }
 
         return myChildren.toTypedArray()

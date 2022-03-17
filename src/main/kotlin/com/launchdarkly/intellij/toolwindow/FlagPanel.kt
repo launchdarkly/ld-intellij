@@ -239,7 +239,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                         } else {
                             val notification = Notification(
                                 "ProjectOpenNotification", "LaunchDarkly",
-                                String.format("LaunchDarkly Plugin is not configured"), NotificationType.WARNING
+                                String.format("LaunchDarkly is not configured"), NotificationType.WARNING
                             )
                             notification.notify(myProject)
                         }

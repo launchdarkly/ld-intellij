@@ -148,7 +148,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                 } else {
                     DefaultComboBoxModel(arrayOf(defaultMessage))
                 }
-                row("Project") {
+                row("Project:") {
                     comboBox(projectBox, renderer).bindItem(settings::project)
                 }
 

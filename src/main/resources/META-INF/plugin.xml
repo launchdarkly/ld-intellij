@@ -13,7 +13,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <applicationConfigurable
                 instance="com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfigurable"
-                id="launchdarkly.app.settings" displayName="LaunchDarkly Plugin"/>
+                id="launchdarkly.app.settings" displayName="LaunchDarkly"/>
 
 
         <applicationService
