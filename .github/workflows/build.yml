@@ -150,6 +150,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: plugin-artifact
+          path: /github/workspace/plugin-artifact
+          
+      # Check out current repository (required for fetching ide versions file)
+      - name: Fetch Sources
+        uses: actions/checkout@v3
       
       # Run IntelliJ Plugin Verifier action using GitHub Action
       - name: Verify Plugin
@@ -160,11 +165,7 @@ jobs:
         with:
           verifier-version: LATEST
           plugin-location: plugin-artifact/${{ needs.build.outputs.artifact }}
-          ide-versions: |
-            ideaIC:2021.3
-            ideaIU:2021.3
-            ideaIC:LATEST-EAP-SNAPSHOT
-            ideaIU:LATEST-EAP-SNAPSHOT
+          ide-versions: .github/workflows/ide_versions_file.txt
           failure-levels: |
             COMPATIBILITY_PROBLEMS
             INVALID_PLUGIN
