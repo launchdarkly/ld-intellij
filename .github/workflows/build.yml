@@ -133,7 +133,7 @@ jobs:
         run: |
           echo "Name: ${{ steps.properties.outputs.name }}"
           echo "Version: ${{ steps.properties.outputs.version }}"
-          echo "Artifcat: ${{ steps.properties.outputs.name }}-${{ steps.properties.outputs.version }}.zip"
+          echo "Artifact: ${{ steps.properties.outputs.name }}-${{ steps.properties.outputs.version }}.zip"
           echo "Changelog: ${{ steps.properties.outputs.changelog }}"
 
   # Verify built plugin using IntelliJ Plugin Verifier tool
