@@ -42,7 +42,7 @@ class CopyKeyAction : AnAction() {
         super.update(e)
         val project = e.project ?: return
         val selectedNode = ActionHelpers.getLastSelectedDefaultMutableTreeNode(project) ?: return
-        val isFlagParentNode = selectedNode?.userObject is FlagNodeParent
+        val isFlagParentNode = selectedNode.userObject is FlagNodeParent
         val hasKeyPrefix = selectedNode.toString().startsWith(KEY_PREFIX)
 
         e.presentation.isEnabledAndVisible = e.presentation.isEnabled && (hasKeyPrefix || isFlagParentNode)
