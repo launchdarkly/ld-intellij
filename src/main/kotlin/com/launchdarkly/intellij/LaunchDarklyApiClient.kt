@@ -9,8 +9,8 @@ import com.launchdarkly.api.api.FeatureFlagsApi
 import com.launchdarkly.api.api.ProjectsApi
 import com.launchdarkly.api.auth.ApiKeyAuth
 import com.launchdarkly.api.model.Tokens
-import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.constants.DEFAULT_BASE_URI
+import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 
 class LaunchDarklyApiClient() {
 
