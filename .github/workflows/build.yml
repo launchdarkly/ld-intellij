@@ -127,7 +127,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: plugin-artifact
-          path: build/distributions/${{ steps.properties.outputs.name }}-${{ steps.properties.outputs.version }}.zip
+          path: build/distributions
     
       - name: Summary
         run: |
@@ -150,10 +150,8 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: plugin-artifact
-          path: ${{ needs.build.outputs.artifact }}
-
+      
       # Run IntelliJ Plugin Verifier action using GitHub Action
-      - uses: actions/checkout@v3 # required for fetching ide versions file
       - name: Verify Plugin
         id: verify
         uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.2.1
@@ -161,8 +159,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           verifier-version: LATEST
-          plugin-location: ${{ needs.build.outputs.artifact }}
-          ide-versions: .github/workflows/ide_versions_file.txt
+          plugin-location: plugin-artifact/${{ needs.build.outputs.artifact }}
+          ide-versions: |
+            ideaIC:2021.3
+            ideaIU:2021.3
+            ideaIC:LATEST-EAP-SNAPSHOT
+            ideaIU:LATEST-EAP-SNAPSHOT
           failure-levels: |
             COMPATIBILITY_PROBLEMS
             INVALID_PLUGIN
