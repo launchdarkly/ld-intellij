@@ -147,10 +147,7 @@ jobs:
         uses: ChrisCarini/intellij-platform-plugin-verifier-action@v0.0.2
         with:
           plugin-location: plugin-artifact/${{ needs.build.outputs.artifact }}
-          ide-versions: |
-            ideaIC:2020.1
-            ideaIC:2020.2
-            ideaIC:2020.3
+          ide-versions: .github/workflows/ide_versions_file.txt
 
       # Print the output of the verify step
       - name: Print Logs
