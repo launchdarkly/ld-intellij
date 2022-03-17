@@ -139,18 +139,15 @@ jobs:
           name: plugin-artifact
 
       # Run IntelliJ Plugin Verifier action using GitHub Action
-      - uses: actions/checkout@v3 # required for fetching ide versions file
       - name: Verify Plugin
         id: verify
-        uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.2.1
+        uses: ChrisCarini/intellij-platform-plugin-verifier-action@v0.0.2
         with:
-          verifier-version: LATEST
           plugin-location: plugin-artifact/${{ needs.build.outputs.artifact }}
-          ide-versions: .github/workflows/ide_versions_file.txt
-          failure-levels: |
-            COMPATIBILITY_PROBLEMS
-            INVALID_PLUGIN
-            NOT_DYNAMIC
+          ide-versions: |
+            ideaIC:2020.1
+            ideaIC:2020.2
+            ideaIC:2020.3
 
       # Print the output of the verify step
       - name: Print Logs
