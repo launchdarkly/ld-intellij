@@ -67,7 +67,7 @@ class ChangeFallthroughAction : AnAction() {
                     val patchComment = PatchComment().apply {
                         patch = listOf(flagPatch)
                     }
-                    val ldFlag = LaunchDarklyApiClient.flagInstance(project)
+                    val ldFlag = LaunchDarklyApiClient.flagInstance()
                     try {
                         ldFlag.patchFeatureFlag(settings.project, parentNode.key, patchComment)
                     } catch (e: ApiException) {

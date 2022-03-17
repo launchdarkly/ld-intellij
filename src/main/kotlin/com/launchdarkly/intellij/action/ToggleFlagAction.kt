@@ -30,7 +30,7 @@ class ToggleFlagAction : AnAction() {
         val patchComment = PatchComment().apply {
             patch = listOf(flagPatch)
         }
-        val ldFlag = LaunchDarklyApiClient.flagInstance(project)
+        val ldFlag = LaunchDarklyApiClient.flagInstance()
         ApplicationManager.getApplication().executeOnPooledThread {
             try {
                 ldFlag.patchFeatureFlag(settings.project, flagNode.key, patchComment)
