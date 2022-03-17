@@ -127,7 +127,14 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: plugin-artifact
-          path: build/distributions/*.zip
+          path: build/distributions/${{ steps.properties.outputs.name }}-${{ steps.properties.outputs.version }}.zip
+    
+      - name: Summary
+        run: |
+          echo "Name: ${{ steps.properties.outputs.name }}"
+          echo "Version: ${{ steps.properties.outputs.version }}"
+          echo "Artifcat: ${{ steps.properties.outputs.name }}-${{ steps.properties.outputs.version }}.zip"
+          echo "Changelog: ${{ steps.properties.outputs.changelog }}"
 
   # Verify built plugin using IntelliJ Plugin Verifier tool
   # Requires build job to be passed
@@ -143,7 +150,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: plugin-artifact
-          path: build.zip
+          path: ${{needs.build.outputs.artifact}}
 
       # Run IntelliJ Plugin Verifier action using GitHub Action
       - uses: actions/checkout@v3 # required for fetching ide versions file
@@ -154,7 +161,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           verifier-version: LATEST
-          plugin-location: build.zip
+          plugin-location: ${{needs.build.outputs.artifact}}
           ide-versions: .github/workflows/ide_versions_file.txt
           failure-levels: |
             COMPATIBILITY_PROBLEMS
