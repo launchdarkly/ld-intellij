@@ -17,7 +17,7 @@ on:
   push:
     tags:
     branches:
-      - 2022 #TODO: Switch branch when strategy is finalized
+      - main
   # Trigger the workflow on any pull request
   pull_request:
     types:
