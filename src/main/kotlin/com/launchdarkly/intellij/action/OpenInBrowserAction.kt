@@ -50,9 +50,9 @@ class OpenInBrowserAction : AnAction {
         val selectedNode = ActionHelpers.getLastSelectedDefaultMutableTreeNode(project)
 
         if (selectedNode?.userObject is FlagNodeParent) {
-            val parentNode = selectedNode.userObject as FlagNodeParent
+            val flagParentNode = selectedNode.userObject as FlagNodeParent
             val url =
-                "${settings.baseUri}/${settings.project}/${settings.environment}/features/${parentNode.flag.key}"
+                "${settings.baseUri}/${settings.project}/${settings.environment}/features/${flagParentNode.flag.key}"
             BrowserLauncher.instance.open(url)
         } else if (selectedNode?.userObject is InfoNode) {
             val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features"

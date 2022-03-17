@@ -50,15 +50,13 @@ class ToggleFlagAction : AnAction {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val selectedNode = ActionHelpers.getLastSelectedDefaultMutableTreeNode(project) ?: return
-        val nodeInfo = selectedNode.userObject as? FlagNodeParent ?: return
+        val flagNode = selectedNode.userObject as? FlagNodeParent ?: return
 
-        // Relies on implicit behavior of key being first child.
-        val flagKey = selectedNode.firstChild.toString().substringAfter(" ")
         val settings = LaunchDarklyApplicationConfig.getInstance().ldState
         val flagPatch = PatchOperation().apply {
             op = "replace"
             path = "/environments/" + settings.environment + "/on"
-            value = !nodeInfo.env.on
+            value = !flagNode.env.on
         }
         val patchComment = PatchComment().apply {
             patch = listOf(flagPatch)
@@ -66,12 +64,12 @@ class ToggleFlagAction : AnAction {
         val ldFlag = LaunchDarklyApiClient.flagInstance(project)
         ApplicationManager.getApplication().executeOnPooledThread {
             try {
-                ldFlag.patchFeatureFlag(settings.project, flagKey, patchComment)
+                ldFlag.patchFeatureFlag(settings.project, flagNode.key, patchComment)
             } catch (e: ApiException) {
                 System.err.println("Exception when calling FeatureFlagsApi#patchFeatureFlag")
                 e.printStackTrace()
                 val notifier = GeneralNotifier()
-                notifier.notify(project, "Error toggling flag: $flagKey - ${e.message}")
+                notifier.notify(project, "Error toggling flag: $flagNode.key - ${e.message}")
             }
         }
     }
