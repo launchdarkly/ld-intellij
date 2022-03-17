@@ -143,6 +143,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: plugin-artifact
+          path: build.zip
 
       # Run IntelliJ Plugin Verifier action using GitHub Action
       - uses: actions/checkout@v3 # required for fetching ide versions file
@@ -153,7 +154,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           verifier-version: LATEST
-          plugin-location: ${{ steps.download.outputs.download-path }}
+          plugin-location: build.zip
           ide-versions: .github/workflows/ide_versions_file.txt
           failure-levels: |
             COMPATIBILITY_PROBLEMS
