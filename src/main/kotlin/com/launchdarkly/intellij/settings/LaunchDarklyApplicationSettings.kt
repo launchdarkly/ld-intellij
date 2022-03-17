@@ -279,9 +279,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         super.apply()
 
         settings.baseUri = settings.baseUri.replace(Regex("/+$"), "")
-
         settings.project = projectBox.selectedItem?.toString() ?: settings.project
-
         settings.environment = environmentBox.selectedItem?.toString() ?: settings.environment
 
         if (settings.authorization != origApiKey || settings.baseUri != origBaseUri) {
