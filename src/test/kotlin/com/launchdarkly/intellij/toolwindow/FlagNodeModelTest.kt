@@ -4,8 +4,8 @@ import com.launchdarkly.api.model.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-internal class FlagNodeModelTest {
-    private fun createModelWithName(): FlagNodeModel {
+internal class FlagNodeViewModelTest {
+    private fun createModelWithName(): FlagNodeViewModel {
         val variationA = Variation().apply {
             name = "variation a"
         }
@@ -25,10 +25,10 @@ internal class FlagNodeModelTest {
         val flags = FeatureFlags().apply {
             items = listOf(flag)
         }
-        return FlagNodeModel(flag, flags, null)
+        return FlagNodeViewModel(flag, flags, null)
     }
 
-    private fun createModelWitoutName(): FlagNodeModel {
+    private fun createModelWitoutName(): FlagNodeViewModel {
         val flag = FeatureFlag().apply {
             key = "flag key"
             description = "flag description"
@@ -36,7 +36,7 @@ internal class FlagNodeModelTest {
         val flags = FeatureFlags().apply {
             items = listOf(flag)
         }
-        return FlagNodeModel(flag, flags, null)
+        return FlagNodeViewModel(flag, flags, null)
     }
 
     @Test

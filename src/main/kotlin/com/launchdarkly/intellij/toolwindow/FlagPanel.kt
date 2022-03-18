@@ -130,7 +130,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                         val flag = flagStore.flags.items.find { it.key == parentNode.key }
                         if (flag != null && flagStore.flagConfigs[flag.key] != null) {
                             val config = flagStore.flagConfigs[flag.key]
-                            val flagModel = FlagNodeModel(flag, flagStore.flags, config)
+                            val flagModel = FlagNodeViewModel(flag, flagStore.flags, config)
                             parentNode.updateModel(flagModel)
                             treeModel.invalidate(TreePath(parent), true)
                             parentNode = FlagNodeParent(flagModel)
@@ -171,7 +171,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                             if (parentNode.key == flag.key && parentNode.flag.version < flag.version && flagStore.flagConfigs[flag.key] !== null) {
                                 found = true
                                 val config = flagStore.flagConfigs[flag.key]
-                                val flagModel = FlagNodeModel(flag, flagStore.flags, config)
+                                val flagModel = FlagNodeViewModel(flag, flagStore.flags, config)
                                 parentNode = FlagNodeParent(flagModel)
                                 treeModel.invalidate(TreePath(parent), true)
                                 break

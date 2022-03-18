@@ -22,7 +22,7 @@ class RootNode(private val flags: FeatureFlags, private val settings: LDSettings
                 for (flag in flags.items) {
                     val flagStore = intProject.service<FlagStore>()
                     val config = flagStore.flagConfigs[flag.key]!!
-                    val flagModel = FlagNodeModel(flag, flags, config)
+                    val flagModel = FlagNodeViewModel(flag, flags, config)
                     myChildren.add(FlagNodeParent(flagModel))
                 }
             }

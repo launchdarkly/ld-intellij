@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 internal class FlagNodeParentTest {
-    private fun createModel(): FlagNodeModel {
+    private fun createModel(): FlagNodeViewModel {
         val variationA = Variation().apply {
             name = "variation a"
         }
@@ -25,7 +25,7 @@ internal class FlagNodeParentTest {
         val flags = FeatureFlags().apply {
             items = listOf(flag)
         }
-        return FlagNodeModel(flag, flags, null)
+        return FlagNodeViewModel(flag, flags, null)
     }
 
     @Test

@@ -7,10 +7,11 @@ import java.util.*
 
 const val KEY_PREFIX = "Key:"
 
-class FlagNodeParent(private var model: FlagNodeModel) : SimpleNode() {
+class FlagNodeParent(private var viewModel: FlagNodeViewModel) : SimpleNode() {
     private var children: MutableList<SimpleNode> = ArrayList()
-    var flag = model.flag
-    var key = flag.key
+    val flag get() = viewModel.flag
+    val key get() = flag.key
+    val isEnabled get() = viewModel.flagConfig.on
 
     override fun getChildren(): Array<SimpleNode> {
         if (children.isEmpty()) {
@@ -22,29 +23,29 @@ class FlagNodeParent(private var model: FlagNodeModel) : SimpleNode() {
         return children.toTypedArray()
     }
 
-    fun updateModel(model: FlagNodeModel) {
-        this.model = model
+    fun updateModel(viewModel: FlagNodeViewModel) {
+        this.viewModel = viewModel
     }
 
     private fun buildChildren() {
         children.add(FlagNodeBase("$KEY_PREFIX ${flag.key}", LDIcons.FLAG_KEY))
-        if (flag.description != "") children.add(FlagNodeBase("Description: ${flag.description}", LDIcons.DESCRIPTION))
+        if (viewModel.description != "") children.add(FlagNodeBase("Description: ${viewModel.description}", LDIcons.DESCRIPTION))
         children.add(FlagNodeVariations(flag))
-        if (model.prereqFlags.isNotEmpty()) children.add(FlagNodePrerequisites(model.prereqFlags, model.flags))
-        if (model.targets.isNotEmpty()) children.add(FlagNodeTargets(flag, model.targets))
-        if (model.numRules > 0) children.add(FlagNodeBase("Rules: ${model.numRules}", LDIcons.RULES))
-        if (model.hasFallthrough) children.add(FlagNodeFallthrough(flag, model.flagConfig))
-        if (model.hasOffVariation) children.add(FlagNodeBase("Off Variation: ${model.offVariation}", LDIcons.OFF_VARIATION))
+        if (viewModel.prereqFlags.isNotEmpty()) children.add(FlagNodePrerequisites(viewModel.prereqFlags, viewModel.flags))
+        if (viewModel.targets.isNotEmpty()) children.add(FlagNodeTargets(flag, viewModel.targets))
+        if (viewModel.numRules > 0) children.add(FlagNodeBase("Rules: ${viewModel.numRules}", LDIcons.RULES))
+        if (viewModel.hasFallthrough) children.add(FlagNodeFallthrough(flag, viewModel.flagConfig))
+        if (viewModel.hasOffVariation) children.add(FlagNodeBase("Off Variation: ${viewModel.offVariation}", LDIcons.OFF_VARIATION))
         if (flag.tags.size > 0) children.add(FlagNodeTags(flag.tags))
     }
 
     override fun update(data: PresentationData) {
         super.update(data)
         val enabledIcon =
-            if (model.isDisconnected) LDIcons.TOGGLE_DISCONNECTED
-            else if (model.flagConfig.on) LDIcons.TOGGLE_ON
+            if (viewModel.isDisconnected) LDIcons.TOGGLE_DISCONNECTED
+            else if (viewModel.flagConfig.on) LDIcons.TOGGLE_ON
             else LDIcons.TOGGLE_OFF
-        val label = model.flagLabel
+        val label = viewModel.flagLabel
         data.presentableText = label
         data.setIcon(enabledIcon)
     }
