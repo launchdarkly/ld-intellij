@@ -130,10 +130,10 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                         val flag = flagStore.flags.items.find { it.key == parentNode.key }
                         if (flag != null && flagStore.flagConfigs[flag.key] != null) {
                             val config = flagStore.flagConfigs[flag.key]
-                            val flagModel = FlagNodeViewModel(flag, flagStore.flags, config)
-                            parentNode.updateModel(flagModel)
+                            val flagViewModel = FlagNodeViewModel(flag, flagStore.flags, config)
+                            parentNode.updateViewModel(flagViewModel)
                             treeModel.invalidate(TreePath(parent), true)
-                            parentNode = FlagNodeParent(flagModel)
+                            parentNode = FlagNodeParent(flagViewModel)
                         } else {
                             // If the flag does not exist in the SDK DataStore it should not be part of Environment.
                             flagStore.flags.items.remove(flag)
@@ -170,10 +170,10 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                             var parentNode = parent.userObject as FlagNodeParent
                             if (parentNode.key == flag.key && parentNode.flag.version < flag.version && flagStore.flagConfigs[flag.key] !== null) {
                                 found = true
-                                val config = flagStore.flagConfigs[flag.key]
-                                val flagModel = FlagNodeViewModel(flag, flagStore.flags, config)
-                                parentNode = FlagNodeParent(flagModel)
+                                val flagViewModel = FlagNodeViewModel(flag, flagStore.flags, flagStore.flagConfigs[flag.key])
+                                parentNode.updateViewModel(flagViewModel)
                                 treeModel.invalidate(TreePath(parent), true)
+                                parentNode = FlagNodeParent(flagViewModel)
                                 break
                             }
                             if (parentNode.key == flag.key) {

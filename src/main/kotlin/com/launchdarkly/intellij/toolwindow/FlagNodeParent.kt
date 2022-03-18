@@ -23,7 +23,7 @@ class FlagNodeParent(private var viewModel: FlagNodeViewModel) : SimpleNode() {
         return children.toTypedArray()
     }
 
-    fun updateModel(viewModel: FlagNodeViewModel) {
+    fun updateViewModel(viewModel: FlagNodeViewModel) {
         this.viewModel = viewModel
     }
 

@@ -17,9 +17,9 @@ class FlagNodeViewModel(
     val numRules = this.flagConfig.rules.size
     val hasFallthrough = this.flagConfig.fallthrough != null
     val hasOffVariation = this.flagConfig.offVariation != null
-    private val offVariationIndex = this.flagConfig.offVariation as Int
+    private val offVariationIndex = this.flagConfig.offVariation as? Int
     val offVariation = when {
-        hasOffVariation -> flag.variations[offVariationIndex].name ?: flag.variations[offVariationIndex].value
+        offVariationIndex != null -> flag.variations[offVariationIndex].name ?: flag.variations[offVariationIndex].value
         else -> null
     }
     val flagLabel = flag.name ?: flag.key

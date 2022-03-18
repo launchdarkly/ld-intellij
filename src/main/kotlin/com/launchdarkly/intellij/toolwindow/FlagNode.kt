@@ -15,15 +15,13 @@ class RootNode(private val flags: FeatureFlags, private val settings: LDSettings
     private var myChildren: MutableList<SimpleNode> = ArrayList()
 
     override fun getChildren(): Array<SimpleNode> {
-
         when {
             myChildren.isEmpty() && flags.items != null -> {
                 myChildren.add(InfoNode("${settings.project} / ${settings.environment}"))
                 for (flag in flags.items) {
                     val flagStore = intProject.service<FlagStore>()
-                    val config = flagStore.flagConfigs[flag.key]!!
-                    val flagModel = FlagNodeViewModel(flag, flags, config)
-                    myChildren.add(FlagNodeParent(flagModel))
+                    val flagViewModel = FlagNodeViewModel(flag, flags, flagStore.flagConfigs[flag.key])
+                    myChildren.add(FlagNodeParent(flagViewModel))
                 }
             }
             (settings.project != "" && settings.environment != "") && flags.items == null -> myChildren.add(
