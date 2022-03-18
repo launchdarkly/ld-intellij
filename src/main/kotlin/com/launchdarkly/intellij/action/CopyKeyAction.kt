@@ -30,7 +30,7 @@ class CopyKeyAction : AnAction() {
         }
 
         // If we can't find the key to copy, notify the user
-        Notifier(project, Notifier.LDNotificationType.GENERAL).notify("Could not copy flag key.")
+        Notifier.createGeneralNotifier(project).notify("Could not copy flag key.")
     }
 
     override fun update(e: AnActionEvent) {

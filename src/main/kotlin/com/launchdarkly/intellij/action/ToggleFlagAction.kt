@@ -37,7 +37,7 @@ class ToggleFlagAction : AnAction() {
             } catch (e: ApiException) {
                 System.err.println("Exception when calling FeatureFlagsApi#patchFeatureFlag")
                 e.printStackTrace()
-                Notifier(project, Notifier.LDNotificationType.GENERAL).notify("Error toggling flag: $flagNode.key - ${e.message}")
+                Notifier.createGeneralNotifier(project).notify("Error toggling flag: $flagNode.key - ${e.message}")
             }
         }
     }

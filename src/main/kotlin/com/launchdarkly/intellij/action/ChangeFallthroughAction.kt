@@ -73,7 +73,7 @@ class ChangeFallthroughAction : AnAction() {
                     } catch (e: ApiException) {
                         System.err.println("Exception when calling FeatureFlagsApi#patchFeatureFlag")
                         e.printStackTrace()
-                        Notifier(project, Notifier.LDNotificationType.GENERAL).notify("Error changing fallthrough variation for flag: ${parentNode.key} - ${e.message}")
+                        Notifier.createGeneralNotifier(project).notify("Error changing fallthrough variation for flag: ${parentNode.key} - ${e.message}")
                     }
                 }
             }

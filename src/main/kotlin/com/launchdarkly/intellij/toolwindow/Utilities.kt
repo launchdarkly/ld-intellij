@@ -7,6 +7,6 @@ object Utilities {
     fun handlePanelError(err: Error, project: Project) {
         System.err.println("Exception when updating LaunchDarkly FlagPanel Toolwindow")
         err.printStackTrace()
-        Notifier(project, Notifier.LDNotificationType.GENERAL).notify("Error updating LaunchDarkly Toolwindow $err")
+        Notifier.createGeneralNotifier(project).notify("Error updating LaunchDarkly Toolwindow $err")
     }
 }

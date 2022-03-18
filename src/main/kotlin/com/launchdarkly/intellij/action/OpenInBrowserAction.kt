@@ -27,7 +27,7 @@ class OpenInBrowserAction : AnAction() {
             val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features"
             BrowserLauncher.instance.open(url)
         } else {
-            Notifier(project, Notifier.LDNotificationType.GENERAL).notify("Error opening in browser, please try again.")
+            Notifier.createGeneralNotifier(project).notify("Error opening in browser, please try again.")
         }
     }
 

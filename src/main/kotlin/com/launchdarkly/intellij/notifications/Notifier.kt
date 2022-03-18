@@ -9,6 +9,11 @@ class Notifier(project: Project, type: LDNotificationType) {
         GENERAL("LaunchDarkly"),
     }
 
+    companion object {
+        fun createGeneralNotifier(project: Project): Notifier = Notifier(project, LDNotificationType.GENERAL)
+        fun createConfigNotifier(project: Project): Notifier = Notifier(project, LDNotificationType.CONFIG)
+    }
+
     private val project: Project
     private val type: LDNotificationType
 

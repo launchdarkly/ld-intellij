@@ -57,7 +57,7 @@ class FlagStore(private var project: Project) {
             return getFlags.getFeatureFlags(ldProject, envList, true, null, null, null, null, "name", null)
         } catch (err: Exception) {
             System.err.println(err)
-            Notifier(project, Notifier.LDNotificationType.GENERAL).notify("Error retrieve flags: ${err.message}")
+            Notifier.createConfigNotifier(project).notify("Error retrieve flags: ${err.message}")
         }
         return FeatureFlags()
     }
@@ -102,7 +102,7 @@ class FlagStore(private var project: Project) {
                         flags.items.add(newFlag)
                     } catch (err: ApiException) {
                         System.err.println("Error: $err - Unable to retrieve flag: ${event.key}")
-                        Notifier(project, Notifier.LDNotificationType.GENERAL).notify("Error updating flag ${event.key}: ${err.message}")
+                        Notifier.createGeneralNotifier(project).notify("Error updating flag ${event.key}: ${err.message}")
                     }
                 }
                 if (store.get(DataModel.FEATURES, event.key) == null) {
@@ -167,7 +167,7 @@ class FlagStore(private var project: Project) {
                     setupStore()
                 } catch (err: ApiException) {
                     System.err.println(err)
-                    Notifier(project, Notifier.LDNotificationType.CONFIG).notify("Project: ${settings.project} Error: $err")
+                    Notifier.createGeneralNotifier(project).notify("Project: ${settings.project} Error: $err")
                     offlineStore()
                 }
             }
@@ -188,7 +188,7 @@ class FlagStore(private var project: Project) {
                                 setupStore()
                             }
                         } catch (err: ApiException) {
-                            Notifier(project, Notifier.LDNotificationType.CONFIG).notify(err.toString())
+                            Notifier.createConfigNotifier(project).notify(err.toString())
                         }
                     }
                 }
