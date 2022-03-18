@@ -9,8 +9,8 @@ class Notifier(project: Project, type: LDNotificationType) {
         GENERAL("LaunchDarkly"),
     }
 
-    val project: Project
-    val type: LDNotificationType
+    private val project: Project
+    private val type: LDNotificationType
 
     init {
         this.project = project
