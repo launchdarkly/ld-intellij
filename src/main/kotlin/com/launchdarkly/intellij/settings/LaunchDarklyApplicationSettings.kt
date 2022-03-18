@@ -17,9 +17,6 @@ import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ui.SimpleListCellRenderer
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.*
-import com.intellij.ui.dsl.builder.Cell
-import com.intellij.ui.dsl.builder.panel
-import com.intellij.ui.dsl.builder.selected
 import com.intellij.ui.layout.ComponentPredicate
 import com.intellij.ui.layout.ValidationInfoBuilder
 import com.intellij.ui.layout.and
@@ -133,7 +130,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
         panel = panel {
             row {
-                label("<html>Access feature flags in the IDE without having to navigate away from your current workflow.</html>")
+                text("Access feature flags in the IDE without having to navigate away from your current workflow.")
             }
 
             row {
@@ -142,10 +139,13 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     .bindText(settings::authorization)
                     .columns(COLUMNS_MEDIUM)
                     .validationOnInput(accessTokenValidation())
-                    .comment("Input the access token from your LaunchDarkly account. If you don’t have one, you must <a href=\"https://docs.launchdarkly.com/home/account-security/api-access-tokens#creating-api-access-tokens\">create an access token</a> first.")
                 icon(AllIcons.General.BalloonWarning)
                     .label("Apply changes")
                     .visibleIf(refreshProjectsPredicate())
+            }
+
+            row {
+                comment("Input the access token from your LaunchDarkly account. If you don’t have one, you must <a href=\"https://docs.launchdarkly.com/home/account-security/api-access-tokens#creating-api-access-tokens\">create an access token</a> first.")
             }
 
             try {
@@ -162,25 +162,26 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                 }
                 environmentBox.selectedItem = settings.environment
 
-                // TODO: alternative to indent?
-                rowsRange {
-                    row("Project:") {
-                        projectComboBox = comboBox(projectBox, renderer)
-                            .bindItem(settings::project)
-                            .applyToComponent {
-                                this.addItemListener { _ ->
-                                    updateProjectEnvironments()
+                indent {
+                    rowsRange {
+                        row("Project:") {
+                            projectComboBox = comboBox(projectBox, renderer)
+                                .bindItem(settings::project)
+                                .applyToComponent {
+                                    this.addItemListener { _ ->
+                                        updateProjectEnvironments()
+                                    }
                                 }
-                            }
-                            .applyIfEnabled()
-                            .component
-                    }
-                    row("Environment:") {
-                        comboBox(environmentBox, renderer)
-                            .bindItem(settings::environment)
-                            .applyIfEnabled()
-                    }
-                }.enabledIf(enableProjectsPredicate())
+                                .applyIfEnabled()
+                                .component
+                        }
+                        row("Environment:") {
+                            comboBox(environmentBox, renderer)
+                                .bindItem(settings::environment)
+                                .applyIfEnabled()
+                        }
+                    }.enabledIf(enableProjectsPredicate())
+                }
             } catch (err: Exception) {
                 println(err)
             }
@@ -203,12 +204,16 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                 lateinit var enableCodeRefs: Cell<JBCheckBox>
                 row {
                     enableCodeRefs = checkBox("Use Code References").bindSelected(settings::codeReferences)
-                    intTextField()
-                        .label("Refresh every")
-                        .bindIntText(settings::codeReferencesRefreshRate)
-                        .gap(RightGap.SMALL)
-                        .enabledIf(enableCodeRefs.selected)
-                    label("minutes").enabledIf(enableCodeRefs.selected)
+                }
+
+                indent {
+                    row {
+                        intTextField()
+                            .label("Refresh every")
+                            .bindIntText(settings::codeReferencesRefreshRate)
+                            .gap(RightGap.SMALL)
+                        label("minutes")
+                    }.enabledIf(enableCodeRefs.selected)
                 }
             }
         }
