@@ -28,32 +28,37 @@ jobs:
 
       # Check out current repository
       - name: Fetch Sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Validate wrapper
       - name: Gradle Wrapper Validation
         uses: gradle/wrapper-validation-action@v1
 
-  # Run verifyPlugin and test Gradle tasks
-  test:
-    name: Test
+  build:
+    name: Build & Verify
     needs: gradleValidation
     runs-on: ubuntu-latest
+    outputs:
+      name: ${{ steps.properties.outputs.name }}
+      version: ${{ steps.properties.outputs.version }}
+      artifact: ${{ steps.properties.outputs.name }}-${{ steps.properties.outputs.version }}.zip
+      changelog: ${{ steps.properties.outputs.changelog }}
     steps:
 
       # Check out current repository
       - name: Fetch Sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Setup Java 11 environment for the next steps
       - name: Setup Java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
+          distribution: 'zulu'
           java-version: 11
 
       # Cache Gradle dependencies
       - name: Setup Cache
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
@@ -66,39 +71,6 @@ jobs:
       # Run verifyPlugin Gradle task
       - name: Verify Plugin
         run: ./gradlew verifyPlugin
-
-
-
-  # Build plugin with buildPlugin Gradle task and provide the artifact for the next workflow jobs
-  # Requires test job to be passed
-  build:
-    name: Build
-    needs: test
-    runs-on: ubuntu-latest
-    outputs:
-      name: ${{ steps.properties.outputs.name }}
-      version: ${{ steps.properties.outputs.version }}
-      artifact: ${{ steps.properties.outputs.name }}-${{ steps.properties.outputs.version }}.zip
-      changelog: ${{ steps.properties.outputs.changelog }}
-    steps:
-
-      # Check out current repository
-      - name: Fetch Sources
-        uses: actions/checkout@v2
-
-      # Setup Java 11 environment for the next steps
-      - name: Setup Java
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-
-      # Cache Gradle dependencies
-      - name: Setup Cache
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle-
 
       # Set environment variables
       - name: Export Properties
@@ -117,57 +89,43 @@ jobs:
       - name: Build Plugin
         run: ./gradlew buildPlugin
 
-      # Upload plugin artifact to make it available in the next jobs
-      - name: Upload artifact
-        uses: actions/upload-artifact@v1
-        with:
-          name: plugin-artifact
-          path: ./build/distributions/${{ needs.build.outputs.artifact }}
-
-  # Verify built plugin using IntelliJ Plugin Verifier tool
-  # Requires build job to be passed
-  verify:
-    name: Verify
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-
-      # Download plugin artifact provided by the previous job
-      - name: Download Artifact
-        uses: actions/download-artifact@v1
-        with:
-          name: plugin-artifact
-
-      # Run IntelliJ Plugin Verifier action using GitHub Action
-      - name: Verify Plugin
-        id: verify
-        uses: ChrisCarini/intellij-platform-plugin-verifier-action@v0.0.2
-        with:
-          plugin-location: plugin-artifact/${{ needs.build.outputs.artifact }}
-          ide-versions: |
-            ideaIC:2020.1
-            ideaIC:2020.2
-            ideaIC:2020.3
-
-      # Print the output of the verify step
-      - name: Print Logs
-        env:
-          OUTPUT_LOG: ${{ steps.verify.outputs.verification-output-log-filename }}
+      - name: Summary
         run: |
-          echo "The verifier log file [$OUTPUT_LOG] contents : " ;
-          cat $OUTPUT_LOG
+          echo "Name: ${{ steps.properties.outputs.name }}"
+          echo "Version: ${{ steps.properties.outputs.version }}"
+          echo "Artifact: ${{ steps.properties.outputs.name }}-${{ steps.properties.outputs.version }}.zip"
+          echo "Changelog: ${{ steps.properties.outputs.changelog }}"
+
+     # Run IntelliJ Plugin Verifier action using GitHub Action
+      - name: Verify Plugin Compatibility
+        uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.2.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          ide-versions: .github/workflows/ide_versions_file.txt
+          failure-levels: |
+            COMPATIBILITY_PROBLEMS
+            INVALID_PLUGIN
+            NOT_DYNAMIC
+      
+      # Upload plugin artifact
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: plugin-artifact
+          path: build/distributions/${{ steps.properties.outputs.name }}-${{ steps.properties.outputs.version }}.zip
 
   # Prepare a draft release for GitHub Releases page for the manual verification
   # If accepted and published, release workflow would be triggered
   releaseDraft:
     name: Release Draft
-    needs: [ build, verify ]
+    needs: [ build ]
     runs-on: ubuntu-latest
     steps:
 
       # Check out current repository
       - name: Fetch Sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Remove old release drafts by using the curl request for the available releases with draft flag
       - name: Remove Old Release Drafts
@@ -194,9 +152,10 @@ jobs:
 
       # Download plugin artifact provided by the previous job
       - name: Download Artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: plugin-artifact
+          path: "{{ needs.build.outputs.artifact }}"
 
       # Upload artifact as a release asset
       - name: Upload Release Asset
@@ -206,6 +165,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.createDraft.outputs.upload_url }}
-          asset_path: ./plugin-artifact/${{ needs.build.outputs.artifact }}
+          asset_path: ${{ needs.build.outputs.artifact }}
           asset_name: ${{ needs.build.outputs.artifact }}
           asset_content_type: application/zip
