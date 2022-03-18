@@ -11,7 +11,7 @@ class FlagNodeParent(private var viewModel: FlagNodeViewModel) : SimpleNode() {
     private var children: MutableList<SimpleNode> = ArrayList()
     val flag get() = viewModel.flag
     val key get() = flag.key
-    val isEnabled get() = viewModel.flagConfig.on
+    val isEnabled get() = viewModel.isEnabled
 
     override fun getChildren(): Array<SimpleNode> {
         if (children.isEmpty()) {
@@ -34,19 +34,18 @@ class FlagNodeParent(private var viewModel: FlagNodeViewModel) : SimpleNode() {
         if (viewModel.prereqFlags.isNotEmpty()) children.add(FlagNodePrerequisites(viewModel.prereqFlags, viewModel.flags))
         if (viewModel.targets.isNotEmpty()) children.add(FlagNodeTargets(flag, viewModel.targets))
         if (viewModel.numRules > 0) children.add(FlagNodeBase("Rules: ${viewModel.numRules}", LDIcons.RULES))
-        if (viewModel.hasFallthrough) children.add(FlagNodeFallthrough(flag, viewModel.flagConfig))
+        if (viewModel.hasFallthrough) children.add(FlagNodeFallthrough(flag, viewModel.flagConfig!!))
         if (viewModel.hasOffVariation) children.add(FlagNodeBase("Off Variation: ${viewModel.offVariation}", LDIcons.OFF_VARIATION))
         if (flag.tags.size > 0) children.add(FlagNodeTags(flag.tags))
     }
 
     override fun update(data: PresentationData) {
         super.update(data)
-        val enabledIcon =
-            if (viewModel.isDisconnected) LDIcons.TOGGLE_DISCONNECTED
-            else if (viewModel.flagConfig.on) LDIcons.TOGGLE_ON
-            else LDIcons.TOGGLE_OFF
+
         val label = viewModel.flagLabel
         data.presentableText = label
+
+        val enabledIcon = viewModel.icon
         data.setIcon(enabledIcon)
     }
 }
