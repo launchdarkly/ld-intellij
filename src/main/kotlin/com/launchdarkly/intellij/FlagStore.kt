@@ -53,7 +53,7 @@ class FlagStore(private var project: Project) {
     private fun flags(): FeatureFlags {
         val ldProject: String = settings.project
         try {
-            val getFlags = LaunchDarklyApiClient.flagInstance(project, settings.authorization, settings.baseUri)
+            val getFlags = LaunchDarklyApiClient.flagInstance(settings.authorization, settings.baseUri)
             envList = listOf(settings.environment)
             return getFlags.getFeatureFlags(ldProject, envList, true, null, null, null, null, "name", null)
         } catch (err: Exception) {
@@ -102,7 +102,7 @@ class FlagStore(private var project: Project) {
                 val flag: FeatureFlag? = flags.items.find { it.key == event.key }
                 if (flag == null) {
                     try {
-                        val getFlags = LaunchDarklyApiClient.flagInstance(project)
+                        val getFlags = LaunchDarklyApiClient.flagInstance()
                         val newFlag = getFlags.getFeatureFlag(settings.project, event.key, envList)
                         flags.items.add(newFlag)
                     } catch (err: ApiException) {

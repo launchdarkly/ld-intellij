@@ -61,7 +61,7 @@ class ChangeOffVariationAction : AnAction() {
                 patch.path = "/environments/" + settings.environment + "/offVariation"
                 patch.value = currentIdx
                 patchComment.patch = listOf(patch)
-                val ldFlag = LaunchDarklyApiClient.flagInstance(project)
+                val ldFlag = LaunchDarklyApiClient.flagInstance()
                 ApplicationManager.getApplication().executeOnPooledThread {
                     try {
                         ldFlag.patchFeatureFlag(settings.project, parentNode.key, patchComment)
