@@ -20,8 +20,7 @@ class FlagNodeModel(
         if (hasOffVariation) {
             flag.variations[this.flagConfig.offVariation as Int].name
                 ?: flag.variations[this.flagConfig.offVariation as Int].value
-        }
-        else {
+        } else {
             null
         }
     }

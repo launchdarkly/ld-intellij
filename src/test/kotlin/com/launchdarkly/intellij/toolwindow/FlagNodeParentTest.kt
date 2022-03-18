@@ -1,9 +1,6 @@
 package com.launchdarkly.intellij.toolwindow
 
 import com.launchdarkly.api.model.*
-import com.launchdarkly.api.model.Target
-import com.launchdarkly.intellij.featurestore.FlagConfiguration
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
