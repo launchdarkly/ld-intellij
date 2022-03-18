@@ -1,14 +1,8 @@
 package com.launchdarkly.intellij.toolwindow
 
 import com.intellij.ide.projectView.PresentationData
-import com.intellij.openapi.components.service
-import com.intellij.openapi.project.Project
 import com.intellij.ui.treeStructure.SimpleNode
-import com.launchdarkly.api.model.FeatureFlag
-import com.launchdarkly.api.model.FeatureFlags
-import com.launchdarkly.intellij.FlagStore
 import com.launchdarkly.intellij.LDIcons
-import com.launchdarkly.intellij.featurestore.FlagConfiguration
 import java.util.*
 
 const val KEY_PREFIX = "Key:"
@@ -47,9 +41,9 @@ class FlagNodeParent(private var model: FlagNodeModel) : SimpleNode() {
     override fun update(data: PresentationData) {
         super.update(data)
         val enabledIcon =
-           if (model.isDisconnected) LDIcons.TOGGLE_DISCONNECTED
-           else if (model.flagConfig.on) LDIcons.TOGGLE_ON
-           else LDIcons.TOGGLE_OFF
+            if (model.isDisconnected) LDIcons.TOGGLE_DISCONNECTED
+            else if (model.flagConfig.on) LDIcons.TOGGLE_ON
+            else LDIcons.TOGGLE_OFF
         val label = model.flagLabel
         data.presentableText = label
         data.setIcon(enabledIcon)

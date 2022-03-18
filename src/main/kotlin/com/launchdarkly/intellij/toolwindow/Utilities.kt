@@ -1,8 +1,6 @@
 package com.launchdarkly.intellij.toolwindow
 
 import com.intellij.openapi.project.Project
-import com.launchdarkly.api.model.FeatureFlag
-import com.launchdarkly.api.model.Prerequisite
 import com.launchdarkly.intellij.notifications.GeneralNotifier
 
 object Utilities {

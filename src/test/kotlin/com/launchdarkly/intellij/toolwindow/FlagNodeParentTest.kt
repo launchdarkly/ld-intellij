@@ -1,4 +1,3 @@
 package com.launchdarkly.intellij.toolwindow
 
-internal class FlagNodeParentTest {
-}
+internal class FlagNodeParentTest

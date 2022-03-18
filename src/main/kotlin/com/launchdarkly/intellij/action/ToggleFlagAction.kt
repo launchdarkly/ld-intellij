@@ -25,7 +25,7 @@ class ToggleFlagAction : AnAction() {
         val flagPatch = PatchOperation().apply {
             op = "replace"
             path = "/environments/" + settings.environment + "/on"
-            value = false //TODO !flagNode.env.on
+            value = false // TODO !flagNode.env.on
         }
         val patchComment = PatchComment().apply {
             patch = listOf(flagPatch)
