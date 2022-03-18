@@ -96,7 +96,6 @@ class FlagAliases(private var project: Project) {
     }
 
     init {
-
         val codeRefsFile = File(project.basePath + "/.launchdarkly/coderefs.yaml")
         val codeRefsConfig = LocalFileSystem.getInstance().findFileByIoFile(codeRefsFile)
         if (codeRefsConfig != null) {
