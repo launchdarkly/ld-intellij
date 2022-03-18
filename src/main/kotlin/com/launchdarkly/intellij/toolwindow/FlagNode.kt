@@ -1,9 +1,11 @@
 package com.launchdarkly.intellij.toolwindow
 
 import com.intellij.ide.projectView.PresentationData
+import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.ui.treeStructure.SimpleNode
 import com.launchdarkly.api.model.*
+import com.launchdarkly.intellij.FlagStore
 import com.launchdarkly.intellij.LDIcons
 import com.launchdarkly.intellij.featurestore.FlagConfiguration
 import com.launchdarkly.intellij.settings.LDSettings
@@ -13,11 +15,15 @@ class RootNode(private val flags: FeatureFlags, private val settings: LDSettings
     private var myChildren: MutableList<SimpleNode> = ArrayList()
 
     override fun getChildren(): Array<SimpleNode> {
+
         when {
             myChildren.isEmpty() && flags.items != null -> {
                 myChildren.add(InfoNode("${settings.project} / ${settings.environment}"))
                 for (flag in flags.items) {
-                    myChildren.add(FlagNodeParent(flag, flags, intProject))
+                    val flagStore = intProject.service<FlagStore>()
+                    val config = flagStore.flagConfigs[flag.key]!!
+                    val flagModel = FlagNodeModel(flag, flags, config)
+                    myChildren.add(FlagNodeParent(flagModel))
                 }
             }
             (settings.project != "" && settings.environment != "") && flags.items == null -> myChildren.add(

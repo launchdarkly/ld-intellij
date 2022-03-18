@@ -13,13 +13,10 @@ import java.util.*
 
 const val KEY_PREFIX = "Key:"
 
-class FlagNodeParent(FFlag: FeatureFlag, private var flags: FeatureFlags, myProject: Project) : SimpleNode() {
+class FlagNodeParent(private var model: FlagNodeModel) : SimpleNode() {
     private var children: MutableList<SimpleNode> = ArrayList()
-    private val getFlags = myProject.service<FlagStore>()
-    var flag: FeatureFlag = FFlag
-    var env = getFlags.flagConfigs[flag.key]
-        ?: FlagConfiguration(flag.key, null, null, listOf(), listOf(), arrayOf(), false, -1)
-    val key: String = flag.key
+    var flag = model.flag
+    var key = flag.key
 
     override fun getChildren(): Array<SimpleNode> {
         if (children.isEmpty()) {
@@ -31,33 +28,29 @@ class FlagNodeParent(FFlag: FeatureFlag, private var flags: FeatureFlags, myProj
         return children.toTypedArray()
     }
 
+    fun updateModel(model: FlagNodeModel) {
+        this.model = model
+    }
+
     private fun buildChildren() {
         children.add(FlagNodeBase("$KEY_PREFIX ${flag.key}", LDIcons.FLAG_KEY))
         if (flag.description != "") children.add(FlagNodeBase("Description: ${flag.description}", LDIcons.DESCRIPTION))
         children.add(FlagNodeVariations(flag))
-
-        if (env.prerequisites.isNotEmpty()) children.add(FlagNodePrerequisites(env.prerequisites, flags))
-        if (env.targets.isNotEmpty()) children.add(FlagNodeTargets(flag, env.targets))
-        if (env.rules.isNotEmpty()) children.add(FlagNodeBase("Rules: ${env.rules.size}", LDIcons.RULES))
-        if (env.fallthrough != null) children.add(FlagNodeFallthrough(flag, env))
-        if (env.offVariation != null) children.add(
-            FlagNodeBase(
-                "Off Variation: ${flag.variations[env.offVariation as Int].name ?: flag.variations[env.offVariation as Int].value}",
-                LDIcons.OFF_VARIATION
-            )
-        )
+        if (model.prereqFlags.isNotEmpty()) children.add(FlagNodePrerequisites(model.prereqFlags, model.flags))
+        if (model.targets.isNotEmpty()) children.add(FlagNodeTargets(flag, model.targets))
+        if (model.numRules > 0) children.add(FlagNodeBase("Rules: ${model.numRules}", LDIcons.RULES))
+        if (model.hasFallthrough) children.add(FlagNodeFallthrough(flag, model.flagConfig))
+        if (model.hasOffVariation) children.add(FlagNodeBase("Off Variation: ${model.offVariation}", LDIcons.OFF_VARIATION))
         if (flag.tags.size > 0) children.add(FlagNodeTags(flag.tags))
     }
 
     override fun update(data: PresentationData) {
         super.update(data)
-        env = getFlags.flagConfigs[flag.key]
-            ?: FlagConfiguration(flag.key, null, null, listOf(), listOf(), arrayOf(), false, -1)
-        flag = getFlags.flags.items.find { it.key == flag.key }!!
-        // Flag version should only be -1 if we manually created a FlagConfiguration so set icon to warning.
         val enabledIcon =
-            if (env.version === -1) LDIcons.TOGGLE_DISCONNECTED else if (env.on) LDIcons.TOGGLE_ON else LDIcons.TOGGLE_OFF
-        val label = flag.name ?: flag.key
+           if (model.isDisconnected) LDIcons.TOGGLE_DISCONNECTED
+           else if (model.flagConfig.on) LDIcons.TOGGLE_ON
+           else LDIcons.TOGGLE_OFF
+        val label = model.flagLabel
         data.presentableText = label
         data.setIcon(enabledIcon)
     }

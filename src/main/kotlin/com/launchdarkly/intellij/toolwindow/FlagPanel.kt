@@ -39,8 +39,8 @@ private const val SPLITTER_PROPERTY = "BuildAttribution.Splitter.Proportion"
 class FlagPanel(private val myProject: Project, messageBusService: MessageBusService) :
     SimpleToolWindowPanel(false, false), Disposable {
     private val settings = LaunchDarklyApplicationConfig.getInstance().ldState
-    private var getFlags = myProject.service<FlagStore>()
-    private var root = RootNode(getFlags.flags, settings, myProject)
+    private var flagStore = myProject.service<FlagStore>()
+    private var root = RootNode(flagStore.flags, settings, myProject)
     private var treeStructure = createTreeStructure()
     private var treeModel = StructureTreeModel(treeStructure, this)
     lateinit var tree: Tree
@@ -62,7 +62,7 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
     }
 
     fun updateNodeInfo() {
-        root = RootNode(getFlags.flags, settings, myProject)
+        root = RootNode(flagStore.flags, settings, myProject)
         treeStructure = createTreeStructure()
         treeModel = StructureTreeModel(treeStructure, this)
         var reviewTreeBuilder = AsyncTreeModel(treeModel, this)
@@ -74,7 +74,6 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
         tree = initTree(reviewTreeBuilder)
 
         val componentsSplitter = OnePixelSplitter(SPLITTER_PROPERTY, 0.33f)
-        componentsSplitter.setHonorComponentsMinimumSize(true)
         componentsSplitter.setHonorComponentsMinimumSize(true)
         componentsSplitter.firstComponent = JPanel(CardLayout()).apply {
             add(ScrollPaneFactory.createScrollPane(tree, SideBorder.NONE), "Tree")
@@ -113,7 +112,6 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
     }
 
     fun updateNode(event: String) {
-        var getFlags = myProject.service<FlagStore>()
         try {
             val defaultTree = tree.model as AsyncTreeModel
             if (defaultTree.root === null) {
@@ -129,13 +127,16 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                     var parentNode = parent.userObject as FlagNodeParent
                     if (parentNode.key == event) {
                         found = true
-                        val flag = getFlags.flags.items.find { it.key == parentNode.key }
-                        if (flag != null && getFlags.flagConfigs[flag.key] != null) {
-                            parentNode = FlagNodeParent(flag, getFlags.flags, myProject)
+                        val flag = flagStore.flags.items.find { it.key == parentNode.key }
+                        if (flag != null && flagStore.flagConfigs[flag.key] != null) {
+                            val config = flagStore.flagConfigs[flag.key]
+                            val flagModel = FlagNodeModel(flag, flagStore.flags, config)
+                            parentNode.updateModel(flagModel)
                             treeModel.invalidate(TreePath(parent), true)
+                            parentNode = FlagNodeParent(flagModel)
                         } else {
                             // If the flag does not exist in the SDK DataStore it should not be part of Environment.
-                            getFlags.flags.items.remove(flag)
+                            flagStore.flags.items.remove(flag)
                             updateNodeInfo()
                         }
                         break
@@ -154,13 +155,11 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
     }
 
     fun updateNodes() {
-        var getFlags = myProject.service<FlagStore>()
-
         try {
             val defaultTree = tree.model as AsyncTreeModel
             if (defaultTree.root != null) {
                 val root = defaultTree.root as DefaultMutableTreeNode
-                val flagFind = getFlags.flags.items
+                val flagFind = flagStore.flags.items
                 for (flag in flagFind) {
                     var found = false
                     var e = root.depthFirstEnumeration()
@@ -169,9 +168,11 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                         val parent = node as DefaultMutableTreeNode
                         if (parent.userObject is FlagNodeParent) {
                             var parentNode = parent.userObject as FlagNodeParent
-                            if (parentNode.key == flag.key && parentNode.flag.version < flag.version && getFlags.flagConfigs[flag.key] !== null) {
+                            if (parentNode.key == flag.key && parentNode.flag.version < flag.version && flagStore.flagConfigs[flag.key] !== null) {
                                 found = true
-                                parentNode = FlagNodeParent(flag, getFlags.flags, myProject)
+                                val config = flagStore.flagConfigs[flag.key]
+                                val flagModel = FlagNodeModel(flag, flagStore.flags, config)
+                                parentNode = FlagNodeParent(flagModel)
                                 treeModel.invalidate(TreePath(parent), true)
                                 break
                             }
