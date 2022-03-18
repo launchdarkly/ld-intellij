@@ -15,9 +15,15 @@ class FlagNodeModel(
     val prereqFlags = this.flagConfig.prerequisites
     val numRules = this.flagConfig.rules.size
     val hasFallthrough = this.flagConfig.fallthrough != null
-    val offVariation =
-        flag.variations[this.flagConfig.offVariation as Int].name
-            ?: flag.variations[this.flagConfig.offVariation as Int].value
-    val hasOffVariation = this.offVariation != null
+    val hasOffVariation = this.flagConfig.offVariation != null
+    val offVariation = {
+        if (hasOffVariation) {
+            flag.variations[this.flagConfig.offVariation as Int].name
+                ?: flag.variations[this.flagConfig.offVariation as Int].value
+        }
+        else {
+            null
+        }
+    }
     val flagLabel = flag.name ?: flag.key
 }

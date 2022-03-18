@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-internal class FlagNodeParentTest {
-    private fun createModel(): FlagNodeModel {
+internal class FlagNodeModelTest {
+    private fun createModelWithName(): FlagNodeModel {
         val variationA = Variation().apply {
             name = "variation a"
         }
@@ -31,9 +31,20 @@ internal class FlagNodeParentTest {
         return FlagNodeModel(flag, flags, null)
     }
 
+    private fun createModelWitoutName(): FlagNodeModel {
+        val flag = FeatureFlag().apply {
+            key = "flag key"
+            description = "flag description"
+        }
+        val flags = FeatureFlags().apply {
+            items = listOf(flag)
+        }
+        return FlagNodeModel(flag, flags, null)
+    }
+
     @Test
-    fun testCreateNode() {
-        var node = FlagNodeParent(createModel())
-        assertEquals(node.childCount, 3)
+    fun testNames() {
+        assertEquals("flag name", createModelWithName().flagLabel)
+        assertEquals("flag key", createModelWitoutName().flagLabel)
     }
 }
