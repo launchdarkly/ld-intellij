@@ -39,8 +39,9 @@ internal class FlagNodeViewModelTest {
     @Test
     fun testIcons() {
         assertEquals(
-                LDIcons.TOGGLE_DISCONNECTED,
-                createFlagViewModel("flag key", null, null, null).icon)
+            LDIcons.TOGGLE_DISCONNECTED,
+            createFlagViewModel("flag key", null, null, null).icon
+        )
         assertEquals(LDIcons.TOGGLE_ON, createFlagViewModel("flag key", null, null, FlagConfiguration("flag key", null, null, listOf(), listOf(), arrayOf(), true, 1)).icon)
         assertEquals(LDIcons.TOGGLE_OFF, createFlagViewModel("flag key", null, null, FlagConfiguration("flag key", null, null, listOf(), listOf(), arrayOf(), false, 1)).icon)
     }
