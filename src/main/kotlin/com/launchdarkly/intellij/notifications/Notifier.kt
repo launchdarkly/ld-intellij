@@ -3,23 +3,26 @@ package com.launchdarkly.intellij.notifications
 import com.intellij.notification.*
 import com.intellij.openapi.project.Project
 
-class Notifier(project: Project, type: LDNotificationType) {
-    enum class LDNotificationType(val groupString: String) {
+class Notifier(private val project: Project) {
+    private enum class LDNotificationType(val groupString: String) {
         CONFIG("LaunchDarkly Config"),
         GENERAL("LaunchDarkly"),
     }
 
+    private lateinit var type: LDNotificationType
+
     companion object {
-        fun createGeneralNotifier(project: Project): Notifier = Notifier(project, LDNotificationType.GENERAL)
-        fun createConfigNotifier(project: Project): Notifier = Notifier(project, LDNotificationType.CONFIG)
-    }
+        fun createGeneralNotifier(project: Project): Notifier {
+            val notifier = Notifier(project)
+            notifier.type = LDNotificationType.GENERAL
+            return notifier
+        }
 
-    private val project: Project
-    private val type: LDNotificationType
-
-    init {
-        this.project = project
-        this.type = type
+        fun createConfigNotifier(project: Project): Notifier {
+            val notifier = Notifier(project)
+            notifier.type = LDNotificationType.CONFIG
+            return notifier
+        }
     }
 
     fun notify(content: String): Notification {
