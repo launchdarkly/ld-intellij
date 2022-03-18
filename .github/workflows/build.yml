@@ -102,8 +102,7 @@ jobs:
           echo "Changelog: ${{ steps.properties.outputs.changelog }}"
 
      # Run IntelliJ Plugin Verifier action using GitHub Action
-      - name: Verify Plugin
-        id: verify
+      - name: Verify Plugin Compatibility
         uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.2.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
