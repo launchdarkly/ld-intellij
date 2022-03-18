@@ -9,7 +9,7 @@ import com.launchdarkly.api.model.PatchComment
 import com.launchdarkly.api.model.PatchOperation
 import com.launchdarkly.api.model.Variation
 import com.launchdarkly.intellij.LaunchDarklyApiClient
-import com.launchdarkly.intellij.notifications.GeneralNotifier
+import com.launchdarkly.intellij.notifications.Notifier
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
 import java.awt.Component
@@ -73,11 +73,7 @@ class ChangeFallthroughAction : AnAction() {
                     } catch (e: ApiException) {
                         System.err.println("Exception when calling FeatureFlagsApi#patchFeatureFlag")
                         e.printStackTrace()
-                        val notifier = GeneralNotifier()
-                        notifier.notify(
-                            project,
-                            "Error changing fallthrough variation for flag: ${parentNode.key} - ${e.message}"
-                        )
+                        Notifier(project, Notifier.LDNotificationType.GENERAL).notify("Error changing fallthrough variation for flag: ${parentNode.key} - ${e.message}")
                     }
                 }
             }

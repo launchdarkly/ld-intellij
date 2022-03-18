@@ -3,7 +3,7 @@ package com.launchdarkly.intellij.action
 import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.launchdarkly.intellij.notifications.GeneralNotifier
+import com.launchdarkly.intellij.notifications.Notifier
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
 import com.launchdarkly.intellij.toolwindow.InfoNode
@@ -27,8 +27,7 @@ class OpenInBrowserAction : AnAction() {
             val url = "${settings.baseUri}/${settings.project}/${settings.environment}/features"
             BrowserLauncher.instance.open(url)
         } else {
-            val notifier = GeneralNotifier()
-            notifier.notify(project, "Error opening in browser, please try again.")
+            Notifier(project, Notifier.LDNotificationType.GENERAL).notify("Error opening in browser, please try again.")
         }
     }
 

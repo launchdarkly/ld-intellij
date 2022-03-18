@@ -2,7 +2,7 @@ package com.launchdarkly.intellij.action
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.launchdarkly.intellij.notifications.GeneralNotifier
+import com.launchdarkly.intellij.notifications.Notifier
 import com.launchdarkly.intellij.toolwindow.FlagNodeParent
 import com.launchdarkly.intellij.toolwindow.KEY_PREFIX
 import java.awt.Toolkit
@@ -30,11 +30,7 @@ class CopyKeyAction : AnAction() {
         }
 
         // If we can't find the key to copy, notify the user
-        val notifier = GeneralNotifier()
-        notifier.notify(
-            project,
-            "Could not copy flag key."
-        )
+        Notifier(project, Notifier.LDNotificationType.GENERAL).notify("Could not copy flag key.")
     }
 
     override fun update(e: AnActionEvent) {

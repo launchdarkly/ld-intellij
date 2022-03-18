@@ -17,8 +17,7 @@ import com.launchdarkly.intellij.featurestore.*
 import com.launchdarkly.intellij.messaging.AppDefaultMessageBusService
 import com.launchdarkly.intellij.messaging.ConfigurationNotifier
 import com.launchdarkly.intellij.messaging.DefaultMessageBusService
-import com.launchdarkly.intellij.notifications.ConfigNotifier
-import com.launchdarkly.intellij.notifications.GeneralNotifier
+import com.launchdarkly.intellij.notifications.Notifier
 import com.launchdarkly.intellij.settings.LaunchDarklyApplicationConfig
 import com.launchdarkly.sdk.server.DataModel
 import com.launchdarkly.sdk.server.LDClient
@@ -58,11 +57,7 @@ class FlagStore(private var project: Project) {
             return getFlags.getFeatureFlags(ldProject, envList, true, null, null, null, null, "name", null)
         } catch (err: Exception) {
             System.err.println(err)
-            val notifier = GeneralNotifier()
-            notifier.notify(
-                project,
-                "Error retrieve flags: ${err.message}"
-            )
+            Notifier(project, Notifier.LDNotificationType.GENERAL).notify("Error retrieve flags: ${err.message}")
         }
         return FeatureFlags()
     }
@@ -107,11 +102,7 @@ class FlagStore(private var project: Project) {
                         flags.items.add(newFlag)
                     } catch (err: ApiException) {
                         System.err.println("Error: $err - Unable to retrieve flag: ${event.key}")
-                        val notifier = GeneralNotifier()
-                        notifier.notify(
-                            project,
-                            "Error updating flag ${event.key}: ${err.message}"
-                        )
+                        Notifier(project, Notifier.LDNotificationType.GENERAL).notify("Error updating flag ${event.key}: ${err.message}")
                     }
                 }
                 if (store.get(DataModel.FEATURES, event.key) == null) {
@@ -176,8 +167,7 @@ class FlagStore(private var project: Project) {
                     setupStore()
                 } catch (err: ApiException) {
                     System.err.println(err)
-                    val notify = ConfigNotifier()
-                    notify.notify(project, "Project: ${settings.project} Error: $err")
+                    Notifier(project, Notifier.LDNotificationType.CONFIG).notify("Project: ${settings.project} Error: $err")
                     offlineStore()
                 }
             }
@@ -198,8 +188,7 @@ class FlagStore(private var project: Project) {
                                 setupStore()
                             }
                         } catch (err: ApiException) {
-                            val notify = ConfigNotifier()
-                            notify.notify(project, err.toString())
+                            Notifier(project, Notifier.LDNotificationType.CONFIG).notify(err.toString())
                         }
                     }
                 }
