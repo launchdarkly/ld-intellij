@@ -22,5 +22,5 @@ class FlagNodeViewModel(
         hasOffVariation -> flag.variations[offVariationIndex].name ?: flag.variations[offVariationIndex].value
         else -> null
     }
-    val flagLabel  = flag.name ?: flag.key
+    val flagLabel = flag.name ?: flag.key
 }
