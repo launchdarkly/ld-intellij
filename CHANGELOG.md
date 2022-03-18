@@ -10,6 +10,19 @@
 ### Removed
 
 ### Fixed
+
+### Security
+
+## [0.5.1-idea22]
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
 - Invalid layout function in plugin settings
 
 ### Security
@@ -21,15 +34,11 @@
 ### Changed
 - Merged non-project settings into one Advanced section
 
-### Deprecated
-
 ### Removed
 - Project override settings
 
 ### Fixed
 - Code completion for flag keys
-
-### Security
 
 ## [0.4.0-idea22]
 ### Fixed
