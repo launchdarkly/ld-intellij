@@ -133,7 +133,6 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                             val flagViewModel = FlagNodeViewModel(flag, flagStore.flags, config)
                             parentNode.updateViewModel(flagViewModel)
                             treeModel.invalidate(TreePath(parent), true)
-                            parentNode = FlagNodeParent(flagViewModel)
                         } else {
                             // If the flag does not exist in the SDK DataStore it should not be part of Environment.
                             flagStore.flags.items.remove(flag)
@@ -173,7 +172,6 @@ class FlagPanel(private val myProject: Project, messageBusService: MessageBusSer
                                 val flagViewModel = FlagNodeViewModel(flag, flagStore.flags, flagStore.flagConfigs[flag.key])
                                 parentNode.updateViewModel(flagViewModel)
                                 treeModel.invalidate(TreePath(parent), true)
-                                parentNode = FlagNodeParent(flagViewModel)
                                 break
                             }
                             if (parentNode.key == flag.key) {

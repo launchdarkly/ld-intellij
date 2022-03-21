@@ -10,7 +10,7 @@ const val KEY_PREFIX = "Key:"
 class FlagNodeParent(private var viewModel: FlagNodeViewModel) : SimpleNode() {
     private var children: MutableList<SimpleNode> = ArrayList()
     val flag get() = viewModel.flag
-    val key get() = flag.key
+    val key: String get() = viewModel.flag.key
     val isEnabled get() = viewModel.isEnabled
 
     override fun getChildren(): Array<SimpleNode> {
