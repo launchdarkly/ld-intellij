@@ -109,25 +109,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      # Check out current repository
-      - name: Fetch Sources
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.release.tag_name }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+      # # Check out current repository
+      # - name: Fetch Sources
+      #   uses: actions/checkout@v3
+      #   with:
+      #     ref: ${{ github.event.release.tag_name }}
+      #     token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Setup Java 11 environment for the next steps
-      - name: Setup Java
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
+      # # Setup Java 11 environment for the next steps
+      # - name: Setup Java
+      #   uses: actions/setup-java@v1
+      #   with:
+      #     java-version: 11
 
-      # Publish the plugin to the Marketplace
-      - name: Publish Plugin
-        env:
-          PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
-          GIT_RELEASE: ${{ github.event.release.tag_name }}
-        run: ./gradlew publishPlugin --stacktrace
+      # # Publish the plugin to the Marketplace
+      # - name: Publish Plugin
+      #   env:
+      #     PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
+      #     GIT_RELEASE: ${{ github.event.release.tag_name }}
+      #   run: ./gradlew publishPlugin --stacktrace
 
       - name: Download Artifact
         uses: actions/download-artifact@v3
@@ -145,5 +145,5 @@ jobs:
         run: |
           git config --local user.email "launchdarklyreleasebot@launchdarkly.com"
           git config --local user.name "LaunchDarklyReleaseBot"
-          git commit -m "Update changelog" -a
+          git commit -m "Update changelog" -a --allow-empty
           git push
