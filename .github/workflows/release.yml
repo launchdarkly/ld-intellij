@@ -51,13 +51,13 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle-
 
-      # Run check Gradle task - includes tests
-      - name: Run Checks
-        run: ./gradlew check
+      # # Run check Gradle task - includes tests
+      # - name: Run Checks
+      #   run: ./gradlew check
 
-      # Run verifyPlugin Gradle task
-      - name: Verify Plugin
-        run: ./gradlew verifyPlugin
+      # # Run verifyPlugin Gradle task
+      # - name: Verify Plugin
+      #   run: ./gradlew verifyPlugin
 
       # Set environment variables
       - name: Export Properties
@@ -83,17 +83,17 @@ jobs:
           echo "Artifact: ${{ steps.properties.outputs.name }}-${{ steps.properties.outputs.version }}.zip"
           echo "Changelog: ${{ steps.properties.outputs.changelog }}"
 
-     # Run IntelliJ Plugin Verifier action using GitHub Action
-      - name: Verify Plugin Compatibility
-        uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.2.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          ide-versions: .github/workflows/ide_versions_file.txt
-          failure-levels: |
-            COMPATIBILITY_PROBLEMS
-            INVALID_PLUGIN
-            NOT_DYNAMIC
+    #  # Run IntelliJ Plugin Verifier action using GitHub Action
+    #   - name: Verify Plugin Compatibility
+    #     uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.2.1
+    #     env:
+    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #     with:
+    #       ide-versions: .github/workflows/ide_versions_file.txt
+    #       failure-levels: |
+    #         COMPATIBILITY_PROBLEMS
+    #         INVALID_PLUGIN
+    #         NOT_DYNAMIC
       
       # Upload plugin artifact
       - name: Upload Artifact
