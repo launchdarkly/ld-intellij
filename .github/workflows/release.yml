@@ -139,7 +139,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh api repos/${{ github.repository_owner }}/${{ github.repository }}/releases/${{ github.event.release.id }} -f body="${{ needs.build.outputs.changelog }}"
+          gh api repos/${{ github.repository }}/releases/${{ github.event.release.id }} -f body="${{ needs.build.outputs.changelog }}"
           gh release upload ${{ github.event.release.tag_name }} ${{ needs.build.outputs.artifact }}
 
       # Commit patched Changelog
