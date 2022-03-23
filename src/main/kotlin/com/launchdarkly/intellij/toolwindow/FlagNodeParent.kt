@@ -11,7 +11,7 @@ class FlagNodeParent(private var viewModel: FlagNodeViewModel) : SimpleNode() {
     private var children: MutableList<SimpleNode> = ArrayList()
     val flag get() = viewModel.flag
     val key: String get() = viewModel.flag.key
-    val isEnabled get() = viewModel.isEnabled
+    val isEnabled get() = viewModel.isEnabled == true
 
     override fun getChildren(): Array<SimpleNode> {
         if (children.isEmpty()) {
@@ -29,23 +29,20 @@ class FlagNodeParent(private var viewModel: FlagNodeViewModel) : SimpleNode() {
 
     private fun buildChildren() {
         children.add(FlagNodeBase("$KEY_PREFIX ${flag.key}", LDIcons.FLAG_KEY))
-        if (viewModel.description != "") children.add(FlagNodeBase("Description: ${viewModel.description}", LDIcons.DESCRIPTION))
+        if (viewModel.hasDescription) children.add(FlagNodeBase("Description: ${viewModel.description}", LDIcons.DESCRIPTION))
         children.add(FlagNodeVariations(flag))
-        if (viewModel.prereqFlags.isNotEmpty()) children.add(FlagNodePrerequisites(viewModel.prereqFlags, viewModel.flags))
-        if (viewModel.targets.isNotEmpty()) children.add(FlagNodeTargets(flag, viewModel.targets))
-        if (viewModel.numRules > 0) children.add(FlagNodeBase("Rules: ${viewModel.numRules}", LDIcons.RULES))
+        if (viewModel.hasPrereqs) children.add(FlagNodePrerequisites(viewModel.prereqFlags, viewModel.flags))
+        if (viewModel.hasTargets) children.add(FlagNodeTargets(flag, viewModel.targets))
+        if (viewModel.hasRules) children.add(FlagNodeBase("Rules: ${viewModel.numRules}", LDIcons.RULES))
         if (viewModel.hasFallthrough) children.add(FlagNodeFallthrough(flag, viewModel.flagConfig!!))
         if (viewModel.hasOffVariation) children.add(FlagNodeBase("Off Variation: ${viewModel.offVariation}", LDIcons.OFF_VARIATION))
-        if (flag.tags.size > 0) children.add(FlagNodeTags(flag.tags))
+        if (viewModel.hasTags) children.add(FlagNodeTags(viewModel.tags))
     }
 
     override fun update(data: PresentationData) {
         super.update(data)
 
-        val label = viewModel.flagLabel
-        data.presentableText = label
-
-        val enabledIcon = viewModel.icon
-        data.setIcon(enabledIcon)
+        data.presentableText = viewModel.flagLabel
+        data.setIcon(viewModel.icon)
     }
 }

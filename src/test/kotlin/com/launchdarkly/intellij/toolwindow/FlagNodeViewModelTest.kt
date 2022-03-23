@@ -31,21 +31,33 @@ internal class FlagNodeViewModelTest {
     }
 
     @Test
-    fun testFlagLabels() {
+    fun testFlagLabelWithFlagName() {
         assertEquals("flag name", createFlagViewModel("flag key", "flag name", "flag description", null).flagLabel)
+    }
+
+    @Test
+    fun testFlagLabelWithoutFlagName() {
         assertEquals("flag key", createFlagViewModel("flag key", null, "flag description", null).flagLabel)
     }
 
     @Test
-    fun testIcons() {
-        assertEquals(LDIcons.TOGGLE_DISCONNECTED, createFlagViewModel("flag key", null, null, null).icon)
+    fun testEnabledIcon() {
         assertEquals(
             LDIcons.TOGGLE_ON,
             createFlagViewModel("flag key", null, null, FlagConfiguration("flag key", null, null, listOf(), listOf(), arrayOf(), true, 1)).icon
         )
+    }
+
+    @Test
+    fun testDisabledIcon() {
         assertEquals(
-            LDIcons.TOGGLE_OFF,
-            createFlagViewModel("flag key", null, null, FlagConfiguration("flag key", null, null, listOf(), listOf(), arrayOf(), false, 1)).icon
+                LDIcons.TOGGLE_OFF,
+                createFlagViewModel("flag key", null, null, FlagConfiguration("flag key", null, null, listOf(), listOf(), arrayOf(), false, 1)).icon
         )
+    }
+
+    @Test
+    fun testDisconnectedIcon() {
+        assertEquals(LDIcons.TOGGLE_DISCONNECTED, createFlagViewModel("flag key", null, null, null).icon)
     }
 }

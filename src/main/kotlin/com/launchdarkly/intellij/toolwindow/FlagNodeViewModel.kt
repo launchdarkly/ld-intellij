@@ -11,11 +11,16 @@ class FlagNodeViewModel(
     val flagConfig: FlagConfiguration?,
 ) {
     val description = flag.description
-    val isEnabled = flagConfig?.on == true
-    val isDisconnected = flagConfig == null
+    val hasDescription = flag.description != ""
+    val isEnabled = flagConfig?.on
     val targets = flagConfig?.targets ?: listOf()
+    val hasTargets = targets.isNotEmpty()
     val prereqFlags = flagConfig?.prerequisites ?: listOf()
+    val hasPrereqs = prereqFlags.isNotEmpty()
     val numRules = flagConfig?.rules?.size ?: 0
+    val hasRules = numRules > 0
+    val tags = flag.tags
+    val hasTags = flag.tags.isNotEmpty()
     val hasFallthrough = flagConfig?.fallthrough != null
     val hasOffVariation = flagConfig?.offVariation != null
     private val offVariationIndex = flagConfig?.offVariation as? Int
@@ -25,8 +30,8 @@ class FlagNodeViewModel(
     }
     val flagLabel = flag.name ?: flag.key
     val icon = when {
-        isDisconnected -> LDIcons.TOGGLE_DISCONNECTED
-        isEnabled -> LDIcons.TOGGLE_ON
-        else -> LDIcons.TOGGLE_OFF
+        isEnabled == true -> LDIcons.TOGGLE_ON
+        isEnabled == false -> LDIcons.TOGGLE_OFF
+        else -> LDIcons.TOGGLE_DISCONNECTED
     }
 }
