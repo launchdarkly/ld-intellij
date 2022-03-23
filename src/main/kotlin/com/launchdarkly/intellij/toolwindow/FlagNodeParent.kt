@@ -1,25 +1,17 @@
 package com.launchdarkly.intellij.toolwindow
 
 import com.intellij.ide.projectView.PresentationData
-import com.intellij.openapi.components.service
-import com.intellij.openapi.project.Project
 import com.intellij.ui.treeStructure.SimpleNode
-import com.launchdarkly.api.model.FeatureFlag
-import com.launchdarkly.api.model.FeatureFlags
-import com.launchdarkly.intellij.FlagStore
 import com.launchdarkly.intellij.LDIcons
-import com.launchdarkly.intellij.featurestore.FlagConfiguration
 import java.util.*
 
 const val KEY_PREFIX = "Key:"
 
-class FlagNodeParent(FFlag: FeatureFlag, private var flags: FeatureFlags, myProject: Project) : SimpleNode() {
+class FlagNodeParent(private var viewModel: FlagNodeViewModel) : SimpleNode() {
     private var children: MutableList<SimpleNode> = ArrayList()
-    private val getFlags = myProject.service<FlagStore>()
-    var flag: FeatureFlag = FFlag
-    var env = getFlags.flagConfigs[flag.key]
-        ?: FlagConfiguration(flag.key, null, null, listOf(), listOf(), arrayOf(), false, -1)
-    val key: String = flag.key
+    val flag get() = viewModel.flag
+    val key: String get() = viewModel.flag.key
+    val isEnabled get() = viewModel.isEnabled == true
 
     override fun getChildren(): Array<SimpleNode> {
         if (children.isEmpty()) {
@@ -31,34 +23,26 @@ class FlagNodeParent(FFlag: FeatureFlag, private var flags: FeatureFlags, myProj
         return children.toTypedArray()
     }
 
+    fun updateViewModel(viewModel: FlagNodeViewModel) {
+        this.viewModel = viewModel
+    }
+
     private fun buildChildren() {
         children.add(FlagNodeBase("$KEY_PREFIX ${flag.key}", LDIcons.FLAG_KEY))
-        if (flag.description != "") children.add(FlagNodeBase("Description: ${flag.description}", LDIcons.DESCRIPTION))
+        if (viewModel.hasDescription) children.add(FlagNodeBase("Description: ${viewModel.description}", LDIcons.DESCRIPTION))
         children.add(FlagNodeVariations(flag))
-
-        if (env.prerequisites.isNotEmpty()) children.add(FlagNodePrerequisites(env.prerequisites, flags))
-        if (env.targets.isNotEmpty()) children.add(FlagNodeTargets(flag, env.targets))
-        if (env.rules.isNotEmpty()) children.add(FlagNodeBase("Rules: ${env.rules.size}", LDIcons.RULES))
-        if (env.fallthrough != null) children.add(FlagNodeFallthrough(flag, env))
-        if (env.offVariation != null) children.add(
-            FlagNodeBase(
-                "Off Variation: ${flag.variations[env.offVariation as Int].name ?: flag.variations[env.offVariation as Int].value}",
-                LDIcons.OFF_VARIATION
-            )
-        )
-        if (flag.tags.size > 0) children.add(FlagNodeTags(flag.tags))
+        if (viewModel.hasPrereqs) children.add(FlagNodePrerequisites(viewModel.prereqFlags, viewModel.flags))
+        if (viewModel.hasTargets) children.add(FlagNodeTargets(flag, viewModel.targets))
+        if (viewModel.hasRules) children.add(FlagNodeBase("Rules: ${viewModel.numRules}", LDIcons.RULES))
+        if (viewModel.hasFallthrough) children.add(FlagNodeFallthrough(flag, viewModel.flagConfig!!))
+        if (viewModel.hasOffVariation) children.add(FlagNodeBase("Off Variation: ${viewModel.offVariation}", LDIcons.OFF_VARIATION))
+        if (viewModel.hasTags) children.add(FlagNodeTags(viewModel.tags))
     }
 
     override fun update(data: PresentationData) {
         super.update(data)
-        env = getFlags.flagConfigs[flag.key]
-            ?: FlagConfiguration(flag.key, null, null, listOf(), listOf(), arrayOf(), false, -1)
-        flag = getFlags.flags.items.find { it.key == flag.key }!!
-        // Flag version should only be -1 if we manually created a FlagConfiguration so set icon to warning.
-        val enabledIcon =
-            if (env.version === -1) LDIcons.TOGGLE_DISCONNECTED else if (env.on) LDIcons.TOGGLE_ON else LDIcons.TOGGLE_OFF
-        val label = flag.name ?: flag.key
-        data.presentableText = label
-        data.setIcon(enabledIcon)
+
+        data.presentableText = viewModel.flagLabel
+        data.setIcon(viewModel.icon)
     }
 }
