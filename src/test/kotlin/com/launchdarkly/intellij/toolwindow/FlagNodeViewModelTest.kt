@@ -51,8 +51,8 @@ internal class FlagNodeViewModelTest {
     @Test
     fun testDisabledIcon() {
         assertEquals(
-                LDIcons.TOGGLE_OFF,
-                createFlagViewModel("flag key", null, null, FlagConfiguration("flag key", null, null, listOf(), listOf(), arrayOf(), false, 1)).icon
+            LDIcons.TOGGLE_OFF,
+            createFlagViewModel("flag key", null, null, FlagConfiguration("flag key", null, null, listOf(), listOf(), arrayOf(), false, 1)).icon
         )
     }
 
