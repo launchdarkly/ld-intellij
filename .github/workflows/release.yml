@@ -51,13 +51,13 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle-
 
-      # # Run check Gradle task - includes tests
-      # - name: Run Checks
-      #   run: ./gradlew check
+      # Run check Gradle task - includes tests
+      - name: Run Checks
+        run: ./gradlew check
 
-      # # Run verifyPlugin Gradle task
-      # - name: Verify Plugin
-      #   run: ./gradlew verifyPlugin
+      # Run verifyPlugin Gradle task
+      - name: Verify Plugin
+        run: ./gradlew verifyPlugin
 
       # Set environment variables
       - name: Export Properties
@@ -83,17 +83,17 @@ jobs:
           echo "Artifact: ${{ steps.properties.outputs.name }}-${{ steps.properties.outputs.version }}.zip"
           echo "Changelog: ${{ steps.properties.outputs.changelog }}"
 
-    #  # Run IntelliJ Plugin Verifier action using GitHub Action
-    #   - name: Verify Plugin Compatibility
-    #     uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.2.1
-    #     env:
-    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #     with:
-    #       ide-versions: .github/workflows/ide_versions_file.txt
-    #       failure-levels: |
-    #         COMPATIBILITY_PROBLEMS
-    #         INVALID_PLUGIN
-    #         NOT_DYNAMIC
+     # Run IntelliJ Plugin Verifier action using GitHub Action
+      - name: Verify Plugin Compatibility
+        uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.2.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          ide-versions: .github/workflows/ide_versions_file.txt
+          failure-levels: |
+            COMPATIBILITY_PROBLEMS
+            INVALID_PLUGIN
+            NOT_DYNAMIC
       
       # Upload plugin artifact
       - name: Upload Artifact
@@ -110,18 +110,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      # # Check out current repository
-      # - name: Fetch Sources
-      #   uses: actions/checkout@v3
-      #   with:
-      #     ref: ${{ github.event.release.tag_name }}
-      #     token: ${{ secrets.GITHUB_TOKEN }}
+      # Check out current repository
+      - name: Fetch Sources
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      # # Setup Java 11 environment for the next steps
-      # - name: Setup Java
-      #   uses: actions/setup-java@v1
-      #   with:
-      #     java-version: 11
+      # Setup Java 11 environment for the next steps
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
 
       # # Publish the plugin to the Marketplace
       # - name: Publish Plugin
@@ -140,7 +140,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh api repos/${{ github.repository }}/releases/${{ github.event.release.id }} -f body="${{ needs.build.outputs.changelog }}"
-          gh release upload ${{ github.event.release.tag_name }} "${{ needs.build.outputs.artifact }}" -R ${{ github.repository }}
+          gh release upload ${{ github.event.release.tag_name }} "${{ needs.build.outputs.artifact }}"
 
       # Commit patched Changelog
       - name: Commit files
