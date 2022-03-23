@@ -101,6 +101,7 @@ jobs:
         with:
           name: plugin-artifact
           path: build/distributions/${{ steps.properties.outputs.name }}-${{ steps.properties.outputs.version }}.zip
+          if-no-files-found: error
 
   # Prepare and publish the plugin to the Marketplace repository
   release:
@@ -133,7 +134,6 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: plugin-artifact
-          path: "${{ needs.build.outputs.artifact }}"
       
       - name: Upload Release
         env:
