@@ -96,7 +96,7 @@ jobs:
             NOT_DYNAMIC
       
       # Upload plugin artifact
-      - name: Upload Artifact
+      - name: Upload Build Artifact
         uses: actions/upload-artifact@v3
         with:
           name: plugin-artifact
@@ -130,21 +130,20 @@ jobs:
           GIT_RELEASE: ${{ github.event.release.tag_name }}
         run: ./gradlew publishPlugin --stacktrace
 
-      - name: Download Artifact
+      - name: Download Build Artifact
         uses: actions/download-artifact@v3
         with:
           name: plugin-artifact
       
-      - name: Upload Release
+      - name: Update Release Notes and Assets
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh api repos/${{ github.repository }}/releases/${{ github.event.release.id }} -f body="${{ needs.build.outputs.changelog }}"
           gh release upload ${{ github.event.release.tag_name }} "${{ needs.build.outputs.artifact }}"
 
-      # Commit patched Changelog
       # This is assuming release tag is from main branch
-      - name: Commit files
+      - name: Update Changelog
         run: |
           git config --local user.email "launchdarklyreleasebot@launchdarkly.com"
           git config --local user.name "LaunchDarklyReleaseBot"
