@@ -7,6 +7,7 @@ import com.intellij.patterns.PlatformPatterns
 import com.intellij.patterns.StandardPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.launchdarkly.api.model.FeatureFlag
 import com.launchdarkly.intellij.FlagStore
@@ -70,10 +71,11 @@ class HoverDocumentationProvider : AbstractDocumentationProvider() {
     }
 
     override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
-        // TODO: if element is of type "empty token" then exit immediately.
-        // This can happen when a go project is opened in intellij i.e. when a project type
-        // is unsupported by the IDE flavor.
-        if (element == null || element == StandardPatterns.not(
+        // Immediately exit if there's no PSIElement. In other words, if the language is not supported
+        // by the IDE, then we can't show any docs for it.
+        // https://intellij-support.jetbrains.com/hc/en-us/community/posts/360008223759/comments/360001676819
+        val type = (element as? LeafPsiElement)?.elementType
+        if (type.toString() == "empty token" || element == null || element == StandardPatterns.not(
                 PlatformPatterns.psiElement().notEmpty()
             )
         ) {
