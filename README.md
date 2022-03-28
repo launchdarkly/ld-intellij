@@ -1,12 +1,14 @@
-# LaunchDarkly Intellij
+# LaunchDarkly IntelliJ IDEA plugin
 
 ![Build](https://github.com/launchdarkly/ld-intellij/workflows/Build/badge.svg)
 
 <!-- Plugin description -->
-Interact with your LaunchDarkly Feature Flags directly in your IDE.
+Interact with your LaunchDarkly Feature Flags directly in your IDE:
 
-- Ability to toggle a flag enabled status.
-- Visualize Flag information.
+- Toggle a flag status
+- Visualize flag information
+
+[View in the JetBrains Marketplace](https://plugins.jetbrains.com/plugin/15159-launchdarkly)
 
 <!-- Plugin description end -->
 
@@ -25,24 +27,28 @@ Interact with your LaunchDarkly Feature Flags directly in your IDE.
 
 ## Setup
 
-- Generate a [LaunchDarkly Personal Access Token](https://app.launchdarkly.com/settings/authorization/tokens/new) with a
-  writer role(if toggling flags). Example policy is below:
+- Generate a [LaunchDarkly Personal Access Token](https://docs.launchdarkly.com/home/account-security/api-access-tokens) with a writer role (if toggling flags). Example policy is below:
 
 ```
 [
   {
-    "resources": ["proj/*"],
+    "effect": "allow",
     "actions": ["viewProject"],
-    "effect": "allow"
+    "resources": ["proj/*"]
   },
   {
-    "resources": ["proj/*:env/*:flag/*"],
-    "actions": ["updateOn", "updateFallthrough", "updateOffVariation"],
-    "effect": "allow"
+    "effect": "allow",
+    "actions": [
+      "updateOn",
+      "updateFallthrough",
+      "updateOffVariation"
+    ],
+    "resources": ["proj/*:env/*:flag/*"]
   }
 ]
+
 ```
 
-- Under `Preferences` -> `LaunchDarkly` add the Access Token then click apply. A list of Projects and Environments
-  should populate if the key has the correct permissions or an error show in the drop down. The environment list will
-  auto update based on the Project selected.
+- Under <kbd>Preferences</kbd> > <kbd>LaunchDarkly</kbd> add the Access Token and then click <kbd>Apply</kbd>.
+  A list of projects and environments
+  will populate if the token has the correct permissions. The `Environment` list will automatically update based on the `Project` selected.
