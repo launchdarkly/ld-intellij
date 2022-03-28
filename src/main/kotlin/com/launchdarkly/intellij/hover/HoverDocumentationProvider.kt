@@ -76,7 +76,7 @@ class HoverDocumentationProvider : AbstractDocumentationProvider() {
         // by the IDE, then we can't show any docs for it.
         // https://intellij-support.jetbrains.com/hc/en-us/community/posts/360008223759/comments/360001676819
         val type = (element as? LeafPsiElement)?.elementType
-        if (element == null || element.language == Language.ANY || element.textLength > 256 || type.toString() == "empty token" || element == StandardPatterns.not(
+        if (element == null || element.language == Language.ANY || element.textLength > Utils.FLAG_KEY_MAX_LENGTH || type.toString() == "empty token" || element == StandardPatterns.not(
                 PlatformPatterns.psiElement().notEmpty()
             )
         ) {
