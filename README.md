@@ -13,7 +13,7 @@ Interact with your LaunchDarkly Feature Flags directly in your IDE.
 
 <!-- Plugin description end -->
 
-[View in the JetBrains Marketplace](https://plugins.jetbrains.com/plugin/15159-launchdarkly)
+[Available in the JetBrains Marketplace](https://plugins.jetbrains.com/plugin/15159-launchdarkly)
 
 ## Installation
 
