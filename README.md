@@ -3,7 +3,7 @@
 ![Build](https://github.com/launchdarkly/ld-intellij/workflows/Build/badge.svg)
 
 <!-- Plugin description -->
-Interact with your LaunchDarkly Feature Flags directly in your IDE.
+Interact with your LaunchDarkly feature flags directly in your IDE.
 
 - Autocomplete feature flag keys
 - View a tooltip with feature flag details when you hover over a flag key in your source code
