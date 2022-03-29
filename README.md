@@ -3,14 +3,17 @@
 ![Build](https://github.com/launchdarkly/ld-intellij/workflows/Build/badge.svg)
 
 <!-- Plugin description -->
-Interact with your LaunchDarkly Feature Flags directly in your IDE:
+Interact with your LaunchDarkly Feature Flags directly in your IDE.
 
-- Toggle a flag status
-- Visualize flag information
-
-[View in the JetBrains Marketplace](https://plugins.jetbrains.com/plugin/15159-launchdarkly)
+- Autocomplete feature flag keys
+- View a tooltip with feature flag details when you hover over a flag key in your source code
+- Open to specific feature flags in LaunchDarkly
+- View a list of feature flags and their settings in the LaunchDarkly tool window
+- Update a feature flag's targeting status and default rule and value when targeting is on or off
 
 <!-- Plugin description end -->
+
+[View in the JetBrains Marketplace](https://plugins.jetbrains.com/plugin/15159-launchdarkly)
 
 ## Installation
 
