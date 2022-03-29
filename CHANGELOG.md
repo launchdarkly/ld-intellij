@@ -24,12 +24,13 @@
 
 ### Fixed
 
+- Erroneous hover information over flag keys
+
 ### Security
 
 ## [0.5.1-idea22]
 ### Fixed
 - Invalid layout function in plugin settings
-- Erroneous hover information over flag keys
 
 ## [0.5.0-idea22]
 ### Added
