@@ -1,5 +1,6 @@
 package com.launchdarkly.intellij.hover
 
+import com.intellij.lang.Language
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
@@ -7,6 +8,7 @@ import com.intellij.patterns.PlatformPatterns
 import com.intellij.patterns.StandardPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.launchdarkly.api.model.FeatureFlag
 import com.launchdarkly.intellij.FlagStore
@@ -37,7 +39,9 @@ class HoverDocumentationProvider : AbstractDocumentationProvider() {
     }
 
     private fun getElementForDocumentation(contextElement: PsiElement?): PsiElement? {
-        if (contextElement == null || contextElement == StandardPatterns.not(PlatformPatterns.psiElement().notEmpty())
+        if (contextElement == null || contextElement == StandardPatterns.not(
+                PlatformPatterns.psiElement().notEmpty()
+            )
         ) {
             return null
         }
@@ -70,10 +74,13 @@ class HoverDocumentationProvider : AbstractDocumentationProvider() {
     }
 
     override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
-        // TODO: if element is of type "empty token" then exit immediately.
-        // This can happen when a go project is opened in intellij i.e. when a project type
-        // is unsupported by the IDE flavor.
-        if (element == null || element == StandardPatterns.not(
+        val type = (element as? LeafPsiElement)?.elementType
+
+        // If a language is not supported, it looks like the IDE labels it as "Language.ANY".
+        // Secondly it is possible that a language is supported but the node contents is the
+        // entire file, hence the second check for max length.
+        // https://intellij-support.jetbrains.com/hc/en-us/community/posts/360008223759/comments/360001676819
+        if (element == null || element.language == Language.ANY || element.textLength > Utils.FLAG_KEY_MAX_LENGTH || type.toString() == "empty token" || element == StandardPatterns.not(
                 PlatformPatterns.psiElement().notEmpty()
             )
         ) {
