@@ -39,7 +39,9 @@ class HoverDocumentationProvider : AbstractDocumentationProvider() {
     }
 
     private fun getElementForDocumentation(contextElement: PsiElement?): PsiElement? {
-        if (contextElement == null || contextElement == StandardPatterns.not(PlatformPatterns.psiElement().notEmpty())
+        if (contextElement == null || contextElement == StandardPatterns.not(
+                PlatformPatterns.psiElement().notEmpty()
+            )
         ) {
             return null
         }
@@ -53,10 +55,7 @@ class HoverDocumentationProvider : AbstractDocumentationProvider() {
     }
 
     override fun getCustomDocumentationElement(
-        editor: Editor,
-        file: PsiFile,
-        contextElement: PsiElement?,
-        offset: Int
+        editor: Editor, file: PsiFile, contextElement: PsiElement?, offset: Int
     ): PsiElement? {
         if (contextElement == null) return null
 
@@ -72,10 +71,12 @@ class HoverDocumentationProvider : AbstractDocumentationProvider() {
     }
 
     override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
-        // Immediately exit if there's no PSIElement. In other words, if the language is not supported
-        // by the IDE, then we can't show any docs for it.
-        // https://intellij-support.jetbrains.com/hc/en-us/community/posts/360008223759/comments/360001676819
         val type = (element as? LeafPsiElement)?.elementType
+
+        // If a language is not supported, it looks like the IDE labels it as "Language.ANY".
+        // Secondly it is possible that a language is supported but the node contents is the
+        // entire file, hence the second check for max length.
+        // https://intellij-support.jetbrains.com/hc/en-us/community/posts/360008223759/comments/360001676819
         if (element == null || element.language == Language.ANY || element.textLength > Utils.FLAG_KEY_MAX_LENGTH || type.toString() == "empty token" || element == StandardPatterns.not(
                 PlatformPatterns.psiElement().notEmpty()
             )
