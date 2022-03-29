@@ -55,7 +55,10 @@ class HoverDocumentationProvider : AbstractDocumentationProvider() {
     }
 
     override fun getCustomDocumentationElement(
-        editor: Editor, file: PsiFile, contextElement: PsiElement?, offset: Int
+        editor: Editor,
+        file: PsiFile,
+        contextElement: PsiElement?,
+        offset: Int
     ): PsiElement? {
         if (contextElement == null) return null
 
