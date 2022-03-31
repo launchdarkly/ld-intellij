@@ -13,20 +13,24 @@ object Utils {
         return "${settings.baseUri}/${settings.project}/${settings.environment}/features/$flagKey?${getAppQueryParams()}"
     }
 
+    fun getUserAgent(): String {
+        return "${ApplicationInfo.getInstance().versionName}/${ApplicationInfo.getInstance().fullVersion} ${getPluginInfo()}"
+    }
+
     fun getIDEVersion(): String {
         return ApplicationInfo.getInstance().fullApplicationName
     }
 
-    fun getPluginVersion(): String {
+    fun getPluginInfo(): String {
         return "launchdarkly-intellij/${PluginManagerCore.getPlugin(PluginId.getId("com.github.intheclouddan.intellijpluginld"))?.version
             ?: "noversion"}"
     }
 
     fun getAppQueryParams(): String {
-        return "source=${getIDEVersion()}&pluginVersion=${getPluginVersion()}"
+        return "source=${getIDEVersion()}&pluginVersion=${getPluginInfo()}"
     }
 
     fun getDocsQueryParams(): String {
-        return "utm_source=${getIDEVersion()}&utm_medium=ide&utm_campaign=${getPluginVersion()}"
+        return "utm_source=${getIDEVersion()}&utm_medium=ide&utm_campaign=${getPluginInfo()}"
     }
 }
