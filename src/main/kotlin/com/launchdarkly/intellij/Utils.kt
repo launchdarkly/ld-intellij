@@ -10,11 +10,11 @@ object Utils {
 
     fun getFlagUrl(flagKey: String): String {
         val settings = LaunchDarklyApplicationConfig.getInstance().ldState
-        return "${settings.baseUri}/${settings.project}/${settings.environment}/features/$flagKey?${getAppQueryParams()}"
+        return "${settings.baseUri}/${settings.project}/${settings.environment}/features/$flagKey?${getQueryParams()}"
     }
 
     fun getUserAgent(): String {
-        return "${ApplicationInfo.getInstance().versionName}/${ApplicationInfo.getInstance().fullVersion} ${getPluginInfo()}"
+        return "${getPluginInfo()} ${ApplicationInfo.getInstance().versionName}/${ApplicationInfo.getInstance().fullVersion}"
     }
 
     fun getIDEVersion(): String {
@@ -26,11 +26,7 @@ object Utils {
             ?: "noversion"}"
     }
 
-    fun getAppQueryParams(): String {
-        return "source=${getIDEVersion()}&pluginVersion=${getPluginInfo()}"
-    }
-
-    fun getDocsQueryParams(): String {
+    fun getQueryParams(): String {
         return "utm_source=${getIDEVersion()}&utm_medium=ide&utm_campaign=${getPluginInfo()}"
     }
 }
