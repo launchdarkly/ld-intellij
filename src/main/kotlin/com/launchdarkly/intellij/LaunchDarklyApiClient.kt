@@ -1,7 +1,5 @@
 package com.launchdarkly.intellij
 
-import com.intellij.ide.plugins.PluginManagerCore
-import com.intellij.openapi.extensions.PluginId
 import com.launchdarkly.api.ApiClient
 import com.launchdarkly.api.Configuration
 import com.launchdarkly.api.api.AccessTokensApi
@@ -37,10 +35,7 @@ class LaunchDarklyApiClient() {
             val ldBaseUri = if (!baseUri.isNullOrEmpty()) baseUri else getUri(settings.baseUri)
             val ldApiKey = apiKey ?: settings.authorization
             val client: ApiClient = Configuration.getDefaultApiClient()
-            val pluginVersion =
-                PluginManagerCore.getPlugin(PluginId.getId("com.github.intheclouddan.intellijpluginld"))?.version
-                    ?: "noversion"
-            client.setUserAgent("launchdarkly-intellij/$pluginVersion")
+            client.setUserAgent("launchdarkly-intellij/${Utils.getPluginVersion()}")
             client.basePath = "$ldBaseUri/api/v2"
             val token = client.getAuthentication("Token") as ApiKeyAuth
             token.apiKey = ldApiKey
