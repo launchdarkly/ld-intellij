@@ -35,7 +35,7 @@ class LaunchDarklyApiClient() {
             val ldBaseUri = if (!baseUri.isNullOrEmpty()) baseUri else getUri(settings.baseUri)
             val ldApiKey = apiKey ?: settings.authorization
             val client: ApiClient = Configuration.getDefaultApiClient()
-            client.setUserAgent("launchdarkly-intellij/${Utils.getPluginVersion()}")
+            client.setUserAgent(Utils.getPluginVersion())
             client.basePath = "$ldBaseUri/api/v2"
             val token = client.getAuthentication("Token") as ApiKeyAuth
             token.apiKey = ldApiKey
