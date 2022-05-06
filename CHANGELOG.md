@@ -3,6 +3,8 @@
 ## [Unreleased]
 ### Added
 
+- Support 2022.1
+
 ### Changed
 
 ### Deprecated
