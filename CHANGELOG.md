@@ -1,6 +1,8 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
 ## [Unreleased]
+### Added
+
 ### Changed
 - Minor UI changes
 ### Fixed
