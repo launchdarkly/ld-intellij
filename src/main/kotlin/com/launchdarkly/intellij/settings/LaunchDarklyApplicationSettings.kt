@@ -150,7 +150,9 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
             try {
                 projectBox = if (::projectContainer.isInitialized) {
-                    DefaultComboBoxModel(projectContainer.map { it.key }.toTypedArray())
+                    var newProjects = projectContainer.map { it.name.plus("++++").plus(it.key) }
+                    var reallyNewProjects = newProjects.toTypedArray()
+                    DefaultComboBoxModel(reallyNewProjects)
                 } else {
                     DefaultComboBoxModel()
                 }
@@ -237,8 +239,8 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             projectContainer = getProjects(String(accessTokenField.password), settings.baseUri)
             with(projectBox) {
                 removeAllElements()
-                selectedItem = projectContainer.map { it.key }.firstOrNull()
-                projectContainer.map { addElement(it.key) }
+                selectedItem = projectContainer.map { it.key.plus(" + ").plus(it.name) }.firstOrNull()
+                projectContainer.map { addElement(it.key.plus(" + ").plus(it.name)) }
             }
             apiUpdate = false
         } catch (err: ApiException) {
