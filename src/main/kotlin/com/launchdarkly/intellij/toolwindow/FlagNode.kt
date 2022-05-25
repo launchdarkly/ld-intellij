@@ -115,9 +115,9 @@ class FlagNodeFallthrough(var flag: FeatureFlag, private val flagConfig: FlagCon
     override fun update(data: PresentationData) {
         super.update(data)
         var label = if (flagConfig.fallthrough?.variation != null) {
-            "Fallthrough: ${flag.variations[flagConfig.fallthrough?.variation as Int].name ?: flag.variations[flagConfig.fallthrough?.variation as Int].value}"
+            "Default rule: ${flag.variations[flagConfig.fallthrough?.variation as Int].name ?: flag.variations[flagConfig.fallthrough?.variation as Int].value}"
         } else {
-            "Fallthrough"
+            "Default rule"
         }
         data.presentableText = label
         data.setIcon(LDIcons.DESCRIPTION)
