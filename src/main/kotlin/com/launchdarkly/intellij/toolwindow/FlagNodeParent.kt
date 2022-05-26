@@ -34,8 +34,8 @@ class FlagNodeParent(private var viewModel: FlagNodeViewModel) : SimpleNode() {
         if (viewModel.hasPrereqs) children.add(FlagNodePrerequisites(viewModel.prereqFlags, viewModel.flags))
         if (viewModel.hasTargets) children.add(FlagNodeTargets(flag, viewModel.targets))
         if (viewModel.hasRules) children.add(FlagNodeBase("Rules: ${viewModel.numRules}", LDIcons.RULES))
-        if (viewModel.hasFallthrough) children.add(FlagNodeFallthrough(flag, viewModel.flagConfig!!))
-        if (viewModel.hasOffVariation) children.add(FlagNodeBase("Off Variation: ${viewModel.offVariation}", LDIcons.OFF_VARIATION))
+        if (viewModel.hasFallthrough) children.add(FlagNodeDefaultRule(flag, viewModel.flagConfig!!))
+        if (viewModel.hasOffVariation) children.add(FlagNodeBase("Off variation: ${viewModel.offVariation}", LDIcons.OFF_VARIATION))
         if (viewModel.hasTags) children.add(FlagNodeTags(viewModel.tags))
     }
 
