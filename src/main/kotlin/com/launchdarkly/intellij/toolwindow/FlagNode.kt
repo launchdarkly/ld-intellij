@@ -96,7 +96,7 @@ class FlagNodeTags(tags: List<String>) : SimpleNode() {
     }
 }
 
-class FlagNodeFallthrough(var flag: FeatureFlag, private val flagConfig: FlagConfiguration) : SimpleNode() {
+class FlagNodeDefaultRule(var flag: FeatureFlag, private val flagConfig: FlagConfiguration) : SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
 
     override fun getChildren(): Array<SimpleNode> {
