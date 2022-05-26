@@ -150,13 +150,13 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
             try {
                 projectBox = if (::projectContainer.isInitialized) {
-                    DefaultComboBoxModel(projectContainer.map { it.key }.toTypedArray())
+                    DefaultComboBoxModel(projectContainer.map { formatKeyAndName(it.key, it.name) }.toTypedArray())
                 } else {
                     DefaultComboBoxModel()
                 }
 
                 environmentBox = if (::environmentContainer.isInitialized) {
-                    DefaultComboBoxModel(environmentContainer.environments.map { it.key }.toTypedArray())
+                    DefaultComboBoxModel(environmentContainer.environments.map { formatKeyAndName(it.key, it.name) }.toTypedArray())
                 } else {
                     DefaultComboBoxModel()
                 }
@@ -237,8 +237,8 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             projectContainer = getProjects(String(accessTokenField.password), settings.baseUri)
             with(projectBox) {
                 removeAllElements()
-                selectedItem = projectContainer.map { it.key.plus(" (").plus(it.name).plus(")") }.firstOrNull()
-                projectContainer.map { addElement(it.key.plus(" (").plus(it.name).plus(")")) }
+                selectedItem = projectContainer.map { formatKeyAndName(it.key, it.name) }.firstOrNull()
+                projectContainer.map { addElement(formatKeyAndName(it.key, it.name)) }
             }
             apiUpdate = false
         } catch (err: ApiException) {
@@ -263,7 +263,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
         try {
             environmentContainer = getEnvironmentContainer(projectBox.selectedItem.toString())
-            val envMap = environmentContainer.environments.map { it.key.plus(" (").plus(it.name).plus(")") }.sorted()
+            val envMap = environmentContainer.environments.map { formatKeyAndName(it.key, it.name) }.sorted()
             with(environmentBox) {
                 envMap.map { addElement(it) }
                 selectedItem =
@@ -272,6 +272,13 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         } catch (err: Error) {
             println(err)
         }
+    }
+
+    private fun formatKeyAndName(key: String, name: String): String {
+        val safeKey = key ?: ""
+        val safeName = name ?: ""
+
+        return "$safeKey ($safeName)"
     }
 
     override fun apply() {
