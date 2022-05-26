@@ -237,8 +237,8 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             projectContainer = getProjects(String(accessTokenField.password), settings.baseUri)
             with(projectBox) {
                 removeAllElements()
-                selectedItem = projectContainer.map { it.key.plus(" [").plus(it.name).plus("]") }.firstOrNull()
-                projectContainer.map { addElement(it.key.plus(" [").plus(it.name).plus("]")) }
+                selectedItem = projectContainer.map { it.key.plus(" (").plus(it.name).plus(")") }.firstOrNull()
+                projectContainer.map { addElement(it.key.plus(" (").plus(it.name).plus(")")) }
             }
             apiUpdate = false
         } catch (err: ApiException) {
@@ -263,7 +263,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
         try {
             environmentContainer = getEnvironmentContainer(projectBox.selectedItem.toString())
-            val envMap = environmentContainer.environments.map { it.key.plus(" [").plus(it.name).plus("]") }.sorted()
+            val envMap = environmentContainer.environments.map { it.key.plus(" (").plus(it.name).plus(")") }.sorted()
             with(environmentBox) {
                 envMap.map { addElement(it) }
                 selectedItem =
