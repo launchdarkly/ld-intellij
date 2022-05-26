@@ -61,7 +61,7 @@
         </action>
         <action id="com.launchdarkly.intellij.action.ChangeFallthroughAction"
                 class="com.launchdarkly.intellij.action.ChangeFallthroughAction"
-                text="Change Fallthrough Variation" description="Change Fallthrough Variation"
+                text="Change Default Rule Variation" description="Change Default Rule Variation"
                 icon="AllIcons.Actions.Edit">
         </action>
         <action id="com.launchdarkly.intellij.action.ChangeOffVariationAction"

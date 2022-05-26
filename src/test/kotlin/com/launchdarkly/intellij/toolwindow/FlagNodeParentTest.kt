@@ -51,13 +51,13 @@ internal class FlagNodeParentTest {
     }
 
     @Test
-    fun testCreateNodeWithFallthrough() {
+    fun testCreateNodeWithDefaultRule() {
         var node = FlagNodeParent(createFlagViewModel(false, FlagConfiguration("key", null, Fallthrough(), listOf(), listOf(), arrayOf(), false, 1)))
         assertEquals(4, node.childCount)
     }
 
     @Test
-    fun testCreateNodeWithOffVariationAndFallthrough() {
+    fun testCreateNodeWithOffVariationAndDefaultRule() {
         var node = FlagNodeParent(createFlagViewModel(false, FlagConfiguration("key", 0, Fallthrough(), listOf(), listOf(), arrayOf(), false, 1)))
         assertEquals(5, node.childCount)
     }
