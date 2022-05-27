@@ -156,7 +156,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                 }
 
                 environmentBox = if (::environmentContainer.isInitialized) {
-                    DefaultComboBoxModel(environmentContainer.environments.map { formatKeyAndName(it.key, it.name) }.toTypedArray())
+                    DefaultComboBoxModel(environmentContainer.environments.map { it.key }.toTypedArray())
                 } else {
                     DefaultComboBoxModel()
                 }
@@ -263,7 +263,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
         try {
             environmentContainer = getEnvironmentContainer(projectBox.selectedItem.toString())
-            val envMap = environmentContainer.environments.map { formatKeyAndName(it.key, it.name) }.sorted()
+            val envMap = environmentContainer.environments.map { it.key }.sorted()
             with(environmentBox) {
                 envMap.map { addElement(it) }
                 selectedItem =
