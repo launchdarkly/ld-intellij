@@ -275,7 +275,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
     }
 
     private fun formatKeyAndName(key: String, name: String): String {
-        return if(name != "") "$key ($name)" else key
+        return if (name != "") "$key ($name)" else key
     }
 
     override fun apply() {
