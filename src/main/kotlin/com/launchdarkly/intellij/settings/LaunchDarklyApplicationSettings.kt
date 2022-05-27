@@ -276,9 +276,9 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
     private fun formatKeyAndName(key: String, name: String): String {
         val safeKey = key ?: ""
-        val safeName = name ?: ""
+        val formattedName = if(name != null && name != "") "($name)" else ""
 
-        return "$safeKey ($safeName)"
+        return "$safeKey $formattedName"
     }
 
     override fun apply() {
