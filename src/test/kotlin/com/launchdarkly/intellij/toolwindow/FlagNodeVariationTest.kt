@@ -13,7 +13,7 @@ internal class FlagNodeVariationTest {
             description = "Example Description"
         }
         val testTarget = FlagNodeVariation(variation)
-        val expectedNameValue = "Value: ${variation.value}"
+        val expectedNameValue = "Name: ${variation.name}"
         val expectedDescriptionValue = "Description: ${variation.description}"
 
         val children = testTarget.children
@@ -29,7 +29,7 @@ internal class FlagNodeVariationTest {
             value = 1
         }
         val testTarget = FlagNodeVariation(variation)
-        val expectedNameValue = "Value: ${variation.value}"
+        val expectedNameValue = "Name: ${variation.name}"
 
         val children = testTarget.children
         assertEquals(expectedNameValue, children[0].label)
