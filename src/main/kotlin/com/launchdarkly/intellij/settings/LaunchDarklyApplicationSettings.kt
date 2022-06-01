@@ -150,7 +150,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
 
             try {
                 projectBox = if (::projectContainer.isInitialized) {
-                    DefaultComboBoxModel(projectContainer.map { formatKeyAndName(it.key, it.name) }.toTypedArray())
+                    DefaultComboBoxModel(projectContainer.map { it.key }.toTypedArray())
                 } else {
                     DefaultComboBoxModel()
                 }
@@ -237,8 +237,8 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
             projectContainer = getProjects(String(accessTokenField.password), settings.baseUri)
             with(projectBox) {
                 removeAllElements()
-                selectedItem = projectContainer.map { formatKeyAndName(it.key, it.name) }.firstOrNull()
-                projectContainer.map { addElement(formatKeyAndName(it.key, it.name)) }
+                selectedItem = projectContainer.map { it.key }.firstOrNull()
+                projectContainer.map { addElement(it.key) }
             }
             apiUpdate = false
         } catch (err: ApiException) {
@@ -272,10 +272,6 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
         } catch (err: Error) {
             println(err)
         }
-    }
-
-    private fun formatKeyAndName(key: String, name: String): String {
-        return if (name != "") "$key ($name)" else key
     }
 
     override fun apply() {
