@@ -63,7 +63,7 @@ class FlagNodeVariation(private val variation: Variation) : SimpleNode() {
 
     override fun getChildren(): Array<FlagNodeBase> {
         if (variation.name != null) {
-            myChildren.add(FlagNodeBase("Value: ${variation.value}", LDIcons.DESCRIPTION))
+            myChildren.add(FlagNodeBase("Name: ${variation.name}", LDIcons.DESCRIPTION))
         }
         if (variation.description != null) {
             myChildren.add(FlagNodeBase("Description: ${variation.description}", LDIcons.DESCRIPTION))
@@ -73,7 +73,7 @@ class FlagNodeVariation(private val variation: Variation) : SimpleNode() {
 
     override fun update(data: PresentationData) {
         super.update(data)
-        val label = variation.name ?: variation.value.toString()
+        val label = variation.value.toString()
         data.presentableText = label
     }
 }
