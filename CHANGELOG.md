@@ -4,12 +4,14 @@
 ### Added
 
 ### Changed
+- Minor UI Changes
 
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+- Fix for hover edge case
 
 ### Security
 
