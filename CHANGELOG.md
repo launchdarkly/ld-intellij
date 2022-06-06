@@ -1,13 +1,7 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
 ## [Unreleased]
-### Changed
-- Minor UI Changes
-### Fixed
-- Fix for hover edge case
-## [1.0.1-idea22]
 ### Added
-- Support 2022.1
 
 ### Changed
 
@@ -18,6 +12,17 @@
 ### Fixed
 
 ### Security
+
+## [1.0.2-idea22]
+### Changed
+- Minor UI Changes
+
+### Fixed
+- Fix for hover edge case
+
+## [1.0.1-idea22]
+### Added
+- Support 2022.1
 
 ## [1.0.0-idea21]
 ### Fixed
