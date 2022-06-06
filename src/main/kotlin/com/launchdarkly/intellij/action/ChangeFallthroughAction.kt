@@ -37,7 +37,7 @@ class ChangeFallthroughAction : AnAction() {
         val currentComponent = event.inputEvent?.component ?: return
 
         JBPopupFactory.getInstance().createPopupChooserBuilder(parentNode.flag.variations)
-            .setTitle("New Fallthrough Variation")
+            .setTitle("New Default Rule Variation")
             .setMovable(false).setResizable(false)
             .setRenderer(object : DefaultListCellRenderer() {
                 override fun getListCellRendererComponent(

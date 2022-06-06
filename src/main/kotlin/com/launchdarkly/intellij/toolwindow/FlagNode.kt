@@ -63,7 +63,7 @@ class FlagNodeVariation(private val variation: Variation) : SimpleNode() {
 
     override fun getChildren(): Array<FlagNodeBase> {
         if (variation.name != null) {
-            myChildren.add(FlagNodeBase("Value: ${variation.value}", LDIcons.DESCRIPTION))
+            myChildren.add(FlagNodeBase("Name: ${variation.name}", LDIcons.DESCRIPTION))
         }
         if (variation.description != null) {
             myChildren.add(FlagNodeBase("Description: ${variation.description}", LDIcons.DESCRIPTION))
@@ -73,7 +73,7 @@ class FlagNodeVariation(private val variation: Variation) : SimpleNode() {
 
     override fun update(data: PresentationData) {
         super.update(data)
-        val label = variation.name ?: variation.value.toString()
+        val label = variation.value.toString()
         data.presentableText = label
     }
 }
@@ -96,7 +96,7 @@ class FlagNodeTags(tags: List<String>) : SimpleNode() {
     }
 }
 
-class FlagNodeFallthrough(var flag: FeatureFlag, private val flagConfig: FlagConfiguration) : SimpleNode() {
+class FlagNodeDefaultRule(var flag: FeatureFlag, private val flagConfig: FlagConfiguration) : SimpleNode() {
     private var myChildren: MutableList<SimpleNode> = ArrayList()
 
     override fun getChildren(): Array<SimpleNode> {
@@ -115,9 +115,9 @@ class FlagNodeFallthrough(var flag: FeatureFlag, private val flagConfig: FlagCon
     override fun update(data: PresentationData) {
         super.update(data)
         var label = if (flagConfig.fallthrough?.variation != null) {
-            "Fallthrough: ${flag.variations[flagConfig.fallthrough?.variation as Int].name ?: flag.variations[flagConfig.fallthrough?.variation as Int].value}"
+            "Default rule: ${flag.variations[flagConfig.fallthrough?.variation as Int].name ?: flag.variations[flagConfig.fallthrough?.variation as Int].value}"
         } else {
-            "Fallthrough"
+            "Default rule"
         }
         data.presentableText = label
         data.setIcon(LDIcons.DESCRIPTION)

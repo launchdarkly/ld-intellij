@@ -19,8 +19,8 @@ import com.mitchellbosecke.pebble.PebbleEngine
 import java.io.StringWriter
 
 class HoverDocumentationProvider : AbstractDocumentationProvider() {
-    private fun getFlagConfig(contextElement: PsiElement, flagKey: String): FlagConfiguration {
-        return contextElement.project.service<FlagStore>().flagConfigs[flagKey]!!
+    private fun getFlagConfig(contextElement: PsiElement, flagKey: String): FlagConfiguration? {
+        return contextElement?.project?.service<FlagStore>()?.flagConfigs[flagKey]
     }
 
     private fun getFlag(contextElement: PsiElement): FeatureFlag? {
@@ -88,7 +88,7 @@ class HoverDocumentationProvider : AbstractDocumentationProvider() {
         }
 
         val flag = getFlag(element) ?: return null
-        val flagConfig: FlagConfiguration = getFlagConfig(element, flag.key)
+        val flagConfig: FlagConfiguration = getFlagConfig(element, flag.key) ?: return null
 
         // Construct view models in kotlin to avoid logic operations in pebble (pain!)
         val flagViewModel = buildMap {
