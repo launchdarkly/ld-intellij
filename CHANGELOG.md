@@ -1,17 +1,8 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
 ## [Unreleased]
-### Added
-
 ### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
+- Minor UI Changes
 
 ## [1.0.1-idea21]
 ### Changed
@@ -24,20 +15,8 @@
 - Erroneous hover information over flag keys
 
 ## [0.5.1-idea22]
-
-### Added
-
-### Changed
-
-### Deprecated
-
-### Removed
-
 ### Fixed
-
 - Invalid layout function in plugin settings
-
-### Security
 
 ## [0.5.0-idea22]
 ### Added
