@@ -1,20 +1,10 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
 ## [Unreleased]
-### Added
-
 ### Changed
 - Minor UI Changes
-
-### Deprecated
-
-### Removed
-
 ### Fixed
 - Fix for hover edge case
-
-### Security
-
 ## [1.0.1-idea22]
 ### Added
 - Support 2022.1
