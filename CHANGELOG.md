@@ -3,12 +3,12 @@
 ## [Unreleased]
 ### Changed
 - Minor UI Changes
-
-## [1.0.1-idea21]
+## [1.0.2-idea21]
 ### Changed
-- Minor UI changes
+- Minor UI Changes
+
 ### Fixed
-- Fixed for hover edge case
+- Fix for hover edge case
 
 ## [1.0.0-idea21]
 ### Fixed
