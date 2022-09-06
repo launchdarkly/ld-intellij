@@ -1,13 +1,5 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
-
 ## [Unreleased]
-### Changed
-- Minor UI changes
-### Fixed
-- Fixed for hover edge case
-## [1.0.0-idea21]
-### Added
-
 ### Changed
 
 ### Deprecated
@@ -16,9 +8,21 @@
 
 ### Fixed
 
-- Erroneous hover information over flag keys
-
 ### Security
+
+### Fixed
+- `LD-API-Version: 20210729` header added to all requests to LaunchDarkly. This fixes LaunchDarkly API issues.
+
+## [1.0.2-idea21]
+### Changed
+- Minor UI Changes
+
+### Fixed
+- Fix for hover edge case
+
+## [1.0.0-idea21]
+### Fixed
+- Erroneous hover information over flag keys
 
 ## [0.5.1-idea22]
 ### Fixed

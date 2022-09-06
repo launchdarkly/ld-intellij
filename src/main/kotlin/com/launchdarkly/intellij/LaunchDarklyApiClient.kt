@@ -37,6 +37,7 @@ class LaunchDarklyApiClient() {
             val client: ApiClient = Configuration.getDefaultApiClient()
             client.setUserAgent(Utils.getUserAgent())
             client.basePath = "$ldBaseUri/api/v2"
+            client.addDefaultHeader("LD-API-Version", "20210729")
             val token = client.getAuthentication("Token") as ApiKeyAuth
             token.apiKey = ldApiKey
         }
