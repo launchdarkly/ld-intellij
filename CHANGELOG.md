@@ -4,13 +4,6 @@
 ### Added
 
 ### Changed
-- Minor UI changes
-### Fixed
-- Fixed for hover edge case
-## [1.0.0-idea21]
-### Added
-
-### Changed
 
 ### Deprecated
 
@@ -18,9 +11,17 @@
 
 ### Fixed
 
-- Erroneous hover information over flag keys
-
 ### Security
+
+## [1.0.1-idea21]
+### Changed
+- Minor UI changes
+### Fixed
+- Fixed for hover edge case
+
+## [1.0.0-idea21]
+### Fixed
+- Erroneous hover information over flag keys
 
 ## [0.5.1-idea22]
 
