@@ -1,5 +1,4 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
-
 ## [Unreleased]
 ### Added
 
@@ -12,6 +11,13 @@
 ### Fixed
 
 ### Security
+
+## [1.0.3-idea22]
+### Added
+- Support 2022.2.1
+
+### Fixed
+- `LD-API-Version: 20210729` header added to all requests to LaunchDarkly. This fixes LaunchDarkly API issues.
 
 ## [1.0.2-idea22]
 ### Changed
