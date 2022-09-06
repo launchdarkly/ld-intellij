@@ -1,8 +1,18 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
-
 ## [Unreleased]
 ### Changed
-- Minor UI Changes
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+### Fixed
+- `LD-API-Version: 20210729` header added to all requests to LaunchDarkly. This fixes LaunchDarkly API issues.
+
 ## [1.0.2-idea21]
 ### Changed
 - Minor UI Changes
