@@ -109,7 +109,9 @@ class FlagAliases(private var project: Project) {
                             }
                         }
                     },
-                    0, settings.codeReferencesRefreshRate.toLong(), TimeUnit.MINUTES
+                    0,
+                    settings.codeReferencesRefreshRate.toLong(),
+                    TimeUnit.MINUTES
                 )
             }
         }

@@ -1,6 +1,5 @@
 package com.launchdarkly.intellij
 
-/* ktlint-disable import-ordering */
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.intellij.openapi.application.ApplicationManager
@@ -12,7 +11,6 @@ import com.launchdarkly.api.ApiException
 import com.launchdarkly.api.model.FeatureFlag
 import com.launchdarkly.api.model.FeatureFlags
 import com.launchdarkly.intellij.coderefs.FlagAliases
-/* ktlint-disable no-unused-imports */
 import com.launchdarkly.intellij.featurestore.*
 import com.launchdarkly.intellij.messaging.AppDefaultMessageBusService
 import com.launchdarkly.intellij.messaging.ConfigurationNotifier

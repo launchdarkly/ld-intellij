@@ -20,7 +20,7 @@ import java.io.StringWriter
 
 class HoverDocumentationProvider : AbstractDocumentationProvider() {
     private fun getFlagConfig(contextElement: PsiElement, flagKey: String): FlagConfiguration? {
-        return contextElement?.project?.service<FlagStore>()?.flagConfigs[flagKey]
+        return contextElement.project.service<FlagStore>().flagConfigs[flagKey]
     }
 
     private fun getFlag(contextElement: PsiElement): FeatureFlag? {
