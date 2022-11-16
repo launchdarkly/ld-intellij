@@ -8,7 +8,7 @@ import com.launchdarkly.intellij.featurestore.FlagConfiguration
 class FlagNodeViewModel(
     val flag: FeatureFlag,
     val flags: FeatureFlags,
-    val flagConfig: FlagConfiguration?,
+    val flagConfig: FlagConfiguration?
 ) {
     val description = flag.description
     val hasDescription = flag.description != ""

@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 class Notifier(private val project: Project) {
     private enum class LDNotificationType(val groupString: String) {
         CONFIG("LaunchDarkly Config"),
-        GENERAL("LaunchDarkly"),
+        GENERAL("LaunchDarkly")
     }
 
     private lateinit var type: LDNotificationType

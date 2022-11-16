@@ -29,7 +29,9 @@ class CodeRefs {
                 ThrowableComputable<DownloadResult, Nothing> {
                     downloadCodeRefsSynchronously()
                 },
-                "Download LaunchDarkly CodeRefs", true, project
+                "Download LaunchDarkly CodeRefs",
+                true,
+                project
             )
 
         when (result) {
