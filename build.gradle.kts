@@ -8,15 +8,15 @@ plugins {
     // Java support
     id("java")
     // Kotlin support
-    id("org.jetbrains.kotlin.jvm") version "1.6.0"
+    id("org.jetbrains.kotlin.jvm") version "1.7.20"
     // gradle-intellij-plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "1.5.3"
+    id("org.jetbrains.intellij") version "1.9.0"
     // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
     id("org.jetbrains.changelog") version "1.3.1"
     // detekt linter - read more: https://detekt.github.io/detekt/kotlindsl.html
-    id("io.gitlab.arturbosch.detekt") version "1.10.0-RC1"
+    id("io.gitlab.arturbosch.detekt") version "1.21.0"
     // ktlint
-    id("org.jmailen.kotlinter") version "3.9.0"
+    id("org.jmailen.kotlinter") version "3.12.0"
 }
 
 group = properties("pluginGroup")
@@ -29,18 +29,25 @@ repositories {
     maven("https://plugins.gradle.org/m2")
 }
 
+configurations.all {
+    // Dependencies provided by IntelliJ runtime
+    exclude("com.google.code.gson", "gson")
+    exclude("org.slf4j", "slf4j-api")
+}
+
 dependencies {
-    implementation("io.pebbletemplates:pebble:3.1.5")
-    implementation("org.junit.jupiter:junit-jupiter:5.8.1")
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.10.0-RC1")
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.6.0") {
+        // Not using any of the async functionality
+        exclude("org.jetbrains.kotlinx", "kotlinx-coroutines-core")
+    }
+    implementation("com.google.code.gson:gson:2.10")
     implementation("com.launchdarkly:api-client:3.10.0")
     implementation("com.launchdarkly:launchdarkly-java-server-sdk:5.+")
-    implementation("com.google.code.gson:gson:2.7")
-    implementation("com.googlecode.json-simple", "json-simple", "1.1.1")
-    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:0.14.0")
-    runtimeOnly("org.jetbrains.kotlin:kotlin-reflect:1.4.20-M2")
-    implementation("org.apache.logging.log4j", "log4j-slf4j-impl", "2.17.1")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
+    implementation("io.pebbletemplates:pebble:3.1.6")
+
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.21.0")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
 }
 
 tasks.withType<Test> {
@@ -57,11 +64,10 @@ intellij {
     pluginName.set(properties("pluginName"))
     version.set(properties("platformVersion"))
     type.set(properties("platformType"))
-    //localPath.set("/Applications/IntelliJ IDEA.app")
+    // localPath.set("/Applications/IntelliJ IDEA.app")
     downloadSources.set(true)
     updateSinceUntilBuild.set(true)
     plugins.set(properties("platformPlugins").split(',').map(String::trim).filter(String::isNotEmpty))
-
 }
 
 // Configure detekt plugin.
@@ -113,11 +119,13 @@ tasks {
             }.joinToString("\n").run { markdownToHTML(this) }
         )
 
-        changeNotes.set(provider {
-            changelog.run {
-                getOrNull(properties("pluginVersion")) ?: getLatest()
-            }.toHTML()
-        })
+        changeNotes.set(
+            provider {
+                changelog.run {
+                    getOrNull(properties("pluginVersion")) ?: getLatest()
+                }.toHTML()
+            }
+        )
     }
 
     publishPlugin {
@@ -133,9 +141,7 @@ tasks {
 
     kotlinter {
         ignoreFailures = false
-        indentSize = 4
         reporters = arrayOf("checkstyle", "plain")
         experimentalRules = false
     }
-
 }
