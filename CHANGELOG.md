@@ -12,6 +12,10 @@
 
 ### Security
 
+## [1.0.4-idea22]
+### Changed
+- Reduce plugin size and bump dependencies
+
 ## [1.0.3-idea22]
 ### Added
 - Support 2022.2.1
