@@ -13,6 +13,10 @@
 ### Fixed
 - `LD-API-Version: 20210729` header added to all requests to LaunchDarkly. This fixes LaunchDarkly API issues.
 
+## [1.0.4-idea21]
+### Changed
+- Reduce plugin size and bump dependencies
+
 ## [1.0.2-idea21]
 ### Changed
 - Minor UI Changes
