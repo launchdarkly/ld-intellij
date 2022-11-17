@@ -142,11 +142,3 @@ jobs:
         run: |
           gh api repos/${{ github.repository }}/releases/${{ github.event.release.id }} -f body="${{ needs.build.outputs.changelog }}"
           gh release upload ${{ github.event.release.tag_name }} "${{ needs.build.outputs.artifact }}"
-
-      # This is assuming release tag is from main branch
-      - name: Update Changelog
-        run: |
-          git config --local user.email "launchdarklyreleasebot@launchdarkly.com"
-          git config --local user.name "LaunchDarklyReleaseBot"
-          git commit -m "Update changelog" -a
-          git push origin HEAD:main
