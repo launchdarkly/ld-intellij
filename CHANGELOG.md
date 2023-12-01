@@ -12,6 +12,10 @@
 
 ### Security
 
+## [1.0.5-idea23]
+### Added
+- Support 2023.2.5
+
 ## [1.0.4-idea22]
 ### Changed
 - Reduce plugin size and bump dependencies
