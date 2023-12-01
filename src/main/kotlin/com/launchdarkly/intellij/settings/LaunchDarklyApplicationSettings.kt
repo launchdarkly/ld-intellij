@@ -22,6 +22,7 @@ import com.intellij.ui.layout.ValidationInfoBuilder
 import com.intellij.ui.layout.and
 import com.intellij.ui.layout.enteredTextSatisfies
 import com.intellij.ui.layout.or
+import com.intellij.codeInspection.javaDoc.JavadocUIUtil.bindItem
 import com.launchdarkly.api.ApiException
 import com.launchdarkly.api.model.Project as ApiProject
 import com.launchdarkly.intellij.LaunchDarklyApiClient
@@ -161,7 +162,6 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     DefaultComboBoxModel()
                 }
                 environmentBox.selectedItem = settings.environment
-
                 indent {
                     rowsRange {
                         row("Project:") {
