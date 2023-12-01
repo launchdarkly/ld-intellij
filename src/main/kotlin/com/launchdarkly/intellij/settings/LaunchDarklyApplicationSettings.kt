@@ -1,5 +1,6 @@
 package com.launchdarkly.intellij.settings
 
+import com.intellij.codeInspection.javaDoc.JavadocUIUtil.bindItem
 import com.intellij.credentialStore.CredentialAttributes
 import com.intellij.credentialStore.Credentials
 import com.intellij.credentialStore.generateServiceName
@@ -22,7 +23,6 @@ import com.intellij.ui.layout.ValidationInfoBuilder
 import com.intellij.ui.layout.and
 import com.intellij.ui.layout.enteredTextSatisfies
 import com.intellij.ui.layout.or
-import com.intellij.codeInspection.javaDoc.JavadocUIUtil.bindItem
 import com.launchdarkly.api.ApiException
 import com.launchdarkly.api.model.Project as ApiProject
 import com.launchdarkly.intellij.LaunchDarklyApiClient
