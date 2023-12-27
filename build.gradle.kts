@@ -47,11 +47,15 @@ dependencies {
 
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.21.0")
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.1")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.1")
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.10.1")
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    jvmArgs("-Djava.awt.headless=true")
 }
 
 tasks.check {
