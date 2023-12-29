@@ -165,7 +165,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                     rowsRange {
                         row("Project:") {
                             projectComboBox = comboBox(projectBox, renderer)
-//                                .bindItem(settings::project)
+                                .bindItem(settings::project.toNullableProperty())
                                 .applyToComponent {
                                     this.addItemListener { _ ->
                                         updateProjectEnvironments()
@@ -176,7 +176,7 @@ class LaunchDarklyApplicationConfigurable : BoundConfigurable(displayName = "Lau
                         }
                         row("Environment:") {
                             comboBox(environmentBox, renderer)
-//                                .bindItem(settings::environment)
+                                .bindItem(settings::environment.toNullableProperty())
                                 .applyIfEnabled()
                         }
                     }.enabledIf(enableProjectsPredicate())
