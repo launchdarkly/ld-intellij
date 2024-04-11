@@ -12,6 +12,10 @@
 
 ### Security
 
+## [1.0.4-idea24]
+### Added
+- Support 2024.1
+
 ## [1.0.4-idea23]
 ### Added
 - Support 2023.2
