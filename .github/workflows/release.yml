@@ -132,7 +132,7 @@ jobs:
         run: ./gradlew publishPlugin --stacktrace
 
       - name: Download Build Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: plugin-artifact
       
