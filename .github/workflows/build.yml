@@ -37,7 +37,7 @@ jobs:
 
       # Validate wrapper
       - name: Gradle Wrapper Validation
-        uses: gradle/wrapper-validation-action@v1
+        uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4 # v1
 
   build:
     name: Build & Verify
@@ -103,7 +103,7 @@ jobs:
 
      # Run IntelliJ Plugin Verifier action using GitHub Action
       - name: Verify Plugin Compatibility
-        uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.2.1
+        uses: ChrisCarini/intellij-platform-plugin-verifier-action@8859eb3e5333e460cce9ee306c3c20f33ea6b7e2 # v1.2.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
