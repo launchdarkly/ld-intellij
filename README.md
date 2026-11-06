@@ -1,5 +1,10 @@
 # LaunchDarkly IntelliJ IDEA plugin
 
+> [!WARNING]
+> **This plugin is no longer supported.** LaunchDarkly does not maintain this plugin and will not release new versions. It only installs on IntelliJ 2024.1 (build 241) and uses a LaunchDarkly REST API version that is being retired. Issues and pull requests will not be reviewed.
+>
+> To work with feature flags from your editor, use the [LaunchDarkly MCP server](https://launchdarkly.com/docs/home/getting-started/mcp) or the [VSCode extension](https://launchdarkly.com/docs/home/getting-started/vscode).
+
 ![Build](https://github.com/launchdarkly/ld-intellij/workflows/Build/badge.svg)
 
 <!-- Plugin description -->
